@@ -8,6 +8,7 @@
 //// Timedelay New : May-23-2016
 #include <math.h>
 #include <string.h>
+#include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_trig.h>
@@ -83,7 +84,7 @@ int timedelay(const char* Intefe_ID, double declination, double right_ascension,
     const double gunit = sqrt( gsl_pow_2(xgw) + gsl_pow_2(ygw) + gsl_pow_2(zgw) );
 
     // Define the speed of light
-    const double C = 299792458; // m/s
+    const double C = GSL_CONST_MKSA_SPEED_OF_LIGHT; // m/s
 
     //Double check the negative sigh infront.
     // Shihan"s expalnation: You don't have to put minus here. Plus or minus will be decided by the sky location
