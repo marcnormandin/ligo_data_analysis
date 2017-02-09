@@ -3,6 +3,8 @@
 //  nature of the network matrix (value of the condtion number) gives and idea of invertability of 
 //  the matrix according the sky location. 
 //  Large condition number -> large numerical errors in estimations.
+#include "lda.h"
+
 #include <string.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_trig.h>
@@ -11,13 +13,13 @@
 #include <gsl/gsl_blas.h>
 
 //// Shihan Weerathunga 
-double conditionnum_cal(
+void conditionnum_cal(
 						const char* detId[], 
 						double declination_input, double rightascension_input,
 						double polarization_angle_input)
 {
 	//char* detId[] = { "H1", "H2"};
-
+/*
 	int N = 4; //length(detId);
 	gsl_vector* U_vec_input = gsl_vector_alloc( N );
 	gsl_vector* V_vec_input = gsl_vector_alloc( N );
@@ -48,5 +50,5 @@ double conditionnum_cal(
 	M(4,3)= B_input;          M(4,4)= C_input;
 
 	cond_num = cond(M);
-	return cond_num;
+	return cond_num;*/
 }

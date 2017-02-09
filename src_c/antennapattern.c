@@ -8,6 +8,8 @@
 
 // 5/23/2016 Gravitational Wave frame unit vectors are changed according to Drew Keppel/ John T. Whelan"s papers.
 
+#include "lda.h"
+
 //#include <math.h>
 #include <string.h>
 #include <gsl/gsl_errno.h>
@@ -17,7 +19,7 @@
 #include <gsl/gsl_blas.h>
 
 // Helper function
-void init_vector(gsl_vector* v, double x, double y, double z) {
+static void init_vector(gsl_vector* v, double x, double y, double z) {
     gsl_vector_set(v, 0, x);
     gsl_vector_set(v, 1, y);
     gsl_vector_set(v, 2, z);
@@ -195,24 +197,5 @@ int antennapattern(double declination, double right_ascention, double polarizati
 
 
     // Everything is fine
-    return 0;
-}
-
-int main(int argc, char* argv[]) {
-    double declination = 0.5;
-    double right_ascention = 0.5;
-    double polarization_angle = 0.5;
-    const char* Intefe_ID = "H1";
-
-    double u, v, F_Plus, F_Cross;
-    int res = antennapattern(declination, right_ascention, polarization_angle, Intefe_ID,
-                &u, &v, &F_Plus, &F_Cross);
-    if (res != 0) {
-        printf("An error occured!");
-        return -1;
-    }
-
-    printf("%f %f %f %f\n", u, v, F_Plus, F_Cross);
-
     return 0;
 }
