@@ -57,7 +57,6 @@ int timedelay(const char* Intefe_ID, double declination, double right_ascension,
         return -1;
     }
     // -----------------------------------------------------------------------
-
     // Define the X, Y & Z WGS-84 coordinates for Intefe_ID
 
     const double xifo = WGS[0]; // m
