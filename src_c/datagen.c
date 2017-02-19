@@ -39,7 +39,7 @@ const double G = GSL_CONST_MKSA_GRAVITATIONAL_CONSTANT;
 const double solar_mass = GSL_CONST_MKSA_SOLAR_MASS; //1.9891e30;
 
 //  Signal Paramaeters //
-const Signal s = {-2.14, 0.72, M_M_PI/6.0, 0.0, 0.0, 1.4, 4.6, 10.0};
+const Signal s = {-2.14, 0.72, M_PI/6.0, 0.0, 0.0, 1.4, 4.6, 10.0};
 
 const double oneMpc = 3.08567758e22; // 1 Mpc
 
