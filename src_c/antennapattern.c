@@ -42,7 +42,8 @@ static int trace(gsl_matrix* A, double* r) {
 
 int antennapattern(double declination, double right_ascention,
 		double polarization_angle, const char* Intefe_ID, double *u, double *v,
-		double *F_Plus, double *F_Cross) {
+		double *F_Plus, double *F_Cross)
+{
 	gsl_vector* cordnt_x = gsl_vector_alloc(3);
 	gsl_vector* cordnt_y = gsl_vector_alloc(3);
 
