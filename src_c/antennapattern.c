@@ -1,5 +1,7 @@
-// Generating gravitational wave antenna responses for different detectors according to 
-// the sky location and selected basis tensors.
+/*
+ * GW Interferometer Antenna Patterns
+ * Written by Marc Normandin, 2017.
+ */
 
 //// Shihan Weerathunga / September-8-2014
 //// Antennapattern_New May-23-2016 (Adding extra information according to
@@ -24,7 +26,7 @@ static void init_vector(gsl_vector* v, double x, double y, double z) {
 	gsl_vector_set(v, 2, z);
 }
 
-int trace(gsl_matrix* A, double* r) {
+static int trace(gsl_matrix* A, double* r) {
 	double sum = 0.0;
 	int n = A->size1;
 	if (A->size2 != n) {
@@ -53,9 +55,6 @@ int antennapattern(double declination, double right_ascention,
 		// Y-arm unit vector relative to earth centered frame.
 		init_vector(cordnt_y, -0.913978490, 0.0260953206, -0.404922650);
 
-		//Unit vectors in detector frame to generate antenna patterns. (Detector frame antenna patterns)
-		//init_vector(cordnt_x, 1, 0, 0);
-		//init_vector(cordnt_y, 0, 1, 0);
 	} else if (strcmp(Intefe_ID, "L1") == 0) {
 		// Generate coordinates for LLO:
 		init_vector(cordnt_x, -0.954574615, -0.141579994, -0.262187738);

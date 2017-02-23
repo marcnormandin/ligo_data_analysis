@@ -454,6 +454,7 @@ void Save_Stationary_Phase_Signal(char* filename, strain_t* interp_strain, stati
 }
 
 void DataGen() {
+	// Settings
 	const double f_low = 40.0; // seismic cutoff. All freqs low set to zero
 	const double f_high = 700.0; // most stable inner orbit (last stable orbit related)
 
@@ -506,7 +507,6 @@ void DataGen() {
 	Free_Strain(&strain);
 	Free_Strain(&interp_strain);
 
-	const double oneMpc = 3.08567758e22; // 1 Mpc
-
+	//const double oneMpc = 3.08567758e22; // 1 Mpc
 }
 
