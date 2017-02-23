@@ -444,11 +444,11 @@ void Stationary_Phase(inspiral_source_parameters_t* source,
 		 */
 }
 
-void Save_Stationary_Phase_Signal(char* filename, stationary_phase_t* sp) {
+void Save_Stationary_Phase_Signal(char* filename, strain_t* interp_strain, stationary_phase_t* sp) {
 	FILE* file;
 	file = fopen(filename, "w");
 	for (size_t i = 0; i < sp->len; i++) {
-		fprintf(file, "%e\n", GSL_REAL(sp->whitened_signal[i]));
+		fprintf(file, "%e %e\n", interp_strain->freq[i], GSL_REAL(sp->whitened_signal[i]));
 	}
 	fclose(file);
 }
@@ -494,7 +494,7 @@ void DataGen() {
 				det, f_low, f_high,
 				&sp);
 
-		Save_Stationary_Phase_Signal(det->id, &sp);
+		Save_Stationary_Phase_Signal(det->id, &interp_strain, &sp);
 
 		Free_Stationary_Phase(&sp);
 

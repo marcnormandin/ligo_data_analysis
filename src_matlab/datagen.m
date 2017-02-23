@@ -233,8 +233,8 @@ for id = 1:1:length(detId)
     %multi_factor = 1;
     multi_factor = (1/2.8580)*9;
     %multi_factor = 0;
-     whitened_signal=multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
-    whitened_data{1,id}= whitened_signal + (noise_f);  %(whitened signal+whitened noise)
+     whitened_signal{1,id} =multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
+    whitened_data{1,id}= whitened_signal{1,id} + (noise_f);  %(whitened signal+whitened noise)
    
 
 end
