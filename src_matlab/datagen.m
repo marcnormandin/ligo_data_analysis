@@ -230,9 +230,9 @@ for id = 1:1:length(detId)
     %noise_f = 0 ;
     %noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
     %noise_f = 0 ;
-    multi_factor = 1;
+    %multi_factor = 1;
     multi_factor = (1/2.8580)*9;
-    multi_factor = 0;
+    %multi_factor = 0;
      whitened_signal=multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
     whitened_data{1,id}= whitened_signal + (noise_f);  %(whitened signal+whitened noise)
    

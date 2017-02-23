@@ -1,6 +1,7 @@
 #include "lda.h"
+#include "datagen.h"
 
-int main(int argc, char* argv[]) {
+int test_antenna_patterns() {
     double declination = 0.5;
     double right_ascention = 0.5;
     double polarization_angle = 0.5;
@@ -17,4 +18,10 @@ int main(int argc, char* argv[]) {
     printf("%f %f %f %f\n", u, v, F_Plus, F_Cross);
 
     return 0;
+}
+
+int main(int argc, char* argv[]) {
+	DataGen();
+
+	return 0;
 }
