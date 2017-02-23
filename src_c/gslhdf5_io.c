@@ -1,5 +1,5 @@
 #include "gslhdf5_io.h"
-#include "hdf5_hl.h"
+#include <hdf5/hdf5_hl.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <math.h>
