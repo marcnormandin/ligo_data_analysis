@@ -160,24 +160,6 @@ void coherent_network_statistic(
 	double O21_input = Delta_factor_input * P4_input / G2_input ;
 	double O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
 
-	printf("A_input = %e\n", A_input);
-	printf("B_input = %e\n", B_input);
-	printf("C_input = %e\n", C_input);
-	printf("Delta_input = %e\n", Delta_input);
-	printf("Delta_factor_input = %e\n", Delta_factor_input);
-	printf("D_input = %e\n", D_input);
-	printf("P1_input = %e\n", P1_input);
-	printf("P2_input = %e\n", P2_input);
-	printf("P3_input = %e\n", P3_input);
-	printf("P4_input = %e\n", P4_input);
-	printf("G1_input = %e\n", G1_input);
-	printf("G2_input = %e\n", G1_input);
-	printf("O11_input = %e\n", O11_input);
-	printf("O12_input = %e\n", O12_input);
-	printf("O21_input = %e\n", O21_input);
-	printf("O22_input = %e\n", O22_input);
-
-
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net->num_detectors, regular_strain->len );
 
 	// Loop over each detector to generate a template and do matched filtering
@@ -232,22 +214,6 @@ void coherent_network_statistic(
 		}
 	}
 
-	// 131072x1 floats
-	/*
-	term_1(1,:) = (w_plus_input(1)*c_plus{1,1});
-	term_2(1,:) = (w_minus_input(1)*c_plus{1,1});
-	term_3(1,:) = (w_plus_input(1)*c_minus{1,1});
-	term_4(1,:) = (w_minus_input(1)*c_minus{1,1});
-
-	for id = 2:1:length(detId)
-		// 131072x1 floats
-		term_1(1,:) = term_1(1,:)+ (w_plus_input(id)*c_plus{1,id});
-		term_2(1,:) = term_2(1,:)+ (w_minus_input(id)*c_plus{1,id});
-		term_3(1,:) = term_3(1,:)+ (w_plus_input(id)*c_minus{1,id});
-		term_4(1,:) = term_4(1,:)+ (w_minus_input(id)*c_minus{1,id});
-	end
-	*/
-
 	gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc( s );
 	gsl_fft_complex_workspace *fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
@@ -260,14 +226,6 @@ void coherent_network_statistic(
 	}
 
 	// 131072x1 floats
-	/*f1_tmp=(nSamples)*real(ifft(term_1(1,:)));
-	f2_tmp=(nSamples)*real(ifft(term_2(1,:)));
-	f3_tmp=(nSamples)*real(ifft(term_3(1,:)));
-	f4_tmp=(nSamples)*real(ifft(term_4(1,:)));*/
-
-
-	// 131072x1 floats
-	//tmp_ifft = (f1_tmp.^2 + f2_tmp.^2+f3_tmp.^2+f4_tmp.^2);
 	memset(workspace->temp_ifft, 0, s * sizeof(double));
 	for (size_t i = 0; i < 4; i++) {
 		for (size_t j = 0; j < s; j++) {
@@ -280,7 +238,6 @@ void coherent_network_statistic(
 	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
 
 	// float
-	//*out_val = max(sqrt(tmp_ifft));
 	double max = workspace->temp_ifft[0];
 	for (int i = 1; i < s; i++) {
 		double m = workspace->temp_ifft[i];
@@ -289,8 +246,6 @@ void coherent_network_statistic(
 		}
 	}
 
-	// hack
-	// There are two mirrored peaks at half the true snr value each
 	*out_val = sqrt(max);
 
 	CN_workspace_free( workspace );

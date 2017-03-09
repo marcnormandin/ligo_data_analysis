@@ -52,15 +52,6 @@ void Load_Source(source_t* source) {
 	source->time_of_arrival = 32.0;
 }
 
-/*
-typedef struct signal_s {
-	gsl_complex *whitened_sf;
-	gsl_complex *h_0;
-	gsl_complex *h_90;
-	gsl_complex *whitened_signal;
-
-} signal_t;*/
-
 signal_t* Signal_malloc(size_t size) {
 	signal_t *s = (signal_t*) malloc( sizeof(signal_t) );
 	s->whitened_sf = (gsl_complex*) malloc( size * sizeof(gsl_complex) );
@@ -96,10 +87,10 @@ int ComplexFreqArray_save(char* filename, strain_t *strain, gsl_complex *array) 
 	}
 }
 
+// Must free the memory after using this function
 char* concat(const char *s1, const char *s2)
 {
-    char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
-    //in real code you would check for errors in malloc here
+    char *result = malloc(strlen(s1)+strlen(s2)+1);
     strcpy(result, s1);
     strcat(result, s2);
     return result;
@@ -203,8 +194,8 @@ void DataGen() {
 				gsl_complex v = gsl_complex_rect(0.0, -1.0);
 				signal->h_90[j] = gsl_complex_mul(signal->h_0[j], v);
 
-				// sqrt( sum (F+^2 + Fx^2) ) * SNR
 				// !Fixme
+				// The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
 				double multi_factor = (1.0 / 2.8580) * 20.0;
 
 				gsl_complex A = gsl_complex_mul_real( signal->h_0[j], det->ant.f_plus );
@@ -216,7 +207,8 @@ void DataGen() {
 				double noise_f_real = gsl_ran_gaussian(rng, 1.0);
 				double noise_f_imag = gsl_ran_gaussian(rng, 1.0);
 				gsl_complex noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
-				//gsl_complex noise_f = gsl_complex_rect(0.0, 0.0);
+
+				// signal + noise
 				signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 

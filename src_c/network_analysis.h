@@ -26,17 +26,6 @@
 #include "detector_network.h"
 #include "signal.h"
 
-typedef struct data_s {
-	int det_id;
-	double g;
-	double *freq;
-	double f_low;
-	double f_high;
-	strain_t interp_strain;
-	chirp_factors_t chirp;
-
-} data_t;
-
 // There is one helper per detector
 typedef struct coherent_network_helper_s {
 	double w_plus_input;
