@@ -17,7 +17,7 @@ ylabel('Real part of chirp')
 %title('Comparison between Matlab and C versions')
 title(detId{id})
 hold all
-plot(interp_fre, real(whitened_signal{1,id}), 'b:')
+%plot(interp_fre, real(whitened_signal{1,id}), 'b:')
 legend('C version', 'Matlab version')
 end
 

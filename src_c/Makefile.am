@@ -3,10 +3,14 @@ bin_PROGRAMS = lda
 lda_LDADD = -lgsl -lgslcblas
 
 lda_SOURCES = \
-	antennapattern.c \
-	conditionnum_cal.c \
+	antenna_patterns.c antenna_patterns.h \
+	chirp.c chirp.h \
 	datagen.c datagen.h \
-	filenames_to_text.c \
+	detector_network.c detector_network.h \
+	detector.c detector.h \
 	main.c \
-	templategen.c \
-	timedelay.c
+	network_analysis.c network_analysis.h \
+	stationary_phase.c stationary_phase.h \
+	strain_interpolate.c strain_interpolate.h \
+	strain.c strain.h \
+	time_delay.c time_delay.h
