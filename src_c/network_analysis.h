@@ -48,7 +48,11 @@ typedef struct coherent_network_workspace_s {
 
 	gsl_complex **terms;
 	double **fs;
+
+
 	double *temp_ifft;
+	gsl_fft_complex_wavetable *fft_wavetable;
+	gsl_fft_complex_workspace *fft_workspace;
 
 } coherent_network_workspace_t;
 
@@ -69,6 +73,7 @@ void coherent_network_statistic(
 		sky_t *sky,
 		double polarization_angle,
 		signal_t **signals,
+		coherent_network_workspace_t *workspace,
 		double *out_val);
 
 #endif /* SRC_C_NETWORK_ANALYSIS_H_ */

@@ -59,6 +59,9 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 	}
 
 	work->temp_ifft = (double*) malloc( len_terms * sizeof(double) );
+	size_t s = 2 * len_freq - 2;
+	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
+	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
 	return work;
 }
@@ -77,6 +80,8 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free(workspace->fs);
 	free(workspace->temp_ifft);
 	free(workspace->temp_array);
+	gsl_fft_complex_workspace_free( workspace->fft_workspace );
+	gsl_fft_complex_wavetable_free( workspace->fft_wavetable );
 
 	free( workspace );
 }
@@ -116,6 +121,7 @@ void coherent_network_statistic(
 		sky_t *sky,
 		double polarization_angle,
 		signal_t **signals,
+		coherent_network_workspace_t *workspace,
 		double *out_val)
 {
 	Compute_Detector_Network_Antenna_Patterns(sky, polarization_angle, net);
@@ -159,8 +165,6 @@ void coherent_network_statistic(
 	double O12_input = Delta_factor_input * P3_input * P1_input / (2.0*B_input*G1_input) ;
 	double O21_input = Delta_factor_input * P4_input / G2_input ;
 	double O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
-
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( net->num_detectors, regular_strain->len );
 
 	// Loop over each detector to generate a template and do matched filtering
 	for (size_t i = 0; i < net->num_detectors; i++) {
@@ -214,15 +218,12 @@ void coherent_network_statistic(
 		}
 	}
 
-	gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc( s );
-	gsl_fft_complex_workspace *fft_workspace = gsl_fft_complex_workspace_alloc( s );
-
 	for (size_t i = 0; i < 4; i++) {
 		for (size_t j = 0; j < s; j++) {
 			workspace->fs[i][2*j + 0] = GSL_REAL( workspace->terms[i][j] );
 			workspace->fs[i][2*j + 1] = GSL_IMAG( workspace->terms[i][j] );
 		}
-		gsl_fft_complex_inverse( workspace->fs[i], 1, s, wavetable, fft_workspace );
+		gsl_fft_complex_inverse( workspace->fs[i], 1, s, workspace->fft_wavetable, workspace->fft_workspace );
 	}
 
 	// 131072x1 floats
@@ -235,7 +236,7 @@ void coherent_network_statistic(
 		}
 	}
 
-	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
+	//CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
 
 	// float
 	double max = workspace->temp_ifft[0];
@@ -247,11 +248,4 @@ void coherent_network_statistic(
 	}
 
 	*out_val = sqrt(max);
-
-	CN_workspace_free( workspace );
-
-	gsl_fft_complex_workspace_free( fft_workspace );
-	gsl_fft_complex_wavetable_free( wavetable );
-
-
 }

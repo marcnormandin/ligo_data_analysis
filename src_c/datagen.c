@@ -113,14 +113,14 @@ void DataGen() {
 	const double f_high = 700.0; // most stable inner orbit (last stable orbit related)
 
 	source_t source;
-	printf("Inspiral source parameters:\n");
+	//printf("Inspiral source parameters:\n");
 	Load_Source(&source);
-	Print_Source(&source);
+	//Print_Source(&source);
 
-	printf("\n\nChirp Factors:\n");
+	//printf("\n\nChirp Factors:\n");
 	chirp_factors_t chirp;
 	CF_compute(f_low, &source, &chirp);
-	Print_Chirp_Factors(&chirp);
+	//Print_Chirp_Factors(&chirp);
 
 	detector_network_t net;
 	Init_Detector_Network(&net);
@@ -164,7 +164,7 @@ void DataGen() {
 
 	strain_t* regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
 	//Strain_print(regular_strain);
-	Strain_saveToFile("interp.txt", regular_strain);
+	//Strain_saveToFile("interp.txt", regular_strain);
 
 	// Signal
 	signal_t* signals[4];
@@ -182,14 +182,14 @@ void DataGen() {
 		multi_factor += gsl_pow_2(net.detector[i].ant.f_cross);
 	}
 	multi_factor = 0.5/sqrt(multi_factor);
-	printf("multi_factor = %e\n", multi_factor);
+	//printf("multi_factor = %e\n", multi_factor);
 	multi_factor *= snr;
+
+	stationary_phase_t* sp = SP_malloc(regular_strain->len);
 
 	// For each detector determine the stationary phase of the signal
 	for (size_t i = 0; i < net.num_detectors; i++) {
 		detector_t* det = &net.detector[i];
-
-		stationary_phase_t* sp = SP_malloc(regular_strain->len);
 
 		SP_compute(source.coalesce_phase, det->timedelay,
 				&chirp.ct, regular_strain,
@@ -200,8 +200,6 @@ void DataGen() {
 
 		/* This computes the signal and signal with noise */
 		for (size_t j = 0; j < regular_strain->len; ++j) {
-			//double f = regular_strain->freq[j];
-			//if (f > f_low && f < f_high) {
 				signal->whitened_sf[j] = gsl_complex_div_real(sp->spa_0[j], regular_strain->strain[j]);
 				signal->h_0[j] = signal->whitened_sf[j];
 
@@ -222,6 +220,7 @@ void DataGen() {
 				signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 
+		/*
 		char* fn = concat(det->id, ".whitened_signal");
 		ComplexFreqArray_save(fn, regular_strain, signal->whitened_signal);
 		free(fn);
@@ -244,14 +243,18 @@ void DataGen() {
 		fn = concat(det->id, ".sp");
 		SP_save(fn, regular_strain, sp);
 		free(fn);
+		*/
 
-		SP_free(sp);
 	}
+
+	SP_free(sp);
 
 	// For the template matching, use time_of_arrival = 0, so tc = t_chirp.
 	chirp.ct.tc = chirp.t_chirp;
 
 	double out_val = -1.0;
+	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, regular_strain->len );
+
 	coherent_network_statistic(
 			&net,
 			regular_strain,
@@ -261,7 +264,10 @@ void DataGen() {
 			&source.sky,
 			source.polarization_angle,
 			signals,
+			workspace,
 			&out_val);
+
+	CN_workspace_free( workspace );
 
 	printf("out_val = %e\n", out_val);
 
