@@ -53,6 +53,7 @@ c=299792458;            G=6.67408e-11;              solar_mass = 1.9891e30;
     T = nSamples/sampling_frequency; 
     j_nyq = floor(nSamples/2); 
     f=(0:j_nyq)/T;
+    clear t
 
     %%  (LIGO Strain Values)
 %   Load LIGO strain values(initial LIGO sensitivity curve) and interpolate 
@@ -231,7 +232,7 @@ for id = 1:1:length(detId)
     %noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
     noise_f = 0 ;
     %multi_factor = 1;
-    snr = 20;
+    snr = 20000;
     multi_factor = (1/2.8580)*snr;
     %multi_factor = 0;
      whitened_signal{1,id} =multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));

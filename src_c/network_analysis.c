@@ -91,7 +91,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 	}
 
 	// This should extend the array with a flipped version that has 2 less elements.
-	int t_index = regular_strain->len - 1;
+	int t_index = regular_strain->len - 2;
 	int c_index = regular_strain->len;
 	for (; t_index > 0; t_index--, c_index++) {
 		out_c[c_index] = temp[t_index];
@@ -174,7 +174,7 @@ void coherent_network_statistic(
 							f_low, f_high,
 							sp);
 
-			gsl_complex* whitened_data = signals[i]->whitened_signal;
+			gsl_complex* whitened_data = signals[i]->whitened_data;
 
 			// Compute work using spa_0
 			do_work(sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
@@ -250,16 +250,15 @@ void coherent_network_statistic(
 
 	// 131072x1 floats
 	//tmp_ifft = (f1_tmp.^2 + f2_tmp.^2+f3_tmp.^2+f4_tmp.^2);
+	memset(workspace->temp_ifft, 0, s * sizeof(double));
 	for (size_t i = 0; i < 4; i++) {
 		for (size_t j = 0; j < s; j++) {
-			double x = workspace->fs[i][2*j + 0];
+			double x = workspace->fs[i][2*j + 1];
 			workspace->temp_ifft[j] += gsl_pow_2(x*s);
 		}
 	}
 
-	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
-
-	//plot(sqrt(tmp_ifft));
+	CN_save("tmp_ifft_imag.dat", s, workspace->temp_ifft);
 
 	// float
 	//*out_val = max(sqrt(tmp_ifft));
@@ -271,7 +270,9 @@ void coherent_network_statistic(
 		}
 	}
 
-	*out_val = sqrt(max);
+	// hack
+	// There are two mirrored peaks at half the true snr value each
+	*out_val = 2.0*sqrt(max);
 
 	CN_workspace_free( workspace );
 

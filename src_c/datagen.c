@@ -15,6 +15,9 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
 
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
 #include "antenna_patterns.h"
 #include "chirp.h"
 #include "detector.h"
@@ -25,6 +28,7 @@
 #include "strain_interpolate.h"
 #include "signal.h"
 #include "network_analysis.h"
+
 
 void Print_Source(source_t* source) {
 	printf("right ascension: %f\n", source->sky.ra);
@@ -45,7 +49,7 @@ void Load_Source(source_t* source) {
 	source->inclination_angle = 0.0;
 	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 1
 	source->m2 = 4.6 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 2
-	source->time_of_arrival = 1.0;
+	source->time_of_arrival = 10.0;
 }
 
 /*
@@ -63,6 +67,7 @@ signal_t* Signal_malloc(size_t size) {
 	s->h_0 = (gsl_complex*) malloc( size * sizeof(gsl_complex) );
 	s->h_90 = (gsl_complex*) malloc( size * sizeof(gsl_complex) );
 	s->whitened_signal = (gsl_complex*) malloc( size * sizeof(gsl_complex) );
+	s->whitened_data = (gsl_complex*) malloc( size * sizeof(gsl_complex) );
 
 	return s;
 }
@@ -72,6 +77,7 @@ void Signal_free(signal_t *s) {
 	free(s->h_0);
 	free(s->h_90);
 	free(s->whitened_signal);
+	free(s->whitened_data);
 	free(s);
 }
 
@@ -100,6 +106,13 @@ char* concat(const char *s1, const char *s2)
 }
 
 void DataGen() {
+	// Random number generator
+	const gsl_rng_type *rng_type;
+	gsl_rng *rng;
+	gsl_rng_env_setup();
+	rng_type = gsl_rng_default;
+	rng = gsl_rng_alloc(rng_type);
+
 	// Settings
 	const double f_low = 40.0; // seismic cutoff. All freqs low set to zero
 	const double f_high = 700.0; // most stable inner orbit (last stable orbit related)
@@ -122,15 +135,11 @@ void DataGen() {
 	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
 	//Strain_print(irregular_strain);
 
-	strain_t* regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
-	//Strain_print(regular_strain);
-	Strain_saveToFile("interp.txt", regular_strain);
-
 	// find the strains to use at the ends
 	double strain_f_low;
-	for (int i = 0; i < regular_strain->len; i++) {
-		double f = regular_strain->freq[i];
-		double s = regular_strain->strain[i];
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
 		if (f >= f_low) {
 			strain_f_low = s;
 			break;
@@ -138,9 +147,9 @@ void DataGen() {
 	}
 
 	double strain_f_high;
-	for (int i = 0; i < regular_strain->len; i++) {
-		double f = regular_strain->freq[i];
-		double s = regular_strain->strain[i];
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
 		if (f >= f_high) {
 			strain_f_high = s;
 			break;
@@ -148,15 +157,19 @@ void DataGen() {
 	}
 
 	// fix the strains
-	for (int i = 0; i < regular_strain->len; i++) {
-		double f = regular_strain->freq[i];
-		double s = regular_strain->strain[i];
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
 		if (f < f_low) {
-			regular_strain->strain[i] = strain_f_low;
+			irregular_strain->strain[i] = strain_f_low;
 		} else if (f > f_high) {
-			regular_strain->strain[i] = strain_f_high;
+			irregular_strain->strain[i] = strain_f_high;
 		}
 	}
+
+	strain_t* regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
+	//Strain_print(regular_strain);
+	Strain_saveToFile("interp.txt", regular_strain);
 
 	// Signal
 	signal_t* signals[4];
@@ -178,10 +191,12 @@ void DataGen() {
 
 		signal_t *signal = signals[i];
 
-		/* This computes the signal */
+		// time_of_arrival = 0 for templates.
+
+		/* This computes the signal and signal with noise */
 		for (size_t j = 0; j < regular_strain->len; ++j) {
-			double f = regular_strain->freq[j];
-			if (f > f_low && f < f_high) {
+			//double f = regular_strain->freq[j];
+			//if (f > f_low && f < f_high) {
 				signal->whitened_sf[j] = gsl_complex_div_real(sp->spa_0[j], regular_strain->strain[j]);
 				signal->h_0[j] = signal->whitened_sf[j];
 
@@ -196,22 +211,20 @@ void DataGen() {
 				gsl_complex B = gsl_complex_mul_real( signal->h_90[j], det->ant.f_cross );
 				gsl_complex C = gsl_complex_add( A, B );
 				signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
-				/*
-				noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
-				whitened_signal = multi_factor * ((h_0 * F_Plus_vec(id)) + (h_90 * F_Cross_vec(id)));
-				whitened_data {1, id} = whitened_signal + (noise_f);  //(whitened signal+whitened noise)
-				*/
-			} else {
-				signal->whitened_sf[j] = gsl_complex_rect(0.0, 0.0);
-				signal->h_0[j] = gsl_complex_rect(0.0, 0.0);
-				signal->h_90[j] = gsl_complex_rect(0.0, 0.0);
-				signal->whitened_signal[j] = gsl_complex_rect(0.0, 0.0);
-			}
+
+				// random noise
+				double noise_f_real = gsl_ran_gaussian(rng, 1.0);
+				double noise_f_imag = gsl_ran_gaussian(rng, 1.0);
+				gsl_complex noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
+				signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 
 		char* fn = concat(det->id, ".whitened_signal");
 		ComplexFreqArray_save(fn, regular_strain, signal->whitened_signal);
 		free(fn);
+
+		fn = concat(det->id, ".whitened_data");
+		ComplexFreqArray_save(fn, regular_strain, signal->whitened_data);
 
 		fn = concat(det->id, ".h_0");
 		ComplexFreqArray_save(fn, regular_strain, signal->h_0);
@@ -231,6 +244,9 @@ void DataGen() {
 
 		SP_free(sp);
 	}
+
+	// For the template matching, use time_of_arrival = 0, so tc = t_chirp.
+	chirp.ct.tc = chirp.t_chirp;
 
 	double out_val = -1.0;
 	coherent_network_statistic(
@@ -254,4 +270,6 @@ void DataGen() {
 	Free_Detector_Network(&net);
 	Strain_free(irregular_strain);
 	Strain_free(regular_strain);
+
+	gsl_rng_free(rng);
 }
