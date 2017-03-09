@@ -1,6 +1,12 @@
 %%% This section will be evaluated using PSO evaluated variables.
-function [out_val] = coherent_new_sec2(sec1param,chirp_time0_input,chirp_time1_5_input,...
-                                      rightascension_input,declination_input)
+%function [out_val] = coherent_new_sec2(sec1param,chirp_time0_input,chirp_time1_5_input,...
+%                                      rightascension_input,declination_input)
+datagen
+
+chirp_time0_input = chirp_time0
+chirp_time1_5_input = chirp_time1_5
+rightascension_input = right_ascension
+declination_input = declination
 
 %declination_input = 0.0;
 %rightascension_input = 0.0;
@@ -129,23 +135,31 @@ for id = 2:1:length(detId)
     term_4(1,:) = term_4(1,:)+ (w_minus_input(id)*c_minus{1,id});
 end
 
+
 %term_1 = real(term_1);
 %term_2 = real(term_2);
 %term_3 = real(term_3);
 %term_4 = real(term_4);
 
 % 131072x1 floats
-f1_tmp=(nSamples)*real(ifft(term_1(1,:)));
-f2_tmp=(nSamples)*real(ifft(term_2(1,:)));
-f3_tmp=(nSamples)*real(ifft(term_3(1,:)));
-f4_tmp=(nSamples)*real(ifft(term_4(1,:)));
-   
+% original
+%f1_tmp=(nSamples)*real(ifft(term_1(1,:)));
+%f2_tmp=(nSamples)*real(ifft(term_2(1,:)));
+%f3_tmp=(nSamples)*real(ifft(term_3(1,:)));
+%f4_tmp=(nSamples)*real(ifft(term_4(1,:)));
+
+f1_tmp=(nSamples)*(ifft(term_1(1,:)));
+f2_tmp=(nSamples)*(ifft(term_2(1,:)));
+f3_tmp=(nSamples)*(ifft(term_3(1,:)));
+f4_tmp=(nSamples)*(ifft(term_4(1,:)));
+
 %f1_tmp=(nSamples)*ifft(real(term_1(1,:)));
 %f2_tmp=(nSamples)*ifft(real(term_2(1,:)));
 %f3_tmp=(nSamples)*ifft(real(term_3(1,:)));
 %f4_tmp=(nSamples)*ifft(real(term_4(1,:)));
 
 % 131072x1 floats
+global tmp_ifft
 tmp_ifft = (f1_tmp.^2 + f2_tmp.^2+f3_tmp.^2+f4_tmp.^2);
 %tmp_ifft = (nSamples) * real(term_1.^2 + term_2.^2 + term_3.^2 + term_4.^2);
 %tmp_ifft = real(term_1.^2 + term_2.^2 + term_3.^2 + term_4.^2);

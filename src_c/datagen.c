@@ -49,7 +49,7 @@ void Load_Source(source_t* source) {
 	source->inclination_angle = 0.0;
 	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 1
 	source->m2 = 4.6 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 2
-	source->time_of_arrival = 10.0;
+	source->time_of_arrival = 32.0;
 }
 
 /*
@@ -205,7 +205,7 @@ void DataGen() {
 
 				// sqrt( sum (F+^2 + Fx^2) ) * SNR
 				// !Fixme
-				double multi_factor = (1.0 / 2.8580) * 200.0;
+				double multi_factor = (1.0 / 2.8580) * 20.0;
 
 				gsl_complex A = gsl_complex_mul_real( signal->h_0[j], det->ant.f_plus );
 				gsl_complex B = gsl_complex_mul_real( signal->h_90[j], det->ant.f_cross );
@@ -216,6 +216,7 @@ void DataGen() {
 				double noise_f_real = gsl_ran_gaussian(rng, 1.0);
 				double noise_f_imag = gsl_ran_gaussian(rng, 1.0);
 				gsl_complex noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
+				//gsl_complex noise_f = gsl_complex_rect(0.0, 0.0);
 				signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 

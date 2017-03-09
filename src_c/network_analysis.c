@@ -94,7 +94,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 	int t_index = regular_strain->len - 2;
 	int c_index = regular_strain->len;
 	for (; t_index > 0; t_index--, c_index++) {
-		out_c[c_index] = temp[t_index];
+		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
 	}
 }
 
@@ -159,6 +159,24 @@ void coherent_network_statistic(
 	double O12_input = Delta_factor_input * P3_input * P1_input / (2.0*B_input*G1_input) ;
 	double O21_input = Delta_factor_input * P4_input / G2_input ;
 	double O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
+
+	printf("A_input = %e\n", A_input);
+	printf("B_input = %e\n", B_input);
+	printf("C_input = %e\n", C_input);
+	printf("Delta_input = %e\n", Delta_input);
+	printf("Delta_factor_input = %e\n", Delta_factor_input);
+	printf("D_input = %e\n", D_input);
+	printf("P1_input = %e\n", P1_input);
+	printf("P2_input = %e\n", P2_input);
+	printf("P3_input = %e\n", P3_input);
+	printf("P4_input = %e\n", P4_input);
+	printf("G1_input = %e\n", G1_input);
+	printf("G2_input = %e\n", G1_input);
+	printf("O11_input = %e\n", O11_input);
+	printf("O12_input = %e\n", O12_input);
+	printf("O21_input = %e\n", O21_input);
+	printf("O22_input = %e\n", O22_input);
+
 
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net->num_detectors, regular_strain->len );
 
@@ -253,12 +271,13 @@ void coherent_network_statistic(
 	memset(workspace->temp_ifft, 0, s * sizeof(double));
 	for (size_t i = 0; i < 4; i++) {
 		for (size_t j = 0; j < s; j++) {
-			double x = workspace->fs[i][2*j + 1];
+			// Take only the real part. The imaginary part should be zero.
+			double x = workspace->fs[i][2*j + 0];
 			workspace->temp_ifft[j] += gsl_pow_2(x*s);
 		}
 	}
 
-	CN_save("tmp_ifft_imag.dat", s, workspace->temp_ifft);
+	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
 
 	// float
 	//*out_val = max(sqrt(tmp_ifft));
@@ -272,7 +291,7 @@ void coherent_network_statistic(
 
 	// hack
 	// There are two mirrored peaks at half the true snr value each
-	*out_val = 2.0*sqrt(max);
+	*out_val = sqrt(max);
 
 	CN_workspace_free( workspace );
 
