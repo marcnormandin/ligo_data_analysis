@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
@@ -42,8 +43,10 @@ void Print_Source(source_t* source) {
 }
 
 void Load_Source(source_t* source) {
-	source->sky.ra = -2.14;
-	source->sky.dec = 0.72;
+	//source->sky.ra = -2.14;
+	//source->sky.dec = 0.72;
+	source->sky.ra = -0.5;
+	source->sky.dec = 0.1;
 	source->polarization_angle = M_PI / 6.0;
 	source->coalesce_phase = M_PI / 6.0;
 	source->inclination_angle = 0.0;
@@ -103,6 +106,7 @@ void DataGen() {
 	gsl_rng_env_setup();
 	rng_type = gsl_rng_default;
 	rng = gsl_rng_alloc(rng_type);
+	gsl_rng_set(rng, time(0));
 
 	// Settings
 	const double f_low = 40.0; // seismic cutoff. All freqs low set to zero
@@ -168,6 +172,18 @@ void DataGen() {
 		signals[i] = Signal_malloc(regular_strain->len);
 	}
 
+	// !Fixme
+	// The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
+	//double multi_factor = (1.0 / 2.8580) * 20.0;
+	double snr = 20.0;
+	double multi_factor = 0.0;
+	for (size_t i = 0; i < net.num_detectors; i++) {
+		multi_factor += gsl_pow_2(net.detector[i].ant.f_plus);
+		multi_factor += gsl_pow_2(net.detector[i].ant.f_cross);
+	}
+	multi_factor = 0.5/sqrt(multi_factor);
+	printf("multi_factor = %e\n", multi_factor);
+	multi_factor *= snr;
 
 	// For each detector determine the stationary phase of the signal
 	for (size_t i = 0; i < net.num_detectors; i++) {
@@ -182,8 +198,6 @@ void DataGen() {
 
 		signal_t *signal = signals[i];
 
-		// time_of_arrival = 0 for templates.
-
 		/* This computes the signal and signal with noise */
 		for (size_t j = 0; j < regular_strain->len; ++j) {
 			//double f = regular_strain->freq[j];
@@ -193,10 +207,6 @@ void DataGen() {
 
 				gsl_complex v = gsl_complex_rect(0.0, -1.0);
 				signal->h_90[j] = gsl_complex_mul(signal->h_0[j], v);
-
-				// !Fixme
-				// The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
-				double multi_factor = (1.0 / 2.8580) * 20.0;
 
 				gsl_complex A = gsl_complex_mul_real( signal->h_0[j], det->ant.f_plus );
 				gsl_complex B = gsl_complex_mul_real( signal->h_90[j], det->ant.f_cross );
