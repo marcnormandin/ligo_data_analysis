@@ -80,6 +80,9 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 				splParams->signals,
 				splParams->workspace,
 				&fitFuncVal);
+		// The statistic is larger for better matches, but PSO is finding
+		// minimums, so multiply by -1.0.
+		fitFuncVal *= -1.0;
     }
 	else{
 		fitFuncVal=GSL_POSINF;
