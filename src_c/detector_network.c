@@ -7,11 +7,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "antenna_patterns.h"
 #include "detector.h"
 #include "detector_network.h"
 #include "sky.h"
+#include "time_delay.h"
 
 void Alloc_Detector_Network(int num, detector_network_t* net) {
 	net->num_detectors = num;
@@ -26,10 +28,10 @@ void Free_Detector_Network(detector_network_t* net) {
 void Init_Detector_Network(detector_network_t* net) {
 	Alloc_Detector_Network(4, net);
 
-	strncpy(net->detector[0].id, "H1", 2);
-	strncpy(net->detector[1].id, "L1", 2);
-	strncpy(net->detector[2].id, "V1", 2);
-	strncpy(net->detector[3].id, "K1", 2);
+	strncpy(net->detector[0].id, "H1\0", 3);
+	strncpy(net->detector[1].id, "L1\0", 3);
+	strncpy(net->detector[2].id, "V1\0", 3);
+	strncpy(net->detector[3].id, "K1\0", 3);
 }
 
 void Compute_Detector_Network_Antenna_Patterns(

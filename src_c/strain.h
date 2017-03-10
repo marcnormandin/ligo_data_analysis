@@ -28,5 +28,7 @@ strain_t* Strain_readFromFile(char* filename);
 
 int Strain_saveToFile(char* filename, strain_t* strain);
 
+// Memory must be freed using Strain_free()
+strain_t* Strain_simulated(double f_low, double f_high);
 
 #endif /* SRC_C_STRAIN_H_ */

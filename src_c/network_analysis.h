@@ -43,6 +43,8 @@ typedef struct coherent_network_workspace_s {
 	size_t num_helpers;
 	coherent_network_helper_t **helpers;
 
+	stationary_phase_t *sp;
+
 	// temporary array that is repeatedly used. Its size must be the same as the number of frequencies.
 	gsl_complex *temp_array;
 

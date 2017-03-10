@@ -45,6 +45,8 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 		work->helpers[i] = CN_helper_malloc( len_freq );
 	}
 
+	work->sp = SP_malloc( len_freq );
+
 	work->temp_array = (gsl_complex*) malloc( len_freq * sizeof(gsl_complex) );
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
@@ -70,6 +72,8 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	for (size_t i = 0; i < workspace->num_helpers; i++) {
 		CN_helper_free( workspace->helpers[i] );
 	}
+
+	SP_free(workspace->sp);
 
 	for (size_t i = 0; i < 4; i++) {
 		free(workspace->terms[i]);
@@ -172,19 +176,21 @@ void coherent_network_statistic(
 
 		   // 65537x1 floats
 			double coalesce_phase = 0.0;
-			stationary_phase_t *sp = SP_malloc( regular_strain->len );
+
+			//stationary_phase_t *sp = SP_malloc( regular_strain->len );
+
 			SP_compute(coalesce_phase, det->timedelay,
 							chirp, regular_strain,
 							f_low, f_high,
-							sp);
+							workspace->sp);
 
 			gsl_complex* whitened_data = signals[i]->whitened_data;
 
 			// Compute work using spa_0
-			do_work(sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+			do_work(workspace->sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
 			// Compute work using spa_90
-			do_work(sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+			do_work(workspace->sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 
 			double U_vec_input = det->ant.u;

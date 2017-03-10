@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "strain.h"
+#include "strain_interpolate.h"
 
 strain_t* Strain_malloc(size_t len) {
 	strain_t* strain = (strain_t*) malloc(sizeof(strain_t));
@@ -88,3 +89,48 @@ int Strain_saveToFile(char* filename, strain_t* strain) {
 		return -1;
 	}
 }
+
+// Memory must be freed using Strain_free()
+strain_t* Strain_simulated(double f_low, double f_high) {
+	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
+	//Strain_print(irregular_strain);
+
+	// find the strains to use at the ends
+	double strain_f_low;
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
+		if (f >= f_low) {
+			strain_f_low = s;
+			break;
+		}
+	}
+
+	double strain_f_high;
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
+		if (f >= f_high) {
+			strain_f_high = s;
+			break;
+		}
+	}
+
+	// fix the strains
+	for (int i = 0; i < irregular_strain->len; i++) {
+		double f = irregular_strain->freq[i];
+		double s = irregular_strain->strain[i];
+		if (f < f_low) {
+			irregular_strain->strain[i] = strain_f_low;
+		} else if (f > f_high) {
+			irregular_strain->strain[i] = strain_f_high;
+		}
+	}
+
+	strain_t* regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
+
+	Strain_free(irregular_strain);
+
+	return regular_strain;
+}
+

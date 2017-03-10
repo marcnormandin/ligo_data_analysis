@@ -19,7 +19,12 @@ typedef struct {
 	double	polarization_angle;
 	double	coalesce_phase;
 	double	inclination_angle;
+
+	double snr;
 } source_t;
 
+void Print_Source(source_t* source);
+
+void Load_Source(source_t* source);
 
 #endif /* SRC_C_SOURCE_H_ */
