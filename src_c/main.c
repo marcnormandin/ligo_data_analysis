@@ -32,6 +32,8 @@
 #include "ptapso_estimate.h"
 #include "ptapso_func.h"
 
+#include "snr_sky_map.h"
+
 /*
 int ComplexFreqArray_save(char* filename, strain_t *strain, gsl_complex *array) {
 	FILE* file;
@@ -187,7 +189,8 @@ int main(int argc, char* argv[]) {
 
 	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
-	ptapso_estimate(&params);
+	//ptapso_estimate(&params);
+	snr_sky_map(&params, "snr_sky_map.dat");
 
 	CN_workspace_free( workspace );
 

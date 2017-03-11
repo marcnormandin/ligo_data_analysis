@@ -16,6 +16,7 @@ lda_SOURCES = \
 	signal.c signal.h \
 	simulate_data.c simulate_data.h \
 	sky.h \
+	snr_sky_map.c snr_sky_map.h \
 	source.c source.h \
 	stationary_phase.c stationary_phase.h \
 	strain_interpolate.c strain_interpolate.h \
