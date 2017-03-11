@@ -253,5 +253,8 @@ void coherent_network_statistic(
 		}
 	}
 
-	*out_val = sqrt(max);
+	// divide the standard deviation to convert to SNR
+	double std = gsl_stats_sd(workspace->temp_ifft, 1, s);
+
+	*out_val = sqrt(max) / std;
 }
