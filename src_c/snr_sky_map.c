@@ -9,13 +9,14 @@
 #include <stdlib.h>
 
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_statistics_double.h>
 
 #include "snr_sky_map.h"
 #include "network_analysis.h"
 
 void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
-	const int N_ra = 100;
-	const int N_dec = 50;
+	const int N_ra = 40;
+	const int N_dec = 20;
 
 	const double delta_ra = (2.0 * M_PI) / N_ra;
 	const double delta_dec = (1.0*M_PI) / N_dec;
