@@ -1,3 +1,5 @@
+dist_bin_SCRIPTS = strain.txt 
+
 bin_PROGRAMS = lda
 
 lda_LDADD = -lgsl -lgslcblas
