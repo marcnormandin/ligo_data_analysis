@@ -20,6 +20,6 @@ typedef struct antenna_patterns_s {
 
 } antenna_patterns_t;
 
-int antenna_patterns(char *iid, sky_t *sky, double polarization_angle, antenna_patterns_t *ant);
+int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, antenna_patterns_t *ant);
 
 #endif /* SRC_C_ANTENNA_PATTERNS_H_ */

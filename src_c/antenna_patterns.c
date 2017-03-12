@@ -34,7 +34,7 @@ static int trace(gsl_matrix* A, double* r) {
 	return 0;
 }
 
-int antenna_patterns(char *iid, sky_t *sky, double polarization_angle, antenna_patterns_t *ant)
+int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, antenna_patterns_t *ant)
 {
 	gsl_vector* cordnt_x = gsl_vector_alloc(3);
 	gsl_vector* cordnt_y = gsl_vector_alloc(3);
