@@ -14,11 +14,11 @@
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_fft_complex.h>
+#include <gsl/gsl_statistics_double.h>
 
 #include "strain.h"
 #include "strain_interpolate.h"
 #include "network_analysis.h"
-#include "notused_templategen.h"
 #include "detector.h"
 #include "detector_network.h"
 
@@ -255,6 +255,8 @@ void coherent_network_statistic(
 
 	// divide the standard deviation to convert to SNR
 	double std = gsl_stats_sd(workspace->temp_ifft, 1, s);
+
+	//printf("%f\t\n", std);
 
 	*out_val = sqrt(max) / std;
 }

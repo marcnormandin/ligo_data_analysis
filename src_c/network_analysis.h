@@ -19,7 +19,6 @@
 #include "strain.h"
 #include "strain_interpolate.h"
 #include "network_analysis.h"
-#include "notused_templategen.h"
 
 #include "chirp.h"
 #include "strain.h"
