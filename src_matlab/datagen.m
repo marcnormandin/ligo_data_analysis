@@ -229,10 +229,10 @@ for id = 1:1:length(detId)
     % original noise_f=(1/(sqrt(4)))*randn(1,(j_nyq+1))+(1/(sqrt(4)))*1i*randn(1,(j_nyq+1));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %noise_f = 0 ;
-    %noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
-    noise_f = 0 ;
+    noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
+    %noise_f = 0 ;
     %multi_factor = 1;
-    snr = 20000;
+    snr = 20;
     multi_factor = (1/2.8580)*snr;
     %multi_factor = 0;
      whitened_signal{1,id} =multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
