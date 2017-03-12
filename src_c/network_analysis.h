@@ -25,7 +25,7 @@
 #include "detector_network.h"
 #include "signal.h"
 
-// There is one helper per detector
+/* There is one helper per detector */
 typedef struct coherent_network_helper_s {
 	double w_plus_input;
 	double w_minus_input;
@@ -44,7 +44,9 @@ typedef struct coherent_network_workspace_s {
 
 	stationary_phase_t *sp;
 
-	// temporary array that is repeatedly used. Its size must be the same as the number of frequencies.
+	/* temporary array that is repeatedly used.
+	 * Its size must be the same as the number of frequencies.
+	 */
 	gsl_complex *temp_array;
 
 	gsl_complex **terms;

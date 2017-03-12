@@ -27,13 +27,11 @@ void Print_Source(source_t* source) {
 void Load_Source(source_t* source) {
 	source->sky.ra = -2.14;
 	source->sky.dec = 0.72;
-	//source->sky.ra = 0.0;
-	//source->sky.dec = 0.0;
 	source->polarization_angle = 0.0;
 	source->coalesce_phase = 0.0;
 	source->inclination_angle = 0.0;
-	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 1
-	source->m2 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; // binary mass 2
+	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 1 */
+	source->m2 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 2 */
 	source->time_of_arrival = 32.0;
 	source->snr = 9.0;
 }

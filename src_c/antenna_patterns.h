@@ -10,12 +10,12 @@
 
 #include "sky.h"
 
-// GW Interferometer Antenna Patterns
+/* GW Interferometer Antenna Patterns */
 typedef struct antenna_patterns_s {
-	// polarization-independent antenna patterns
+	/* polarization-independent antenna patterns */
 	double u, v;
 
-	// polarization-dependent antenna patterns
+	/* polarization-dependent antenna patterns */
 	double f_plus, f_cross;
 
 } antenna_patterns_t;

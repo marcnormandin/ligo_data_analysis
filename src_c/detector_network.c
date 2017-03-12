@@ -42,10 +42,9 @@ void Compute_Detector_Network_Antenna_Patterns(
 	for (size_t i = 0; i < net->num_detectors; i++) {
 		detector_t* det = &net->detector[i];
 
-		// Check return value for errors
+		/* Check return value for errors */
 		antenna_patterns( det->id, sky, polarization_angle, &det->ant);
 
-		// Time delay
 		time_delay(det->id, sky, &det->timedelay);
 	}
 }

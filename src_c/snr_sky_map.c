@@ -28,14 +28,14 @@ void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
 			double ra = -M_PI + ra_i * delta_ra;
 			double dec = -0.5*M_PI + dec_i * delta_dec;
 
-			// apply the pso location
+			/* apply the pso particle location */
 			splParams->source->sky.ra = ra;
 			splParams->source->sky.dec = dec;
 
 			chirp_factors_t chirp;
 			CF_compute(splParams->f_low, splParams->source, &chirp);
-			// The network statistic requires the time of arrival to be zero
-			// in order for the matched filtering to work correctly.
+			/* The network statistic requires the time of arrival to be zero
+			   in order for the matched filtering to work correctly. */
 			chirp.ct.tc = chirp.t_chirp;
 
 			double recovered_snr = -1.0;

@@ -11,14 +11,14 @@
 #include "detector.h"
 #include "sky.h"
 
-// The detector network used in the study.
+/* The detector network used in the study. */
 typedef struct {
 	int num_detectors;
 	detector_t* detector;
 
 } detector_network_t;
 
-// Detector functions
+/* Detector functions */
 void Alloc_Detector_Network(int num, detector_network_t* net);
 void Free_Detector_Network(detector_network_t* net);
 void Init_Detector_Network(detector_network_t* net);

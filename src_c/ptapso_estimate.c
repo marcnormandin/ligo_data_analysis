@@ -13,8 +13,8 @@ and what the parameter structure for this function is.
 int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	/* Estimate right-ascension and declination */
 	unsigned int nDim = 2, lpc;
-	// [0] = RA
-	// [1] = Declination
+	/* [0] = RA
+	   [1] = Declination */
 	double rmin[2] = {-M_PI, -0.5*M_PI};
 	double rmax[2] = {M_PI, 0.5*M_PI};
 	double rangeVec[2];
@@ -43,10 +43,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	   These should be provided in a structure that should be defined in
 	   the fitness function's header file.
 	 */
-	//struct ptapso_func_params splParams;
 	/* ============================================ */
-	// SET VALUES FOR THE PARAMETER STRUCTURE HERE
-	//splParams.dummyParam = 0;
 	/* Pass on the special parameters through the generic fitness function parameter
 	struct */
 	inParams->splParams = splParams;

@@ -12,5 +12,4 @@
 
 int ptapso_estimate(ptapso_fun_params_t *splParams);
 
-
 #endif /* SRC_C_PTAPSO_ESTIMATE_H_ */

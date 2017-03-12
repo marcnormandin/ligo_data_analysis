@@ -21,10 +21,10 @@ strain_t* InterpStrain_malloc_and_compute(strain_t* strain)
 
 	int samplingFrequency = 2048;
 	for (int i = 0; i < N; i++) {
-		// The frequency we want to have a strain value for
+		/* The frequency we want to have a strain value for */
 		double f = i * (0.5 * samplingFrequency / N);
 
-		// The interpolated strain value
+		/* The interpolated strain value */
 		double s = gsl_interp_eval(interp, strain->freq, strain->strain, f,
 				acc);
 

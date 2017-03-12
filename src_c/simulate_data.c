@@ -34,16 +34,17 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 
 	Compute_Detector_Network_Antenna_Patterns(&source->sky, source->polarization_angle, net);
 
-	// Signal
+	/* One measured signal per detector */
 	signal_t** signals;
 	signals = (signal_t**) malloc( net->num_detectors * sizeof(signal_t*) );
 	for (int i = 0; i < net->num_detectors; i++) {
 		signals[i] = Signal_malloc(strain->len);
 	}
 
-	// !Fixme
-	// The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
-	//double multi_factor = (1.0 / 2.8580) * 20.0;
+	/* !Fixme
+	   The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
+	   old value: double multi_factor = (1.0 / 2.8580) * 20.0;
+	 */
 	double snr = source->snr;
 	double multi_factor = 0.0;
 	for (size_t i = 0; i < net->num_detectors; i++) {
@@ -55,7 +56,7 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 
 	stationary_phase_t* sp = SP_malloc(strain->len);
 
-	// For each detector determine the stationary phase of the signal
+	/* For each detector determine the stationary phase of the signal */
 	for (size_t i = 0; i < net->num_detectors; i++) {
 		detector_t* det = &net->detector[i];
 
@@ -79,12 +80,12 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 				gsl_complex C = gsl_complex_add( A, B );
 				signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
 
-				// random noise
+				/* random noise */
 				double noise_f_real = gsl_ran_gaussian(rng, 1.0);
 				double noise_f_imag = gsl_ran_gaussian(rng, 1.0);
 				gsl_complex noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
 
-				// signal + noise
+				/* signal + noise */
 				signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 	}

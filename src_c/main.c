@@ -79,9 +79,9 @@ int test_antenna_patterns() {
 }
 
 int old_main(int argc, char* argv[]) {
-	// Settings
-	const double f_low = 40.0; // seismic cutoff. All freqs low set to zero
-	const double f_high = 700.0; // most stable inner orbit (last stable orbit related)
+	/* Settings */
+	const double f_low = 40.0; /* seismic cutoff. */
+	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
 
 	source_t source;
 	Load_Source(&source);
@@ -91,7 +91,7 @@ int old_main(int argc, char* argv[]) {
 
 	strain_t *strain = Strain_simulated(f_low, f_high);
 
-	// Random number generator
+	/* Random number generator */
 	const gsl_rng_type *rng_type;
 	gsl_rng *rng;
 	gsl_rng_env_setup();
@@ -105,8 +105,7 @@ int old_main(int argc, char* argv[]) {
 	for (int n = 0; n < num_realizations; n++) {
 		signal_t **signals = simulate_data(rng, f_low, f_high, &net, strain, &source);
 
-		// Now analyze it
-		// For the template matching, use time_of_arrival = 0, so tc = t_chirp.
+		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
 		chirp_factors_t chirp;
 		CF_compute(f_low, &source, &chirp);
 		chirp.ct.tc = chirp.t_chirp;
@@ -151,9 +150,9 @@ int old_main(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-	// Settings
-	const double f_low = 40.0; // seismic cutoff. All freqs low set to zero
-	const double f_high = 700.0; // most stable inner orbit (last stable orbit related)
+	/* Settings */
+	const double f_low = 40.0; /* seismic cutoff */
+	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
 
 	source_t source;
 	Load_Source(&source);
@@ -163,7 +162,7 @@ int main(int argc, char* argv[]) {
 
 	strain_t *strain = Strain_simulated(f_low, f_high);
 
-	// Random number generator
+	/* Random number generator */
 	const gsl_rng_type *rng_type;
 	gsl_rng *rng;
 	gsl_rng_env_setup();
@@ -171,13 +170,13 @@ int main(int argc, char* argv[]) {
 	rng = gsl_rng_alloc(rng_type);
 	gsl_rng_set(rng, time(0));
 
-	// Simulate data
+	/* Simulate data for all the detectors composing the network */
 	signal_t **signals = simulate_data(rng, f_low, f_high, &net, strain, &source);
 	gsl_rng_free(rng);
 
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
 
-	// Setup the parameter structure for the pso fitness function
+	/* Setup the parameter structure for the pso fitness function */
 	ptapso_fun_params_t params;
 	params.f_low = f_low;
 	params.f_high = f_high;
@@ -189,12 +188,11 @@ int main(int argc, char* argv[]) {
 
 	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
-	//ptapso_estimate(&params);
 	snr_sky_map(&params, "snr_sky_map.dat");
 
 	CN_workspace_free( workspace );
 
-	// Free the data
+	/* Free the data */
 	for (int i = 0; i < net.num_detectors; i++) {
 		Signal_free(signals[i]);
 	}

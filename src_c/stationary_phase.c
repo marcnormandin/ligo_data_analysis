@@ -38,7 +38,7 @@ void SP_save(char* filename, strain_t* interp_strain, stationary_phase_t* sp) {
 }
 
 double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_strain) {
-	// whitening normalization factor
+	/* whitening normalization factor */
 	double *tempval = (double*) malloc(interp_strain->len * sizeof(double));
 	for (size_t i = 0; i < interp_strain->len; i++) {
 		double f = interp_strain->freq[i];
@@ -66,10 +66,10 @@ void SP_compute(double coalesce_phase, double time_delay,
 		double f_low, double f_high,
 		stationary_phase_t *out_sp)
 {
-	// This doesn't change unless the strain changes
+	/* This doesn't change unless the strain changes */
 	double g = SP_g(f_low, f_high, chirp, interp_strain);
 
-	// This is not efficient!
+	/* This is not efficient! */
 	for (size_t j = 0; j < interp_strain->len; j++) {
 		double f = interp_strain->freq[j];
 		double s = interp_strain->strain[j];

@@ -10,7 +10,7 @@
 
 #include "antenna_patterns.h"
 
-// For a given source, this records the values for a given detector.
+/* For a given source, this records the values for a given detector. */
 typedef struct {
 	char id[3];
 

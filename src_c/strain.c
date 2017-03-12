@@ -41,13 +41,10 @@ static int Read_Num_Strain_Samples(char* filename) {
 		double freq, strain;
 		while (fscanf(file, "%lf %lf", &freq, &strain) != EOF) {
 			len++;
-			//printf("%e %e\n", freq, strain);
 		}
-		//printf("%lu lines\n", len);
 		fclose(file);
 
 		return len;
-		// now store the val
 	} else {
 		printf("Error: Unable to open strain file (%s) for reading.\n",
 				filename);
@@ -90,12 +87,12 @@ int Strain_saveToFile(char* filename, strain_t* strain) {
 	}
 }
 
-// Memory must be freed using Strain_free()
+/* Memory must be freed using Strain_free() */
 strain_t* Strain_simulated(double f_low, double f_high) {
 	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
-	//Strain_print(irregular_strain);
+	/* Strain_print(irregular_strain); */
 
-	// find the strains to use at the ends
+	/* find the strains to use at the ends */
 	double strain_f_low;
 	for (int i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
@@ -116,7 +113,7 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 		}
 	}
 
-	// fix the strains
+	/* extend the strains */
 	for (int i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];

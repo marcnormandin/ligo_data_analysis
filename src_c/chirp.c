@@ -119,13 +119,13 @@ void CF_compute(double f_low, source_t *source, chirp_factors_t *fac) {
 	fac->reduced_mass = Chirp_Calc_ReducedMass(source->m1, source->m2, fac->total_mass);
 	fac->chirp_mass = Chirp_Calc_ChirpMass(fac->reduced_mass, fac->total_mass);
 
-	// Change parameters accordingly to estimate chirp times.
+	/* Change parameters accordingly to estimate chirp times. */
 	fac->s_mass_ratio = Chirp_Calc_SMassRatio(fac->reduced_mass, fac->total_mass);
 	fac->multi_fac = Chirp_Calc_MultiFac(f_low, fac->total_mass);
 	fac->ct.chirp_time0 = Chirp_Calc_ChirpTime0(f_low, fac->multi_fac, fac->s_mass_ratio);
 	fac->ct.chirp_time1_5 = Chirp_Calc_ChirpTime1_5(f_low, fac->multi_fac, fac->s_mass_ratio);
 
-	//Calculated reduced masses using  chirp_time0 and chirp_time1_5
+	/* Calculated reduced masses using  chirp_time0 and chirp_time1_5 */
 	fac->calculated_reduced_mass = Chirp_Calc_CalculatedReducedMass(f_low, fac->ct.chirp_time0, fac->ct.chirp_time1_5);
 	fac->calculated_total_mass = Chirp_Calc_CalculatedTotalMass(f_low, fac->ct.chirp_time0, fac->ct.chirp_time1_5);
 	fac->s_mass_ratio_cal = Chirp_Calc_SMassRatioCal(fac->calculated_reduced_mass, fac->calculated_total_mass);
@@ -136,7 +136,7 @@ void CF_compute(double f_low, source_t *source, chirp_factors_t *fac) {
 
 	fac->ct.tc = Chirp_Calc_TC(source->time_of_arrival, fac->t_chirp);
 
-	// Careful because this is hardcoded! Ask Shihan why this is the case
+	/* Careful because this is hardcoded! Ask Shihan why this is the case */
 	fac->ct.amp_fact_1 = 1.0;
 	fac->ct.amp_fact_2 = 1.0;
 }

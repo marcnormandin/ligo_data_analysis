@@ -44,9 +44,6 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 	struct ptapso_func_params *splParams = (struct ptapso_func_params *)inParams->splParams;
 
 	/* This fitness function knows what fields are given in the special parameters struct */
-    //int dummy = splParams->dummyParam;
-	//printf("PTAPSOTESTFUNC called with special parameters %d\n",dummy);
-	//! [Cast special params]
 
 	s2rvector(xVec,inParams->rmin,inParams->rangeVec,inParams->realCoord);
 
@@ -59,14 +56,14 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 		double ra = gsl_vector_get(inParams->realCoord, 0);
 		double dec = gsl_vector_get(inParams->realCoord, 1);
 
-		// apply the pso location
+		/* apply the pso particle location */
 		splParams->source->sky.ra = ra;
 		splParams->source->sky.dec = dec;
 
 		chirp_factors_t chirp;
 		CF_compute(splParams->f_low, splParams->source, &chirp);
-		// The network statistic requires the time of arrival to be zero
-		// in order for the matched filtering to work correctly.
+		/* The network statistic requires the time of arrival to be zero
+		   in order for the matched filtering to work correctly. */
 		chirp.ct.tc = chirp.t_chirp;
 
 		coherent_network_statistic(
@@ -80,8 +77,8 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 				splParams->signals,
 				splParams->workspace,
 				&fitFuncVal);
-		// The statistic is larger for better matches, but PSO is finding
-		// minimums, so multiply by -1.0.
+		/* The statistic is larger for better matches, but PSO is finding
+		   minimums, so multiply by -1.0. */
 		fitFuncVal *= -1.0;
     }
 	else{
