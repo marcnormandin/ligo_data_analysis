@@ -22,7 +22,7 @@ static void init_vector(gsl_vector* v, double x, double y, double z) {
 
 static int trace(gsl_matrix* A, double* r) {
 	double sum = 0.0;
-	int n = A->size1;
+	size_t n = A->size1;
 	if (A->size2 != n) {
 		GSL_ERROR("Trace is not defined for non-square matrices.", EDOM);
 		return -1;
