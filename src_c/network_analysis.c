@@ -23,12 +23,15 @@
 #include "detector_network.h"
 
 coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
-	coherent_network_helper_t *h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
+	size_t s;
+	coherent_network_helper_t *h;
+
+	h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
 
 	/* Fixme
 	 * Check that this is always valid. It may depend on nyquist frequency being present
 	 */
-	size_t s = 2*num_frequencies - 2;
+	s = 2*num_frequencies - 2;
 	h->c_plus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	h->c_minus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	return h;
@@ -40,10 +43,15 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 }
 
 coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t len_freq) {
-	coherent_network_workspace_t * work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
+	coherent_network_workspace_t * work;
+	size_t i;
+	size_t len_terms;
+	size_t s;
+
+	work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
 	work->num_helpers = num_detectors;
 	work->helpers = (coherent_network_helper_t**) malloc( work->num_helpers * sizeof(coherent_network_helper_t*));
-	for (size_t i = 0; i < work->num_helpers; i++) {
+	for (i = 0; i < work->num_helpers; i++) {
 		work->helpers[i] = CN_helper_malloc( len_freq );
 	}
 
@@ -53,18 +61,18 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
 	/* Fixme */
-	size_t len_terms = 2 * len_freq - 2;
-	for (size_t i = 0; i < 4; i++) {
+	len_terms = 2 * len_freq - 2;
+	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( len_terms * sizeof(gsl_complex) );
 	}
 
 	work->fs = (double**) malloc( 4 * sizeof(double*) );
-	for (size_t i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		work->fs[i] = (double*) malloc( 2 * len_terms * sizeof(double) );
 	}
 
 	work->temp_ifft = (double*) malloc( len_terms * sizeof(double) );
-	size_t s = 2 * len_freq - 2;
+	s = 2 * len_freq - 2;
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
@@ -72,13 +80,15 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 }
 
 void CN_workspace_free( coherent_network_workspace_t *workspace ) {
-	for (size_t i = 0; i < workspace->num_helpers; i++) {
+	size_t i;
+
+	for (i = 0; i < workspace->num_helpers; i++) {
 		CN_helper_free( workspace->helpers[i] );
 	}
 
 	SP_free(workspace->sp);
 
-	for (size_t i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		free(workspace->terms[i]);
 		free(workspace->fs[i]);
 	}
@@ -94,7 +104,11 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 }
 
 void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c) {
-	for (int k = 0; k < regular_strain->len; k++) {
+	size_t k;
+	size_t t_index;
+	size_t c_index;
+
+	for (k = 0; k < regular_strain->len; k++) {
 		temp[k] = gsl_complex_conjugate(spa[k]);
 		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
 		temp[k] = gsl_complex_mul( temp[k], whitened_data[k] );
@@ -103,8 +117,8 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 	}
 
 	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
-	int t_index = regular_strain->len - 2;
-	int c_index = regular_strain->len;
+	t_index = regular_strain->len - 2;
+	c_index = regular_strain->len;
 	for (; t_index > 0; t_index--, c_index++) {
 		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
 	}
@@ -112,8 +126,10 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {
 	FILE* file;
+	size_t i;
+
 	file = fopen(filename, "w");
-	for (size_t i = 0; i < len; i++) {
+	for (i = 0; i < len; i++) {
 		fprintf(file, "%e\n", tmp_ifft[i]);
 	}
 	fclose(file);
@@ -131,76 +147,112 @@ void coherent_network_statistic(
 		coherent_network_workspace_t *workspace,
 		double *out_val)
 {
+	double UdotU_input;
+	double UdotV_input;
+	double VdotV_input;
+	size_t i;
+	double A_input;
+	double B_input;
+	double C_input;
+	double Delta_input;
+	double Delta_factor_input;
+	double D_input;
+	double P1_input;
+	double P2_input;
+	double P3_input;
+	double P4_input;
+	double G1_input;
+	double G2_input;
+	double O11_input;
+	double O12_input;
+	double O21_input;
+	double O22_input;
+	size_t s;
+	size_t tid;
+	size_t did;
+	size_t fid;
+	size_t j;
+	double max;
+	double std;
+
 	Compute_Detector_Network_Antenna_Patterns(sky, polarization_angle, net);
 
 	/* We need to make vectors with the same number of dimensions as the number of detectors in the network */
-	double UdotU_input = 0.0;
-	double UdotV_input = 0.0;
-	double VdotV_input = 0.0;
+	UdotU_input = 0.0;
+	UdotV_input = 0.0;
+	VdotV_input = 0.0;
 
 	/* dot product */
-	for (int i = 0; i < net->num_detectors; i++) {
+	for (i = 0; i < net->num_detectors; i++) {
 		UdotU_input += net->detector[i].ant.u * net->detector[i].ant.u;
 		UdotV_input += net->detector[i].ant.u * net->detector[i].ant.v;
 		VdotV_input += net->detector[i].ant.v * net->detector[i].ant.v;
 	}
 
-	double A_input = UdotU_input;
-	double B_input = UdotV_input;
-	double C_input = VdotV_input;
+	A_input = UdotU_input;
+	B_input = UdotV_input;
+	C_input = VdotV_input;
 
-	double Delta_input = (A_input*C_input) - (B_input*B_input);
-	double Delta_factor_input = 1.0 / sqrt(2.0*Delta_input);
+	Delta_input = (A_input*C_input) - (B_input*B_input);
+	Delta_factor_input = 1.0 / sqrt(2.0*Delta_input);
 
-	double D_input = sqrt( gsl_pow_2(A_input-C_input) + 4.0*gsl_pow_2(B_input) ) ;
+	D_input = sqrt( gsl_pow_2(A_input-C_input) + 4.0*gsl_pow_2(B_input) ) ;
 
-	double P1_input = (C_input-A_input-D_input);
-	double P2_input = (C_input-A_input+D_input);
-	double P3_input = sqrt(C_input+A_input+D_input);
-	double P4_input = sqrt(C_input+A_input-D_input);
+	P1_input = (C_input-A_input-D_input);
+	P2_input = (C_input-A_input+D_input);
+	P3_input = sqrt(C_input+A_input+D_input);
+	P4_input = sqrt(C_input+A_input-D_input);
 
-	double G1_input =  sqrt( gsl_pow_2(P1_input) +  4.0*gsl_pow_2(B_input)) / (2.0*B_input) ;
-	double G2_input =  sqrt( gsl_pow_2(P2_input) +  4.0*gsl_pow_2(B_input)) / (2.0*B_input) ;
+	G1_input =  sqrt( gsl_pow_2(P1_input) +  4.0*gsl_pow_2(B_input)) / (2.0*B_input) ;
+	G2_input =  sqrt( gsl_pow_2(P2_input) +  4.0*gsl_pow_2(B_input)) / (2.0*B_input) ;
 
-	double O11_input = Delta_factor_input * P3_input / G1_input ;
-	double O12_input = Delta_factor_input * P3_input * P1_input / (2.0*B_input*G1_input) ;
-	double O21_input = Delta_factor_input * P4_input / G2_input ;
-	double O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
+	O11_input = Delta_factor_input * P3_input / G1_input ;
+	O12_input = Delta_factor_input * P3_input * P1_input / (2.0*B_input*G1_input) ;
+	O21_input = Delta_factor_input * P4_input / G2_input ;
+	O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
 
 	/* Loop over each detector to generate a template and do matched filtering */
-	for (size_t i = 0; i < net->num_detectors; i++) {
-			detector_t* det = &net->detector[i];
+	for (i = 0; i < net->num_detectors; i++) {
+		detector_t* det;
+		double coalesce_phase;
+		gsl_complex* whitened_data;
+		double U_vec_input;
+		double V_vec_input;
 
-			double coalesce_phase = 0.0;
+		det = &net->detector[i];
 
-			SP_compute(coalesce_phase, det->timedelay,
-							chirp, regular_strain,
-							f_low, f_high,
-							workspace->sp);
+		coalesce_phase = 0.0;
 
-			gsl_complex* whitened_data = signals[i]->whitened_data;
+		SP_compute(coalesce_phase, det->timedelay,
+						chirp, regular_strain,
+						f_low, f_high,
+						workspace->sp);
 
-			do_work(workspace->sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		whitened_data = signals[i]->whitened_data;
 
-			do_work(workspace->sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(workspace->sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-			double U_vec_input = det->ant.u;
-			double V_vec_input = det->ant.v;
+		do_work(workspace->sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
-			workspace->helpers[i]->w_plus_input = (O11_input*U_vec_input +  O12_input*V_vec_input);
-			workspace->helpers[i]->w_minus_input = (O21_input*U_vec_input +  O22_input*V_vec_input);
+		U_vec_input = det->ant.u;
+		V_vec_input = det->ant.v;
+
+		workspace->helpers[i]->w_plus_input = (O11_input*U_vec_input +  O12_input*V_vec_input);
+		workspace->helpers[i]->w_minus_input = (O21_input*U_vec_input +  O22_input*V_vec_input);
 	}
 
 	/* zero the memory */
-	size_t s = 2 * regular_strain->len - 2;
-	for (size_t tid = 0; tid < 4; tid++) {
+	s = 2 * regular_strain->len - 2;
+	for (tid = 0; tid < 4; tid++) {
 		memset( workspace->terms[tid], 0, s * sizeof(gsl_complex) );
 		memset( workspace->fs[tid], 0, s * sizeof(gsl_complex) );
 	}
 
-	for (size_t did = 0; did < net->num_detectors; did++) {
-		for (size_t fid = 0; fid < s; fid++) {
-			gsl_complex t = gsl_complex_mul_real(workspace->helpers[did]->c_plus[fid], workspace->helpers[did]->w_plus_input);
+	for (did = 0; did < net->num_detectors; did++) {
+		for (fid = 0; fid < s; fid++) {
+			gsl_complex t;
+
+			t = gsl_complex_mul_real(workspace->helpers[did]->c_plus[fid], workspace->helpers[did]->w_plus_input);
 			workspace->terms[0][fid] = gsl_complex_add( workspace->terms[0][fid], t);
 
 			t = gsl_complex_mul_real(workspace->helpers[did]->c_plus[fid], workspace->helpers[did]->w_minus_input);
@@ -214,8 +266,8 @@ void coherent_network_statistic(
 		}
 	}
 
-	for (size_t i = 0; i < 4; i++) {
-		for (size_t j = 0; j < s; j++) {
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < s; j++) {
 			workspace->fs[i][2*j + 0] = GSL_REAL( workspace->terms[i][j] );
 			workspace->fs[i][2*j + 1] = GSL_IMAG( workspace->terms[i][j] );
 		}
@@ -223,8 +275,8 @@ void coherent_network_statistic(
 	}
 
 	memset(workspace->temp_ifft, 0, s * sizeof(double));
-	for (size_t i = 0; i < 4; i++) {
-		for (size_t j = 0; j < s; j++) {
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < s; j++) {
 			/* Take only the real part. The imaginary part should be zero. */
 			double x = workspace->fs[i][2*j + 0];
 			workspace->temp_ifft[j] += gsl_pow_2(x*s);
@@ -233,8 +285,8 @@ void coherent_network_statistic(
 
 	/* CN_save("tmp_ifft.dat", s, workspace->temp_ifft); */
 
-	double max = workspace->temp_ifft[0];
-	for (int i = 1; i < s; i++) {
+	max = workspace->temp_ifft[0];
+	for (i = 1; i < s; i++) {
 		double m = workspace->temp_ifft[i];
 		if (m > max) {
 			max = m;
@@ -242,7 +294,7 @@ void coherent_network_statistic(
 	}
 
 	/* divide the standard deviation to convert to SNR */
-	double std = gsl_stats_sd(workspace->temp_ifft, 1, s);
+	std = gsl_stats_sd(workspace->temp_ifft, 1, s);
 
 	*out_val = sqrt(max) / std;
 }

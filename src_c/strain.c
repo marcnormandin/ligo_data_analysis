@@ -25,8 +25,10 @@ void Strain_free(strain_t* strain) {
 }
 
 void Strain_print(strain_t* strain) {
+	size_t i;
+
 	printf("Strain Curve: %ld samples\n", strain->len);
-	for (size_t i = 0; i < strain->len; i++) {
+	for (i = 0; i < strain->len; i++) {
 		printf("%e %e\n", strain->freq[i], strain->strain[i]);
 	}
 }
@@ -34,8 +36,10 @@ void Strain_print(strain_t* strain) {
 /* This is only used by Strain_readFile */
 static int Read_Num_Strain_Samples(char* filename) {
 	FILE* file;
+	size_t len;
+
 	file = fopen(filename, "r");
-	size_t len = 0;
+	len = 0;
 
 	if (file) {
 		double freq, strain;
@@ -59,7 +63,7 @@ strain_t* Strain_readFromFile(char* filename) {
 
 	file = fopen(filename, "r");
 	if (file) {
-		int i = 0;
+		size_t i = 0;
 		while (fscanf(file, "%lf %lf", &strain->freq[i], &strain->strain[i])
 				!= EOF) {
 			i++;
@@ -74,9 +78,11 @@ strain_t* Strain_readFromFile(char* filename) {
 
 int Strain_saveToFile(char* filename, strain_t* strain) {
 	FILE* file;
+	size_t i;
+
 	file = fopen(filename, "w");
 	if (file) {
-		for (size_t i = 0; i < strain->len; i++) {
+		for (i = 0; i < strain->len; i++) {
 			fprintf(file, "%e\t %e\n", strain->freq[i], strain->strain[i]);
 		}
 		fclose(file);
@@ -89,12 +95,15 @@ int Strain_saveToFile(char* filename, strain_t* strain) {
 
 /* Memory must be freed using Strain_free() */
 strain_t* Strain_simulated(double f_low, double f_high) {
+	size_t i;
+	strain_t* regular_strain;
+
 	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
 	/* Strain_print(irregular_strain); */
 
 	/* find the strains to use at the ends */
 	double strain_f_low;
-	for (int i = 0; i < irregular_strain->len; i++) {
+	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];
 		if (f >= f_low) {
@@ -104,7 +113,7 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 	}
 
 	double strain_f_high;
-	for (int i = 0; i < irregular_strain->len; i++) {
+	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];
 		if (f >= f_high) {
@@ -114,7 +123,7 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 	}
 
 	/* extend the strains */
-	for (int i = 0; i < irregular_strain->len; i++) {
+	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];
 		if (f < f_low) {
@@ -124,7 +133,7 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 		}
 	}
 
-	strain_t* regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
+	regular_strain = InterpStrain_malloc_and_compute(irregular_strain);
 
 	Strain_free(irregular_strain);
 

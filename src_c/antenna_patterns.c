@@ -21,21 +21,34 @@ static void init_vector(gsl_vector* v, double x, double y, double z) {
 }
 
 static int trace(gsl_matrix* A, double* r) {
+	int i;
 	double sum = 0.0;
 	size_t n = A->size1;
+
 	if (A->size2 != n) {
 		GSL_ERROR("Trace is not defined for non-square matrices.", EDOM);
 		return -1;
 	}
-	for (int i = 0; i < n; i++) {
+
+	for (i = 0; i < n; i++) {
 		sum += gsl_matrix_get(A, i, i);
 	}
 	*r = sum;
+
 	return 0;
 }
 
 int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, antenna_patterns_t *ant)
 {
+	gsl_vector* n_hat;
+	gsl_vector* ex_i;
+	gsl_vector* ey_j;
+	gsl_matrix* epsilon_plus;
+	gsl_matrix* epsilon_cross;
+	gsl_matrix* D;
+	gsl_matrix* temp;
+	gsl_matrix* wp_matrix;
+
 	gsl_vector* cordnt_x = gsl_vector_alloc(3);
 	gsl_vector* cordnt_y = gsl_vector_alloc(3);
 
@@ -85,16 +98,16 @@ int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, ant
 	   sky->ra and then rotating counterclockwise about y angle
 	   sky->dec) */
 
-	gsl_vector* n_hat = gsl_vector_alloc(3);
+	n_hat = gsl_vector_alloc(3);
 	init_vector(n_hat, gsl_sf_cos(sky->ra) * gsl_sf_cos(sky->dec),
 			gsl_sf_sin(sky->ra) * gsl_sf_cos(sky->dec),
 			gsl_sf_sin(sky->dec));
 
-	gsl_vector* ex_i = gsl_vector_alloc(3);
+	ex_i = gsl_vector_alloc(3);
 	init_vector(ex_i, gsl_sf_sin(sky->ra), -gsl_sf_cos(sky->ra),
 			0);
 
-	gsl_vector* ey_j = gsl_vector_alloc(3);
+	ey_j = gsl_vector_alloc(3);
 	init_vector(ey_j, -gsl_sf_cos(sky->ra) * gsl_sf_sin(sky->dec),
 			-gsl_sf_sin(sky->ra) * gsl_sf_sin(sky->dec),
 			gsl_sf_cos(sky->dec));
@@ -106,12 +119,12 @@ int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, ant
 
 	/* Form a matrix through the outerproduct of two vectors
 	   See: https://www.math.utah.edu/software/lapack/lapack-blas/dger.html */
-	gsl_matrix* epsilon_plus = gsl_matrix_alloc(3, 3);
+	epsilon_plus = gsl_matrix_alloc(3, 3);
 	gsl_matrix_set_zero(epsilon_plus);
 	gsl_blas_dger(1.0, ex_i, ex_i, epsilon_plus);
 	gsl_blas_dger(-1.0, ey_j, ey_j, epsilon_plus);
 
-	gsl_matrix* epsilon_cross = gsl_matrix_alloc(3, 3);
+	epsilon_cross = gsl_matrix_alloc(3, 3);
 	gsl_matrix_set_zero(epsilon_cross);
 	gsl_blas_dger(1.0, ex_i, ey_j, epsilon_cross);
 	gsl_blas_dger(1.0, ey_j, ex_i, epsilon_cross);
@@ -120,14 +133,14 @@ int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, ant
 	  D = 0.5*(Xhat"*Xhat - Yhat"*Yhat) where Xhat is the unit vector for the
 	  "X" arm and Yhat is the unit vector for the "Y" arm
 	 */
-	gsl_matrix* D = gsl_matrix_alloc(3, 3);
+	D = gsl_matrix_alloc(3, 3);
 	gsl_matrix_set_zero(D);
 	gsl_blas_dger(0.5, cordnt_x, cordnt_x, D);
 	gsl_blas_dger(-0.5, cordnt_y, cordnt_y, D);
 
 
 	/* Tensor contraction.(Polarization Angel Independent) */
-	gsl_matrix* temp = gsl_matrix_alloc(3, 3);
+	temp = gsl_matrix_alloc(3, 3);
 	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, D, epsilon_plus, 0.0, temp);
 	/* cblas uses: C = alpha * A * B + beta * C */
 
@@ -137,7 +150,7 @@ int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, ant
 			temp);
 	trace(temp, &ant->v);
 
-	gsl_matrix* wp_matrix = gsl_matrix_alloc(2, 2);
+	wp_matrix = gsl_matrix_alloc(2, 2);
 	gsl_matrix_set(wp_matrix, 0, 0, gsl_sf_cos(2 * polarization_angle));
 	gsl_matrix_set(wp_matrix, 0, 1, gsl_sf_sin(2 * polarization_angle));
 	gsl_matrix_set(wp_matrix, 1, 0, -gsl_sf_sin(2 * polarization_angle));

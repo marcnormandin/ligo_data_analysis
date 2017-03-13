@@ -15,16 +15,19 @@
 #include "network_analysis.h"
 
 void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
-	const int N_ra = 20;
-	const int N_dec = 10;
+	size_t ra_i, dec_i;
+	const size_t N_ra = 20;
+	const size_t N_dec = 10;
 
 	const double delta_ra = (2.0 * M_PI) / N_ra;
 	const double delta_dec = (1.0*M_PI) / N_dec;
 
 	FILE *fid = fopen(output_file, "w");
 
-	for (int ra_i = 0; ra_i < N_ra; ra_i++) {
-		for (int dec_i = 0; dec_i < N_dec; dec_i++) {
+	for (ra_i = 0; ra_i < N_ra; ra_i++) {
+		for (dec_i = 0; dec_i < N_dec; dec_i++) {
+			chirp_factors_t chirp;
+			double recovered_snr;
 			double ra = -M_PI + ra_i * delta_ra;
 			double dec = -0.5*M_PI + dec_i * delta_dec;
 
@@ -32,13 +35,10 @@ void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
 			splParams->source->sky.ra = ra;
 			splParams->source->sky.dec = dec;
 
-			chirp_factors_t chirp;
 			CF_compute(splParams->f_low, splParams->source, &chirp);
 			/* The network statistic requires the time of arrival to be zero
 			   in order for the matched filtering to work correctly. */
 			chirp.ct.tc = chirp.t_chirp;
-
-			double recovered_snr = -1.0;
 
 			coherent_network_statistic(
 					splParams->network,

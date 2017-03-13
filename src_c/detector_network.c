@@ -39,7 +39,9 @@ void Compute_Detector_Network_Antenna_Patterns(
 		double polarization_angle,
 		detector_network_t* net)
 {
-	for (size_t i = 0; i < net->num_detectors; i++) {
+	size_t i;
+
+	for (i = 0; i < net->num_detectors; i++) {
 		detector_t* det = &net->detector[i];
 
 		/* Check return value for errors */
@@ -50,8 +52,10 @@ void Compute_Detector_Network_Antenna_Patterns(
 }
 
 void Print_Detector_Network(detector_network_t* net) {
+	size_t i;
+
 	printf("DETECTOR NEWTORK: %d detectors\n", net->num_detectors);
-	for (size_t i = 0; i < net->num_detectors; i++) {
+	for (i = 0; i < net->num_detectors; i++) {
 		Print_Detector(&net->detector[i]);
 		printf("\n");
 	}

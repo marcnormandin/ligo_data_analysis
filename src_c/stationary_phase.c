@@ -30,17 +30,22 @@ void SP_free(stationary_phase_t* sp) {
 
 void SP_save(char* filename, strain_t* interp_strain, stationary_phase_t* sp) {
 	FILE* file;
+	size_t i;
+
 	file = fopen(filename, "w");
-	for (size_t i = 0; i < sp->len; i++) {
+	for (i = 0; i < sp->len; i++) {
 		fprintf(file, "%e %e %e\n", interp_strain->freq[i], GSL_REAL(sp->spa_0[i]), GSL_REAL(sp->spa_90[i]));
 	}
 	fclose(file);
 }
 
 double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_strain) {
+	size_t i;
+	double sum_tempval;
+
 	/* whitening normalization factor */
 	double *tempval = (double*) malloc(interp_strain->len * sizeof(double));
-	for (size_t i = 0; i < interp_strain->len; i++) {
+	for (i = 0; i < interp_strain->len; i++) {
 		double f = interp_strain->freq[i];
 		double s = interp_strain->strain[i];
 
@@ -49,16 +54,14 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 		}
 	}
 
-	double sum_tempval = 0.0;
-	for (size_t i = 0; i < interp_strain->len; i++) {
+	sum_tempval = 0.0;
+	for (i = 0; i < interp_strain->len; i++) {
 		sum_tempval += tempval[i];
 	}
 
 	free(tempval);
 
-	double g = sqrt(gsl_pow_2(chirp->amp_fact_1) * gsl_pow_2(chirp->amp_fact_2) * sum_tempval);
-
-	return g;
+	return sqrt(gsl_pow_2(chirp->amp_fact_1) * gsl_pow_2(chirp->amp_fact_2) * sum_tempval);
 }
 
 void SP_compute(double coalesce_phase, double time_delay,
@@ -66,11 +69,13 @@ void SP_compute(double coalesce_phase, double time_delay,
 		double f_low, double f_high,
 		stationary_phase_t *out_sp)
 {
+	size_t j;
+
 	/* This doesn't change unless the strain changes */
 	double g = SP_g(f_low, f_high, chirp, interp_strain);
 
 	/* This is not efficient! */
-	for (size_t j = 0; j < interp_strain->len; j++) {
+	for (j = 0; j < interp_strain->len; j++) {
 		double f = interp_strain->freq[j];
 		double s = interp_strain->strain[j];
 
