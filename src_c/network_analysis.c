@@ -85,6 +85,7 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	for (i = 0; i < workspace->num_helpers; i++) {
 		CN_helper_free( workspace->helpers[i] );
 	}
+	free(workspace->helpers);
 
 	SP_free(workspace->sp);
 
