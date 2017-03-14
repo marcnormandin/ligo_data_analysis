@@ -7,6 +7,8 @@
 
 #include "detector.h"
 
+#include <stdio.h>
+
 void Print_Detector(detector_t* det) {
 	printf("DETECTOR:\n");
 	printf("id: %s\n", det->id);

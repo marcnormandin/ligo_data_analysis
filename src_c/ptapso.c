@@ -331,13 +331,13 @@ struct returnData * returnData_alloc(size_t nDim){
 	gsl_vector *bestLocation = gsl_vector_alloc(nDim);
 	psoResults->bestLocation = bestLocation;
 	return psoResults;
-};
+}
 
 /*! Free storage assigned to returnData struct members */
 void returnData_free(struct returnData *psoResults){
 	gsl_vector_free(psoResults->bestLocation);
 	free(psoResults);
-};
+}
 
 
 /*! Dump information stored in particleInfo struct */
@@ -387,4 +387,3 @@ void particleInfoDump(FILE *outF, struct particleInfo *p, size_t popsize){
 		fprintf(outF,"\n");				
 	}
 }
-

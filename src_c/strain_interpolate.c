@@ -15,10 +15,12 @@ strain_t* InterpStrain_malloc_and_compute(strain_t* strain)
 	size_t i, N;
 	strain_t* out_interpolated;
 	int samplingFrequency;
+	gsl_interp* interp;
+	gsl_interp_accel* acc;
 
-	gsl_interp* interp = gsl_interp_alloc(gsl_interp_linear, strain->len);
+	interp = gsl_interp_alloc(gsl_interp_linear, strain->len);
 	gsl_interp_init(interp, strain->freq, strain->strain, strain->len);
-	gsl_interp_accel* acc = gsl_interp_accel_alloc();
+	acc = gsl_interp_accel_alloc();
 
 	N = 65537;
 	out_interpolated = Strain_malloc(N);
@@ -32,7 +34,6 @@ strain_t* InterpStrain_malloc_and_compute(strain_t* strain)
 		double s = gsl_interp_eval(interp, strain->freq, strain->strain, f,
 				acc);
 
-		// store
 		out_interpolated->freq[i] = f;
 		out_interpolated->strain[i] = s;
 	}

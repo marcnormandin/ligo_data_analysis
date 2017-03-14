@@ -13,7 +13,7 @@
 
 /* The detector network used in the study. */
 typedef struct {
-	int num_detectors;
+	unsigned int num_detectors;
 	detector_t* detector;
 
 } detector_network_t;

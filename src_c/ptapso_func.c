@@ -87,5 +87,3 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 	}
    return fitFuncVal;
 }
-
-

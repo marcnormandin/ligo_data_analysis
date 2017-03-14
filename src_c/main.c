@@ -61,13 +61,15 @@ char* concat(const char *s1, const char *s2)
 
 int test_antenna_patterns() {
 	sky_t sky;
+	int res;
+	double polarization_angle;
+	antenna_patterns_t ant;
+
     sky.dec = 0.5;
     sky.ra = 0.5;
-    double polarization_angle = 0.5;
-    const char* iid = "H1";
+    polarization_angle = 0.5;
 
-    antenna_patterns_t ant;
-    int res = antenna_patterns(iid, &sky, polarization_angle, &ant);
+    res = antenna_patterns("H1", &sky, polarization_angle, &ant);
     if (res != 0) {
         printf("An error occured!");
         return -1;
@@ -79,6 +81,7 @@ int test_antenna_patterns() {
 }
 
 int old_main(int argc, char* argv[]) {
+	size_t n;
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff. */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
@@ -102,7 +105,7 @@ int old_main(int argc, char* argv[]) {
 	size_t num_realizations = 100000;
 	double *results_snr = (double*) malloc( num_realizations * sizeof(double) );
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
-	for (int n = 0; n < num_realizations; n++) {
+	for (n = 0; n < num_realizations; n++) {
 		signal_t **signals = simulate_data(rng, f_low, f_high, &net, strain, &source);
 
 		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
@@ -135,7 +138,7 @@ int old_main(int argc, char* argv[]) {
 	CN_workspace_free( workspace );
 
 	FILE* fid = fopen("results.snr", "w");
-	for (int n = 0; n < num_realizations; n++) {
+	for (n = 0; n < num_realizations; n++) {
 		fprintf(fid, "%e\n", results_snr[n]);
 	}
 	fclose(fid);
@@ -150,6 +153,8 @@ int old_main(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+	size_t i;
+
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
@@ -193,7 +198,7 @@ int main(int argc, char* argv[]) {
 	CN_workspace_free( workspace );
 
 	/* Free the data */
-	for (int i = 0; i < net.num_detectors; i++) {
+	for (i = 0; i < net.num_detectors; i++) {
 		Signal_free(signals[i]);
 	}
 	free(signals);

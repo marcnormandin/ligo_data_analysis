@@ -97,12 +97,13 @@ int Strain_saveToFile(char* filename, strain_t* strain) {
 strain_t* Strain_simulated(double f_low, double f_high) {
 	size_t i;
 	strain_t* regular_strain;
+	double strain_f_low;
+	double strain_f_high;
 
 	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
 	/* Strain_print(irregular_strain); */
 
 	/* find the strains to use at the ends */
-	double strain_f_low;
 	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];
@@ -112,7 +113,7 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 		}
 	}
 
-	double strain_f_high;
+
 	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
 		double s = irregular_strain->strain[i];
@@ -125,7 +126,6 @@ strain_t* Strain_simulated(double f_low, double f_high) {
 	/* extend the strains */
 	for (i = 0; i < irregular_strain->len; i++) {
 		double f = irregular_strain->freq[i];
-		double s = irregular_strain->strain[i];
 		if (f < f_low) {
 			irregular_strain->strain[i] = strain_f_low;
 		} else if (f > f_high) {

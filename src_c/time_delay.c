@@ -23,12 +23,12 @@ int time_delay(const char *iid, sky_t *sky, double *td)
     /* WGS-84 coordinates of beam splitter */
     double WGS[3];
 
-    const double xifo;
-    const double yifo;
-    const double zifo;
-    const double xgw;
-    const double ygw;
-    const double zgw;
+    double xifo;
+    double yifo;
+    double zifo;
+    double xgw;
+    double ygw;
+    double zgw;
     double gunit;
     double C;
 
@@ -80,7 +80,7 @@ int time_delay(const char *iid, sky_t *sky, double *td)
     gunit = sqrt( gsl_pow_2(xgw) + gsl_pow_2(ygw) + gsl_pow_2(zgw) );
 
     /* Define the speed of light */
-    C = GSL_CONST_MKSA_SPEED_OF_LIGHT; // m/s
+    C = GSL_CONST_MKSA_SPEED_OF_LIGHT;
 
     /* Double check the negative sigh infront. */
     /* Shihan"s expalnation: You don't have to put minus here. Plus or minus will be decided by the sky location */
