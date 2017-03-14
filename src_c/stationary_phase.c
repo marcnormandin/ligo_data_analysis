@@ -51,6 +51,9 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 
 		if (f > f_low && f < f_high) {
 			tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
+		} else {
+			// Matlab version allocates tempval as "ones(1,length(f))"
+			tempval[i] = 1.0;
 		}
 	}
 
