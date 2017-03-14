@@ -52,7 +52,7 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 		if (f > f_low && f < f_high) {
 			tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
 		} else {
-			// Matlab version allocates tempval as "ones(1,length(f))"
+			/* Matlab version allocates tempval as "ones(1,length(f))" */
 			tempval[i] = 1.0;
 		}
 	}
@@ -80,7 +80,7 @@ void SP_compute(double coalesce_phase, double time_delay,
 	/* This is not efficient! */
 	for (j = 0; j < interp_strain->len; j++) {
 		double f = interp_strain->freq[j];
-		double s = interp_strain->strain[j];
+		/* double s = interp_strain->strain[j]; */
 
 		if (f > f_low && f < f_high) {
 			double amp_2pn = (1.0 / g) * chirp->amp_fact_1 * chirp->amp_fact_2 * pow(f, -7.0 / 6.0);

@@ -87,7 +87,7 @@ int old_main(int argc, char* argv[]) {
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
 
 	source_t source;
-	Load_Source(&source);
+	Source_load_testsource(&source);
 
 	detector_network_t net;
 	Init_Detector_Network(&net);
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
 
 	source_t source;
-	Load_Source(&source);
+	Source_load_testsource(&source);
 
 	detector_network_t net;
 	Init_Detector_Network(&net);

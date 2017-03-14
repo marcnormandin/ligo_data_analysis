@@ -12,7 +12,7 @@
 
 #include "source.h"
 
-void Print_Source(source_t* source) {
+void Source_print(source_t* source) {
 	printf("right ascension: %f\n", source->sky.ra);
 	printf("declination: %f\n", source->sky.dec);
 	printf("polarization angle: %f\n", source->polarization_angle);
@@ -24,7 +24,7 @@ void Print_Source(source_t* source) {
 	printf("snr: %f\n", source->snr);
 }
 
-void Load_Source(source_t* source) {
+void Source_load_testsource(source_t* source) {
 	source->sky.ra = -2.14;
 	source->sky.dec = 0.72;
 	source->polarization_angle = 0.0;
