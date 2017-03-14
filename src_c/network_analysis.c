@@ -40,6 +40,7 @@ coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
 void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper->c_plus);
 	free(helper->c_minus);
+	free(helper);
 }
 
 coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t len_freq) {
