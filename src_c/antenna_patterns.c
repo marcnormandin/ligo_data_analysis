@@ -169,6 +169,7 @@ int antenna_patterns(const char *iid, sky_t *sky, double polarization_angle, ant
 	gsl_vector_free(ey_j);
 	gsl_matrix_free(epsilon_plus);
 	gsl_matrix_free(epsilon_cross);
+	gsl_matrix_free(D);
 	gsl_matrix_free(temp);
 	gsl_matrix_free(wp_matrix);
 
