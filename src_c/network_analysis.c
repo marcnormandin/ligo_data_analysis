@@ -175,7 +175,7 @@ void coherent_network_statistic(
 	size_t fid;
 	size_t j;
 	double max;
-	double std;
+	/* double std; */
 
 	Compute_Detector_Network_Antenna_Patterns(sky, polarization_angle, net);
 
@@ -296,7 +296,8 @@ void coherent_network_statistic(
 	}
 
 	/* divide the standard deviation to convert to SNR */
-	std = gsl_stats_sd(workspace->temp_ifft, 1, s);
+	/* std = gsl_stats_sd(workspace->temp_ifft, 1, s);
 
-	*out_val = sqrt(max) / std;
+	*out_val = sqrt(max) / std; */
+	*out_val = sqrt(max);
 }
