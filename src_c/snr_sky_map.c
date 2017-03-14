@@ -16,8 +16,8 @@
 
 void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
 	size_t ra_i, dec_i;
-	const size_t N_ra = 20;
-	const size_t N_dec = 10;
+	const size_t N_ra = 4;
+	const size_t N_dec = 2;
 
 	const double delta_ra = (2.0 * M_PI) / N_ra;
 	const double delta_dec = (1.0*M_PI) / N_dec;
