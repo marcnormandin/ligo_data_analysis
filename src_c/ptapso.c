@@ -1,11 +1,12 @@
 #include "ptapso.h"
-#include "maxphase.h"
 #include <stdio.h>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
+
+#include "ptapso_maxphase.h"
 /*! \file
 \brief Particle Swarm Optimization (PSO) and support functions.
 

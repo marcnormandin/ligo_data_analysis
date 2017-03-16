@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "maxphase.h"
 #include "ptapso.h"
 /* The header file tells us what fitness function we are calling
 and what the parameter structure for this function is.
@@ -9,6 +8,7 @@ and what the parameter structure for this function is.
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_rng.h>
+#include "ptapso_maxphase.h"
 
 int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	/* Estimate right-ascension and declination */
@@ -68,7 +68,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	psoParams.debugDumpFile = fopen("ptapso_dump.txt","w");
 	/* Run PSO multiple times to check for memory leaks */
 	for(lpc = 0; lpc < 1; lpc++){
-		printf("Loop # %zu\n", lpc);
+		/*printf("Loop # %zu\n", lpc); */
 		ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
 	}
 

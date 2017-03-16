@@ -7,8 +7,9 @@
 
 #include <stdio.h>
 #include "ptapso_func.h"
-#include "maxphase.h"
 #include <gsl/gsl_math.h>
+
+#include "ptapso_maxphase.h"
 /*
 fitFuncVal = ptapsotestfunc_gsl(xVec,P)
 A benchmark test function for PTAPSO

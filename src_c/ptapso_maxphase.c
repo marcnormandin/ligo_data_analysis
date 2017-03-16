@@ -4,7 +4,8 @@
 
 \author Soumya D. Mohanty
 */
-#include "maxphase.h"
+#include "ptapso_maxphase.h"
+
 #include <gsl/gsl_vector.h>
 #include <stdio.h>
 #include <sys/types.h>
