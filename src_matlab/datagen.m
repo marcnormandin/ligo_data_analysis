@@ -226,16 +226,16 @@ for id = 1:1:length(detId)
     %% Matched filter noise output level is consistent with other existing pipelines (PYCBC,GSTLAL)    
      % noise_f=(1/(sqrt(2)))*randn(1,(j_nyq+1))+(1/(sqrt(2)))*1i*randn(1,(j_nyq+1));
     %% Edited E(noise_f.* conj(noise_f))= 1/2 (It should be one sided)
-    % original noise_f=(1/(sqrt(4)))*randn(1,(j_nyq+1))+(1/(sqrt(4)))*1i*randn(1,(j_nyq+1));
+  % original 
+    noise_f=(1/(sqrt(4)))*randn(1,(j_nyq+1))+(1/(sqrt(4)))*1i*randn(1,(j_nyq+1));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %noise_f = 0 ;
-    noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
+    %noise_f=randn(1,(j_nyq+1))+1i*randn(1,(j_nyq+1));
     %noise_f = 0 ;
     %multi_factor = 1;
-    snr = 20;
-    multi_factor = (1/2.8580)*snr;
+    multi_factor = (1/2.8580)*9;
     %multi_factor = 0;
-     whitened_signal{1,id} =multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
+    whitened_signal{1,id} =multi_factor*((h_0 * F_Plus_vec(id))+ (h_90 * F_Cross_vec(id)));
     whitened_data{1,id}= whitened_signal{1,id} + (noise_f);  %(whitened signal+whitened noise)
    
 
