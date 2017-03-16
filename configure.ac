@@ -44,7 +44,7 @@ AC_SUBST(ac_top_srcdir)
 # List of Makefile.am's
 AC_CONFIG_SRCDIR([src_c/main.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src_c/Makefile])
+AC_CONFIG_FILES([Makefile notebooks/Makefile src_c/Makefile])
 
 # ****************************************************************************************************
 # Done!

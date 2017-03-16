@@ -1,15 +1,11 @@
-dist_bin_SCRIPTS = strain.txt 
+dist_bin_SCRIPTS = \
+	strain.txt 
 
-bin_PROGRAMS = lda
-
-lda_LDADD = -lgsl -lgslcblas
-
-lda_SOURCES = \
+common_sources = \
 	antenna_patterns.c antenna_patterns.h \
 	chirp.c chirp.h \
 	detector_network.c detector_network.h \
 	detector.c detector.h \
-	main.c \
 	maxphase.c maxphase.h \
 	network_analysis.c network_analysis.h \
 	ptapso_estimate.c ptapso_estimate.h \
@@ -24,3 +20,15 @@ lda_SOURCES = \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h \
 	time_delay.c time_delay.h
+	
+	
+bin_PROGRAMS = lda_pso lda_sky_map lda_snr_hist
+
+lda_test_pso_LDADD = -lgsl -lgslcblas
+lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
+
+lda_test_sky_map_LDADD = -lgsl -lgslcblas
+lda_test_sky_map_SOURCES = lda_test_sky_map_main.c $(common_sources)
+
+lda_test_snr_hist_LDADD = -lgsl -lgslcblas
+lda_test_snr_hist_SOURCES = lda_test_snr_hist_main.c $(common_sources)
