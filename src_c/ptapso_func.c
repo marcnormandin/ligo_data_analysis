@@ -55,6 +55,7 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 
 		double ra = gsl_vector_get(inParams->realCoord, 0);
 		double dec = gsl_vector_get(inParams->realCoord, 1);
+		/*printf("%f %f\n", ra, dec);*/
 
 		/* apply the pso particle location */
 		splParams->source->sky.ra = ra;

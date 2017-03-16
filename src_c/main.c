@@ -193,7 +193,8 @@ int main(int argc, char* argv[]) {
 
 	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
-	snr_sky_map(&params, "snr_sky_map.dat");
+	//snr_sky_map(&params, "snr_sky_map.dat");
+	ptapso_estimate(&params);
 
 	CN_workspace_free( workspace );
 
