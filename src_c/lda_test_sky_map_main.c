@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	size_t i;
 
 	if (argc != 3) {
-		printf("Usage: <program> (num RA points) (num DEC points)");
+		printf("Usage: <program> (num RA points) (num DEC points)\n");
 		return -1;
 	}
 
