@@ -22,7 +22,7 @@ common_sources = \
 	time_delay.c time_delay.h
 	
 	
-bin_PROGRAMS = lda_pso lda_sky_map lda_snr_hist
+bin_PROGRAMS = lda_test_pso lda_test_sky_map lda_test_snr_hist
 
 lda_test_pso_LDADD = -lgsl -lgslcblas
 lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
