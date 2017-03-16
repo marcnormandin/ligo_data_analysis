@@ -6,10 +6,10 @@ common_sources = \
 	chirp.c chirp.h \
 	detector_network.c detector_network.h \
 	detector.c detector.h \
-	maxphase.c maxphase.h \
 	network_analysis.c network_analysis.h \
 	ptapso_estimate.c ptapso_estimate.h \
 	ptapso_func.c ptapso_func.h \
+	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
 	signal.c signal.h \
 	simulate_data.c simulate_data.h \
