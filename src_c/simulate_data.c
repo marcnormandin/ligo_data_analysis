@@ -50,13 +50,15 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 	   The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
 	   old value: double multi_factor = (1.0 / 2.8580) * 20.0;
 	 */
-	multi_factor = 0.0;
+	multi_factor = (1.0 / 2.8580) * source->snr;
+	/*
 	for (i = 0; i < net->num_detectors; i++) {
 		multi_factor += gsl_pow_2(net->detector[i].ant.f_plus);
 		multi_factor += gsl_pow_2(net->detector[i].ant.f_cross);
 	}
 	multi_factor = 0.5 * sqrt(multi_factor);
 	multi_factor *= source->snr;
+	*/
 
 	sp = SP_malloc(strain->len);
 
@@ -94,8 +96,8 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 			signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
 
 			/* random noise */
-			noise_f_real = gsl_ran_gaussian(rng, 1.0);
-			noise_f_imag = gsl_ran_gaussian(rng, 1.0);
+			noise_f_real = 0.5*gsl_ran_gaussian(rng, 1.0);
+			noise_f_imag = 0.5*gsl_ran_gaussian(rng, 1.0);
 			noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
 
 			/* signal + noise */
