@@ -14,10 +14,10 @@
 #include "snr_sky_map.h"
 #include "network_analysis.h"
 
-void snr_sky_map(ptapso_fun_params_t *splParams, const char* output_file) {
+void snr_sky_map(ptapso_fun_params_t *splParams, int num_ra, int num_dec, const char* output_file) {
 	size_t ra_i, dec_i;
-	const size_t N_ra = 100;
-	const size_t N_dec = 50;
+	const size_t N_ra = num_ra;
+	const size_t N_dec = num_dec;
 
 	const double delta_ra = (2.0 * M_PI) / N_ra;
 	const double delta_dec = (1.0*M_PI) / N_dec;

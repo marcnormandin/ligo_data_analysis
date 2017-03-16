@@ -44,6 +44,19 @@
 int main(int argc, char* argv[]) {
 	size_t i;
 
+	if (argc != 3) {
+		printf("Usage: <program> (num RA points) (num DEC points)");
+		return -1;
+	}
+
+	int arg_num_ra = atoi(argv[1]);
+	int arg_num_dec = atoi(argv[2]);
+
+	if (arg_num_ra < 1 || arg_num_dec < 1) {
+		printf("Error: The number of RA and DEC points must both be >= 1.\n");
+		return -2;
+	}
+
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
@@ -80,9 +93,12 @@ int main(int argc, char* argv[]) {
 	params.strain = strain;
 	params.workspace = workspace;
 
-	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
+	printf("The true source is at: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
-	snr_sky_map(&params, "snr_sky_map.dat");
+	snr_sky_map(&params, arg_num_ra, arg_num_dec, "snr_sky_map.dat");
+
+	printf("The data has been saved to snr_sky_map.dat.\n");
+	printf("Plots can be made using lda_test_sky_map.ipynb.\n");
 
 	CN_workspace_free( workspace );
 
