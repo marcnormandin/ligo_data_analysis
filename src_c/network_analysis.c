@@ -21,6 +21,7 @@
 #include "network_analysis.h"
 #include "detector.h"
 #include "detector_network.h"
+#include "sampling_system.h"
 
 coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
 	size_t s;
@@ -115,7 +116,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
 		temp[k] = gsl_complex_mul( temp[k], whitened_data[k] );
 
-		out_c[k] = temp[k];
+		/*out_c[k] = temp[k];*/
 	}
 
 	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
@@ -124,6 +125,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 	for (; t_index > 0; t_index--, c_index++) {
 		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
 	}
+	/*SS_make_two_sided( regular_strain->len, temp, )*/
 }
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {

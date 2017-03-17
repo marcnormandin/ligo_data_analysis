@@ -1,5 +1,3 @@
-#include "simulate_data.h"
-
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -27,10 +25,11 @@
 #include "strain_interpolate.h"
 #include "signal.h"
 #include "network_analysis.h"
+#include "simulate_inspiral.h"
 #include "simulate_noise.h"
 
 
-signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
+signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
 	chirp_factors_t chirp;
 	signal_t** signals;
 	size_t i;
@@ -73,8 +72,6 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 				&chirp.ct, strain,
 				f_low, f_high,
 				sp);
-
-
 
 		/* This computes the signal and signal with noise */
 		for (j = 0; j < strain->len; ++j) {

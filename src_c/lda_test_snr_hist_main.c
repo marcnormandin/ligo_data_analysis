@@ -5,7 +5,6 @@
  *      Author: marcnormandin
  */
 
-#include "simulate_data.h"
 #include "antenna_patterns.h"
 #include <math.h>
 #include <string.h>
@@ -35,6 +34,7 @@
 #include "strain_interpolate.h"
 #include "signal.h"
 #include "network_analysis.h"
+#include "simulate_inspiral.h"
 
 int main(int argc, char* argv[]) {
 	size_t n;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 	double *results_snr = (double*) malloc( num_realizations * sizeof(double) );
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
 	for (n = 0; n < num_realizations; n++) {
-		signal_t **signals = simulate_data(rng, f_low, f_high, &net, strain, &source);
+		signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 
 		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
 		chirp_factors_t chirp;

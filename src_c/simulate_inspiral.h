@@ -17,6 +17,6 @@
 
 /* This is the main routine that simulates the data
    The memory must be freed. */
-signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source);
+signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source);
 
 #endif /* SRC_C_DATAGEN_H_ */

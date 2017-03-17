@@ -12,8 +12,6 @@
 #include "source.h"
 
 typedef struct chrip_time_s {
-	double amp_fact_1;
-	double amp_fact_2;
 	double chirp_time0;
 	double chirp_time1;
 	double chirp_time1_5;

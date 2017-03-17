@@ -25,6 +25,13 @@
 #include "detector_network.h"
 #include "signal.h"
 
+/* Data that the network will search for an inspiral in */
+typedef struct coherent_network_data_s {
+	size_t len_data;
+	array_t *data;
+
+} coherent_network_data_t;
+
 /* There is one helper per detector */
 typedef struct coherent_network_helper_s {
 	double w_plus_input;

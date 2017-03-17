@@ -64,7 +64,7 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 
 	free(tempval);
 
-	return sqrt(gsl_pow_2(chirp->amp_fact_1) * gsl_pow_2(chirp->amp_fact_2) * sum_tempval);
+	return sqrt(sum_tempval);
 }
 
 void SP_compute(double coalesce_phase, double time_delay,
@@ -83,7 +83,7 @@ void SP_compute(double coalesce_phase, double time_delay,
 		/* double s = interp_strain->strain[j]; */
 
 		if (f > f_low && f < f_high) {
-			double amp_2pn = (1.0 / g) * chirp->amp_fact_1 * chirp->amp_fact_2 * pow(f, -7.0 / 6.0);
+			double amp_2pn = (1.0 / g) * pow(f, -7.0 / 6.0);
 
 			double f_fac = f / f_low;
 

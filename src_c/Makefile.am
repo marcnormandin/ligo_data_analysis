@@ -3,6 +3,7 @@ dist_bin_SCRIPTS = \
 
 common_sources = \
 	antenna_patterns.c antenna_patterns.h \
+	array.c array.h \
 	chirp.c chirp.h \
 	detector_network.c detector_network.h \
 	detector.c detector.h \
@@ -11,8 +12,9 @@ common_sources = \
 	ptapso_func.c ptapso_func.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
+	sampling_system.c sampling_system.h \
 	signal.c signal.h \
-	simulate_data.c simulate_data.h \
+	simulate_inspiral.c simulate_inspiral.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \
 	snr_sky_map.c snr_sky_map.h \

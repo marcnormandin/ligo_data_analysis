@@ -20,8 +20,6 @@ void Print_Chirp_Factors(chirp_factors_t* f) {
 	printf("total mass: %f\n", f->total_mass);
 	printf("reduced mass: %f\n", f->reduced_mass);
 	printf("chirp mass: %f\n", f->chirp_mass);
-	printf("amp factor 1: %f\n", f->ct.amp_fact_1);
-	printf("amp factor 2: %f\n", f->ct.amp_fact_2);
 	printf("s mass ratio: %f\n", f->s_mass_ratio);
 	printf("multi fac: %f\n", f->multi_fac);
 
@@ -135,8 +133,4 @@ void CF_compute(double f_low, source_t *source, chirp_factors_t *fac) {
 	fac->t_chirp = Chirp_Calc_TChirp(fac->ct.chirp_time0, fac->ct.chirp_time1, fac->ct.chirp_time1_5, fac->ct.chirp_time2);
 
 	fac->ct.tc = Chirp_Calc_TC(source->time_of_arrival, fac->t_chirp);
-
-	/* Careful because this is hardcoded! Ask Shihan why this is the case */
-	fac->ct.amp_fact_1 = 1.0;
-	fac->ct.amp_fact_2 = 1.0;
 }

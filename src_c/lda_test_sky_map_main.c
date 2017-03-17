@@ -5,7 +5,6 @@
  *      Author: marcnormandin
  */
 
-#include "simulate_data.h"
 #include "antenna_patterns.h"
 #include <math.h>
 #include <string.h>
@@ -38,6 +37,7 @@
 
 #include "ptapso_estimate.h"
 #include "ptapso_func.h"
+#include "simulate_inspiral.h"
 
 #include "snr_sky_map.h"
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 	gsl_rng_set(rng, time(0));
 
 	/* Simulate data for all the detectors composing the network */
-	signal_t **signals = simulate_data(rng, f_low, f_high, &net, strain, &source);
+	signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 	gsl_rng_free(rng);
 
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
