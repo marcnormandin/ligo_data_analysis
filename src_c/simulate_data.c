@@ -27,6 +27,8 @@
 #include "strain_interpolate.h"
 #include "signal.h"
 #include "network_analysis.h"
+#include "simulate_noise.h"
+
 
 signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
 	chirp_factors_t chirp;
@@ -95,10 +97,8 @@ signal_t** simulate_data(gsl_rng *rng, double f_low, double f_high, detector_net
 			C = gsl_complex_add( A, B );
 			signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
 
-			/* random noise */
-			noise_f_real = 0.5*gsl_ran_gaussian(rng, 1.0);
-			noise_f_imag = 0.5*gsl_ran_gaussian(rng, 1.0);
-			noise_f = gsl_complex_rect(noise_f_real, noise_f_imag);
+			/* simulated noise */
+			noise_f = SN_wn_fd(rng);
 
 			/* signal + noise */
 			signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
