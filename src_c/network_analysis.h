@@ -15,6 +15,7 @@
 #include <gsl/gsl_cblas.h>
 #include <gsl/gsl_fft_complex.h>
 
+#include "antenna_patterns.h"
 #include "stationary_phase.h"
 #include "strain.h"
 #include "strain_interpolate.h"
@@ -26,11 +27,13 @@
 #include "signal.h"
 
 /* Data that the network will search for an inspiral in */
+/*
 typedef struct coherent_network_data_s {
 	size_t len_data;
 	array_t *data;
 
 } coherent_network_data_t;
+*/
 
 /* There is one helper per detector */
 typedef struct coherent_network_helper_s {
@@ -63,6 +66,9 @@ typedef struct coherent_network_workspace_s {
 	double *temp_ifft;
 	gsl_fft_complex_wavetable *fft_wavetable;
 	gsl_fft_complex_workspace *fft_workspace;
+
+	antenna_patterns_workspace_t *ap_workspace;
+	antenna_patterns_t *ap;
 
 } coherent_network_workspace_t;
 

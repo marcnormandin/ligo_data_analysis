@@ -10,6 +10,8 @@
 
 #include "sky.h"
 
-int time_delay(const char *iid, sky_t *sky, double *td);
+#include "detector.h"
+
+int time_delay(detector_t *d, sky_t *sky, double *td);
 
 #endif /* SRC_C_TIME_DELAY_H_ */

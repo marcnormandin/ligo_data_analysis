@@ -26,4 +26,6 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 /* Write the fft frequencies */
 void SS_frequency_array(double samplingFrequency, size_t N, double *frequencies);
 
+void SS_time_array(double samplingFrequency, size_t N, double *times);
+
 #endif /* SRC_C_SAMPLING_SYSTEM_H_ */

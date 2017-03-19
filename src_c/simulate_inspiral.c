@@ -27,6 +27,7 @@
 #include "network_analysis.h"
 #include "simulate_inspiral.h"
 #include "simulate_noise.h"
+#include "time_delay.h"
 
 
 signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
@@ -39,7 +40,12 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 
 	CF_compute(f_low, source, &chirp);
 
-	Compute_Detector_Network_Antenna_Patterns(&source->sky, source->polarization_angle, net);
+	/* one antenna pattern structure per detector */
+	antenna_patterns_workspace_t *ap_ws = antenna_patterns_workspace_alloc();
+	antenna_patterns_t *ap = (antenna_patterns_t*) malloc( net->num_detectors * sizeof(antenna_patterns_t));
+	for (i = 0; i < net->num_detectors; i++) {
+		antenna_patterns(net->detector[i], &source->sky, source->polarization_angle, ap_ws, &ap[i]);
+	}
 
 	/* One measured signal per detector */
 	signals = (signal_t**) malloc( net->num_detectors * sizeof(signal_t*) );
@@ -65,10 +71,12 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 
 	/* For each detector determine the stationary phase of the signal */
 	for (i = 0; i < net->num_detectors; i++) {
-		detector_t* det = &net->detector[i];
+		detector_t* det = net->detector[i];
 		signal_t *signal = signals[i];
+		double td;
+		time_delay(det, &source->sky, &td);
 
-		SP_compute(source->coalesce_phase, det->timedelay,
+		SP_compute(source->coalesce_phase, td,
 				&chirp.ct, strain,
 				f_low, f_high,
 				sp);
@@ -89,8 +97,8 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 			v = gsl_complex_rect(0.0, -1.0);
 			signal->h_90[j] = gsl_complex_mul(signal->h_0[j], v);
 
-			A = gsl_complex_mul_real( signal->h_0[j], det->ant.f_plus );
-			B = gsl_complex_mul_real( signal->h_90[j], det->ant.f_cross );
+			A = gsl_complex_mul_real( signal->h_0[j], ap[i].f_plus );
+			B = gsl_complex_mul_real( signal->h_90[j], ap[i].f_cross );
 			C = gsl_complex_add( A, B );
 			signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
 
@@ -101,6 +109,9 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 			signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
 		}
 	}
+
+	antenna_patterns_workspace_free(ap_ws);
+	free(ap);
 
 	SP_free(sp);
 

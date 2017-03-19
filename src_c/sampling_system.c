@@ -81,4 +81,10 @@ void SS_frequency_array(double samplingFrequency, size_t N, double *frequencies)
 	}
 }
 
-
+void SS_time_array(double samplingFrequency, size_t N, double *times) {
+	size_t i;
+	double Ts = 1.0 / samplingFrequency;
+	for (i = 0; i < N; i++) {
+		times[i] = i * Ts;
+	}
+}
