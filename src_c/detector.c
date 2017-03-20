@@ -66,6 +66,8 @@ void Detector_init_L1(detector_t *d) {
 
 	/* WGS-84 coordinates of "L1" beam splitter */
 	init_gsl_vector(-7.427604192e+4, -5.496283721e+6, 3.224257016e+6, d->location);
+
+	Detector_tensor(d);
 }
 
 void Detector_init_H1(detector_t *d) {

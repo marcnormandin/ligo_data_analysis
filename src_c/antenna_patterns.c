@@ -125,7 +125,7 @@ int antenna_patterns(detector_t *d, sky_t *sky, double polarization_angle,
 	trace(ws->temp, &ant->u);
 
 	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, d->detector_tensor,
-			ws-> epsilon_cross, 0.0, ws->temp);
+			ws->epsilon_cross, 0.0, ws->temp);
 	trace(ws->temp, &ant->v);
 
 	gsl_matrix_set_zero(ws->wp_matrix);
