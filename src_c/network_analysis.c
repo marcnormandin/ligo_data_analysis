@@ -124,7 +124,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
 		temp[k] = gsl_complex_mul( temp[k], whitened_data[k] );
 
-		/*out_c[k] = temp[k];*/
+		out_c[k] = temp[k];
 	}
 
 	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
