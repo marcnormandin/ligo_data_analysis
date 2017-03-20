@@ -104,6 +104,10 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 
 			/* simulated noise */
 			noise_f = SN_wn_fd(rng);
+			/* The Nyquist term needs to be real, and have no imaginary component */
+			if (j == strain->len-1) {
+				noise_f = gsl_complex_rect(GSL_REAL(noise_f), 0.0);
+			}
 
 			/* signal + noise */
 			signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
