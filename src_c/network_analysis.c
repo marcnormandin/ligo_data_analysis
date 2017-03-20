@@ -317,7 +317,6 @@ void coherent_network_statistic(
 	/* std = gsl_stats_sd(workspace->temp_ifft, 1, s);
 
 	*out_val = sqrt(max) / std; */
-	/* Shihan's version has this, but it doesn't appear to be the SNR
-	 * *out_val = sqrt(max); */
-	*out_val = max;
+	*out_val = sqrt(max);
+	/* *out_val = max; */
 }
