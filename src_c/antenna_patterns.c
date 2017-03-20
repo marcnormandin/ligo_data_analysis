@@ -40,6 +40,9 @@ void antenna_patterns_workspace_free( antenna_patterns_workspace_t* ws ) {
 	free(ws);
 	ws = NULL;
 }
+/*
+void antenna_patterns_workspace_init( antenna_patterns_workspace_t* ws) {
+}*/
 
 static int trace(gsl_matrix* A, double* r) {
 	int i;
@@ -114,6 +117,7 @@ int antenna_patterns(detector_t *d, sky_t *sky, double polarization_angle,
 
 
 	/* Tensor contraction.(Polarization Angel Independent) */
+	gsl_matrix_set_zero(ws->temp);
 	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, d->detector_tensor,
 			ws->epsilon_plus, 0.0, ws->temp);
 	/* cblas uses: C = alpha * A * B + beta * C */
