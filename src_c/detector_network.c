@@ -16,39 +16,31 @@
 #include "time_delay.h"
 
 void Alloc_Detector_Network(int num, detector_network_t* net) {
+	size_t i;
+
 	net->num_detectors = num;
-	net->detector = (detector_t*) malloc(
-			net->num_detectors * sizeof(detector_t));
+	net->detector = (detector_t**) malloc(net->num_detectors * sizeof(detector_t*));
+
+	for (i = 0; i < net->num_detectors; i++) {
+		net->detector[i] = Detector_alloc();
+	}
 }
 
 void Free_Detector_Network(detector_network_t* net) {
+	size_t i;
+	for (i = 0; i < net->num_detectors; i++) {
+		Detector_free(net->detector[i]);
+	}
 	free(net->detector);
 }
 
 void Init_Detector_Network(detector_network_t* net) {
 	Alloc_Detector_Network(4, net);
 
-	strncpy(net->detector[0].id, "H1\0", 3);
-	strncpy(net->detector[1].id, "L1\0", 3);
-	strncpy(net->detector[2].id, "V1\0", 3);
-	strncpy(net->detector[3].id, "K1\0", 3);
-}
-
-void Compute_Detector_Network_Antenna_Patterns(
-		sky_t* sky,
-		double polarization_angle,
-		detector_network_t* net)
-{
-	size_t i;
-
-	for (i = 0; i < net->num_detectors; i++) {
-		detector_t* det = &net->detector[i];
-
-		/* Check return value for errors */
-		antenna_patterns( det->id, sky, polarization_angle, &det->ant);
-
-		time_delay(det->id, sky, &det->timedelay);
-	}
+	Detector_init(H1, net->detector[0]);
+	Detector_init(L1, net->detector[1]);
+	Detector_init(V1, net->detector[2]);
+	Detector_init(K1, net->detector[3]);
 }
 
 void Print_Detector_Network(detector_network_t* net) {
@@ -56,7 +48,7 @@ void Print_Detector_Network(detector_network_t* net) {
 
 	printf("DETECTOR NEWTORK: %d detectors\n", net->num_detectors);
 	for (i = 0; i < net->num_detectors; i++) {
-		Print_Detector(&net->detector[i]);
+		Print_Detector(net->detector[i]);
 		printf("\n");
 	}
 }

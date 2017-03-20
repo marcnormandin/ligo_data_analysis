@@ -22,6 +22,7 @@
 #include "detector.h"
 #include "detector_network.h"
 #include "sampling_system.h"
+#include "time_delay.h"
 
 coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
 	size_t s;
@@ -78,6 +79,10 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
+	work->ap_workspace = antenna_patterns_workspace_alloc();
+	/* one antenna pattern structure per detector */
+	work->ap = (antenna_patterns_t*) malloc (num_detectors * sizeof(antenna_patterns_t) );
+
 	return work;
 }
 
@@ -103,6 +108,9 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	gsl_fft_complex_workspace_free( workspace->fft_workspace );
 	gsl_fft_complex_wavetable_free( workspace->fft_wavetable );
 
+	antenna_patterns_workspace_free(workspace->ap_workspace);
+	free(workspace->ap);
+
 	free( workspace );
 }
 
@@ -116,7 +124,7 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
 		temp[k] = gsl_complex_mul( temp[k], whitened_data[k] );
 
-		/*out_c[k] = temp[k];*/
+		out_c[k] = temp[k];
 	}
 
 	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
@@ -179,7 +187,11 @@ void coherent_network_statistic(
 	double max;
 	/* double std; */
 
-	Compute_Detector_Network_Antenna_Patterns(sky, polarization_angle, net);
+	/* Compute the antenna patterns for each detector */
+	for (i = 0; i < net->num_detectors; i++) {
+		antenna_patterns(net->detector[i], sky, polarization_angle,
+				workspace->ap_workspace, &workspace->ap[i]);
+	}
 
 	/* We need to make vectors with the same number of dimensions as the number of detectors in the network */
 	UdotU_input = 0.0;
@@ -188,9 +200,9 @@ void coherent_network_statistic(
 
 	/* dot product */
 	for (i = 0; i < net->num_detectors; i++) {
-		UdotU_input += net->detector[i].ant.u * net->detector[i].ant.u;
-		UdotV_input += net->detector[i].ant.u * net->detector[i].ant.v;
-		VdotV_input += net->detector[i].ant.v * net->detector[i].ant.v;
+		UdotU_input += workspace->ap[i].u * workspace->ap[i].u;
+		UdotV_input += workspace->ap[i].u * workspace->ap[i].v;
+		VdotV_input += workspace->ap[i].v * workspace->ap[i].v;
 	}
 
 	A_input = UdotU_input;
@@ -222,12 +234,16 @@ void coherent_network_statistic(
 		gsl_complex* whitened_data;
 		double U_vec_input;
 		double V_vec_input;
+		double td;
 
-		det = &net->detector[i];
+		det = net->detector[i];
 
 		coalesce_phase = 0.0;
 
-		SP_compute(coalesce_phase, det->timedelay,
+		/* Compute time delay */
+		time_delay(det, sky, &td);
+
+		SP_compute(coalesce_phase, td,
 						chirp, regular_strain,
 						f_low, f_high,
 						workspace->sp);
@@ -238,8 +254,8 @@ void coherent_network_statistic(
 
 		do_work(workspace->sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
-		U_vec_input = det->ant.u;
-		V_vec_input = det->ant.v;
+		U_vec_input = workspace->ap[i].u;
+		V_vec_input = workspace->ap[i].v;
 
 		workspace->helpers[i]->w_plus_input = (O11_input*U_vec_input +  O12_input*V_vec_input);
 		workspace->helpers[i]->w_minus_input = (O21_input*U_vec_input +  O22_input*V_vec_input);
@@ -302,4 +318,5 @@ void coherent_network_statistic(
 
 	*out_val = sqrt(max) / std; */
 	*out_val = sqrt(max);
+	/* *out_val = max; */
 }

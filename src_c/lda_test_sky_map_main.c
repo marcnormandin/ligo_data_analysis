@@ -44,13 +44,14 @@
 int main(int argc, char* argv[]) {
 	size_t i;
 
-	if (argc != 3) {
-		printf("Usage: <program> (num RA points) (num DEC points)\n");
+	if (argc != 4) {
+		printf("Usage: <program> (num RA points) (num DEC points) (seed, -1 for time(0))\n");
 		return -1;
 	}
 
 	int arg_num_ra = atoi(argv[1]);
 	int arg_num_dec = atoi(argv[2]);
+	int arg_seed = atoi(argv[3]);
 
 	if (arg_num_ra < 1 || arg_num_dec < 1) {
 		printf("Error: The number of RA and DEC points must both be >= 1.\n");
@@ -75,7 +76,12 @@ int main(int argc, char* argv[]) {
 	gsl_rng_env_setup();
 	rng_type = gsl_rng_default;
 	rng = gsl_rng_alloc(rng_type);
-	gsl_rng_set(rng, time(0));
+	/*gsl_rng_set(rng, time(0));*/
+	if (arg_seed == -1) {
+		gsl_rng_set(rng, time(0));
+	} else {
+		gsl_rng_set(rng, arg_seed);
+	}
 
 	/* Simulate data for all the detectors composing the network */
 	signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);

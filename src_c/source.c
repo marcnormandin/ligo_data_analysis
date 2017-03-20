@@ -33,5 +33,5 @@ void Source_load_testsource(source_t* source) {
 	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 1 */
 	source->m2 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 2 */
 	source->time_of_arrival = 32.0;
-	source->snr = 9.0;
+	source->snr = 25.0;
 }
