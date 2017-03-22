@@ -137,14 +137,14 @@ int main(int argc, char* argv[]) {
 	MPI_Comm_size(MPI_COMM_WORLD, &num_workers);
 	num_workers--; /* Rank 0 doesn't do any pso evaluations */
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
+	int tag = 0;
 	if (rank == 0) {
 		int num_jobs_done = 0;
 
 		/* Rank 0 will accept the results and write them to file. */
 		FILE* fid = fopen("pso_results.dat", "w");
 		while (num_jobs_done != num_jobs) {
-			MPI_Recv(buff, 3, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+			MPI_Recv(buff, 3, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
 			pso_result_t pso_result;
 			pso_result.ra = buff[0];
 			pso_result.dec = buff[1];
@@ -159,6 +159,7 @@ int main(int argc, char* argv[]) {
 	} else {
 		/* All other ranks are workers. */
 		int num_jobs_completed = 0;
+
 		while(1) {
 			/* get seed number to process */
 			int r = (rank-1) + (num_jobs_completed * num_workers);
@@ -170,7 +171,7 @@ int main(int argc, char* argv[]) {
 			buff[0] = pso_result.ra;
 			buff[1] = pso_result.dec;
 			buff[2] = pso_result.snr;
-			MPI_Send(buff, 3, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD);
+			MPI_Send(buff, 3, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
 			num_jobs_completed++;
 		}
 	}
