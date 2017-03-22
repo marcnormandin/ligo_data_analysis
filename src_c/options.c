@@ -11,7 +11,7 @@
 #include <getopt.h>
 #include <gsl/gsl_const_mksa.h>
 
-#include "common.h"
+#include "random.h"
 #include "source.h"
 
 /* Flag set by ‘--verbose’. */

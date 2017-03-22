@@ -40,6 +40,7 @@
 #include "simulate_inspiral.h"
 
 #include "common.h"
+#include "random.h"
 #include "snr_sky_map.h"
 #include "options.h"
 
@@ -81,21 +82,10 @@ int main(int argc, char* argv[]) {
 	strain_t *strain = Strain_simulated(f_low, f_high);
 
 	/* Random number generator */
-	const gsl_rng_type *rng_type;
-	gsl_rng *rng;
-	gsl_rng_env_setup();
-	rng_type = gsl_rng_default;
-	rng = gsl_rng_alloc(rng_type);
-	/*gsl_rng_set(rng, time(0));*/
-	if (seed == 0) {
-		gsl_rng_set(rng, time(0));
-	} else {
-		gsl_rng_set(rng, seed);
-	}
+	gsl_rng *rng = random_alloc(seed);
 
 	/* Simulate data for all the detectors composing the network */
 	signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
-	gsl_rng_free(rng);
 
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
 
@@ -126,7 +116,7 @@ int main(int argc, char* argv[]) {
 
 	Free_Detector_Network(&net);
 	Strain_free(strain);
-
+	random_free(rng);
 
 	return 0;
 }

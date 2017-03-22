@@ -14,6 +14,7 @@ common_sources = \
 	ptapso_func.c ptapso_func.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
+	random.c random.h \
 	sampling_system.c sampling_system.h \
 	signal.c signal.h \
 	simulate_inspiral.c simulate_inspiral.h \

@@ -9,8 +9,10 @@ and what the parameter structure for this function is.
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_rng.h>
 #include "ptapso_maxphase.h"
+#include "random.h"
+#include "ptapso_estimate.h"
 
-int ptapso_estimate(ptapso_fun_params_t *splParams) {
+int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_steps, pso_result_t* result) {
 	/* Estimate right-ascension and declination */
 	unsigned int nDim = 2, lpc;
 	/* [0] = RA
@@ -24,7 +26,8 @@ int ptapso_estimate(ptapso_fun_params_t *splParams) {
 
 	/* Initialize random number generator */
 	gsl_rng *rngGen = gsl_rng_alloc(gsl_rng_taus);
-	gsl_rng_set(rngGen,2571971);
+	/* Soumya version gsl_rng_set(rngGen,2571971); */
+	gsl_rng_set(rngGen, seed);
 
     /* Allocate fitness function parameter struct.
 	 */
@@ -54,7 +57,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	/* Set up the pso parameter structure.*/
 	struct psoParamStruct psoParams;
 	psoParams.popsize=40;
-	psoParams.maxSteps= 250;
+	psoParams.maxSteps= max_steps;
 	psoParams.c1=2;
 	psoParams.c2=2;
 	psoParams.max_velocity = 0.2;
@@ -83,6 +86,12 @@ int ptapso_estimate(ptapso_fun_params_t *splParams) {
 	}
 	printf("\n");
 	printf("Best Fitness Value: %f\n", psoResults->bestFitVal);
+
+	/* convert values to function ranges, instead of pso ranges */
+	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord);
+	result->ra = gsl_vector_get(inParams->realCoord, 0);
+	result->dec = gsl_vector_get(inParams->realCoord, 1);
+	result->snr = -1.0 * psoResults->bestFitVal;
 
 	/* Free allocated memory */
 	ffparam_free(inParams);
