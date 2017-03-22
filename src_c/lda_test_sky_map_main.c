@@ -39,31 +39,41 @@
 #include "ptapso_func.h"
 #include "simulate_inspiral.h"
 
+#include "common.h"
 #include "snr_sky_map.h"
+#include "options.h"
 
 int main(int argc, char* argv[]) {
 	size_t i;
 
-	if (argc != 4) {
-		printf("Usage: <program> (num RA points) (num DEC points) (seed, -1 for time(0))\n");
-		return -1;
+	source_t source;
+	Source_load_testsource(&source);
+	gslseed_t seed;
+	int last_index;
+
+	seed = 0;
+
+	/* Allow options to override the defaults settings */
+	if (process_command_options(argc, argv, &source, &seed, &last_index) != 0) {
+		exit(0);
 	}
 
-	int arg_num_ra = atoi(argv[1]);
-	int arg_num_dec = atoi(argv[2]);
-	int arg_seed = atoi(argv[3]);
-
-	if (arg_num_ra < 1 || arg_num_dec < 1) {
-		printf("Error: The number of RA and DEC points must both be >= 1.\n");
-		return -2;
+	/* somehow these need to be set */
+	if ((argc - last_index) < 2) {
+		printf("last_index = %d\n", last_index);
+		printf("argc = %d\n", argc);
+		printf("Error: Must supply N_RA and N_DEC arguments!\n");
+		exit(-1);
 	}
+
+	int arg_num_ra = atoi(argv[last_index++]);
+	int arg_num_dec = atoi(argv[last_index++]);
+
+
 
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
-
-	source_t source;
-	Source_load_testsource(&source);
 
 	detector_network_t net;
 	Init_Detector_Network(&net);
@@ -77,10 +87,10 @@ int main(int argc, char* argv[]) {
 	rng_type = gsl_rng_default;
 	rng = gsl_rng_alloc(rng_type);
 	/*gsl_rng_set(rng, time(0));*/
-	if (arg_seed == -1) {
+	if (seed == 0) {
 		gsl_rng_set(rng, time(0));
 	} else {
-		gsl_rng_set(rng, arg_seed);
+		gsl_rng_set(rng, seed);
 	}
 
 	/* Simulate data for all the detectors composing the network */

@@ -10,7 +10,7 @@
 
 #include "sky.h"
 
-typedef struct {
+typedef struct source_s {
 	double 	m1;
 	double 	m2;
 	double 	time_of_arrival;

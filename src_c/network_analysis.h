@@ -30,7 +30,7 @@
 /*
 typedef struct coherent_network_data_s {
 	size_t len_data;
-	/*array_t *data;*/
+	array_t *data;
 
 } coherent_network_data_t;
 */

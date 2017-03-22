@@ -5,9 +5,11 @@ common_sources = \
 	antenna_patterns.c antenna_patterns.h \
 	array.c array.h \
 	chirp.c chirp.h \
+	common.h \
 	detector_network.c detector_network.h \
 	detector.c detector.h \
 	network_analysis.c network_analysis.h \
+	options.c options.h \
 	ptapso_estimate.c ptapso_estimate.h \
 	ptapso_func.c ptapso_func.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
