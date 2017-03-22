@@ -5,7 +5,8 @@
 AC_INIT([lda],[0.1],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
-AC_PROG_CC([gcc])
+AC_PROG_CC([mpicc])
+AC_PROG_CXX([mpicxx])
 AM_INIT_AUTOMAKE()
 
 # ****************************************************************************************************

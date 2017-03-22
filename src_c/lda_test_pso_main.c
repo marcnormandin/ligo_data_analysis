@@ -1,3 +1,11 @@
+#ifdef HAVE_CONFIG_H
+	#include "config.h"
+#endif
+
+#ifdef HAVE_MPI
+	#include <mpi.h>
+#endif
+
 #include "antenna_patterns.h"
 #include <math.h>
 #include <string.h>
@@ -46,6 +54,10 @@ int main(int argc, char* argv[]) {
 	Source_load_testsource(&source);
 	gslseed_t seed;
 	int last_index;
+
+#ifdef HAVE_MPI
+	MPI_Init(&argc, &argv);
+#endif
 
 	seed = 0;
 
@@ -98,11 +110,17 @@ int main(int argc, char* argv[]) {
 
 	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
+	gslseed_t *seeds = (gslseed_t*) malloc ( arg_num_pso_evaluations * sizeof(gslseed_t) );
+	for (i = 0; i < arg_num_pso_evaluations; i++) {
+		seeds[i] = random_seed(rng);
+	}
+
+#ifndef HAVE_MPI
 	FILE *fid = fopen("pso_results.dat", "w");
 	for (i = 0; i < arg_num_pso_evaluations; i++) {
 		printf("EVALUATING PSO ESTIMATE #(%lu)...\n", i+1);
 		pso_result_t pso_result;
-		ptapso_estimate(&params, random_seed(rng), arg_pso_max_steps, &pso_result);
+		ptapso_estimate(&params, seeds[i], arg_pso_max_steps, &pso_result);
 		pso_result_save(fid, &pso_result);
 		if (i < arg_num_pso_evaluations-1) {
 			fprintf(fid, "\n");
@@ -110,6 +128,56 @@ int main(int argc, char* argv[]) {
 		printf("ESTIMATE RECORDED.\n\n");
 	}
 	fclose(fid);
+#else
+	double buff[3];
+	int num_workers;
+	int num_jobs = arg_num_pso_evaluations;
+	int rank;
+	MPI_Status status;
+	MPI_Comm_world(MPI_COMM_WORLD, &num_workers);
+	num_workers--; /* Rank 0 doesn't do any pso evaluations */
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	if (rank == 0) {
+		int num_jobs_done = 0;
+
+		/* Rank 0 will accept the results and write them to file. */
+		FILE* fid = fopen("pso_results.dat", "w");
+		while (num_jobs_done != num_jobs) {
+			MPI_recv(buff, 3, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+			pso_result_t pso_result;
+			pso_result.ra = buff[0];
+			pso_result.dec = buff[1];
+			pso_result.snr = buff[2];
+			pso_result_save(fid, &pso_result);
+			num_jobs_done++;
+			if (num_jobs_done != num_jobs) {
+				fprintf(fid, "\n");
+			}
+		}
+		fclose(fid);
+	} else {
+		/* All other ranks are workers. */
+		int num_jobs_completed = 0;
+		while(1) {
+			/* get seed number to process */
+			int r = (rank-1) + (num_jobs_completed * num_workers);
+			if (r >= num_jobs) {
+				break;
+			}
+			pso_result_t pso_result;
+			ptapso_estimate(&params, seeds[r], arg_pso_max_steps, &pso_result);
+			buff[0] = pso_result.ra;
+			buff[1] = pso_result.dec;
+			buff[2] = pso_result.snr;
+			MPI_send(buff, 3, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD);
+			num_jobs_completed++;
+		}
+	}
+	MPI_Barrier(MPI_COMM_WORLD);
+
+#endif
+	free(seeds);
 
 	CN_workspace_free( workspace );
 
@@ -122,6 +190,10 @@ int main(int argc, char* argv[]) {
 	Free_Detector_Network(&net);
 	Strain_free(strain);
 	random_free(rng);
+
+#ifdef HAVE_MPI
+	MPI_finalize();
+#endif
 
 	return 0;
 }
