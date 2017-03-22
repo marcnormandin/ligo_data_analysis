@@ -86,7 +86,8 @@ int main(int argc, char* argv[]) {
 		printf("%e\n", out_val);
 		results_snr[n] = out_val;
 
-		for (int i = 0; i < net.num_detectors; i++) {
+		size_t i;
+		for (i = 0; i < net.num_detectors; i++) {
 			Signal_free(signals[i]);
 		}
 		free(signals);
