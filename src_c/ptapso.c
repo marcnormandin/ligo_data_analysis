@@ -1,5 +1,6 @@
 #include "ptapso.h"
 #include <stdio.h>
+#include <stddef.h>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -362,7 +363,11 @@ void particleinfo_fwrite(FILE *outF, struct particleInfo *p){
 /*! Dump particleInfo struct array information as a matrix
 with all information pertaining to one particle in a row.
 */
-void particleInfoDump(FILE *outF, struct particleInfo *p, size_t popsize){	
+void particleInfoDump(FILE *outF, struct particleInfo *p, size_t popsize){
+	if (outF == NULL) {
+		return;
+	}
+
 	size_t nDim = p[0].partCoord->size;
 	size_t lpParticles, lpCoord;
 	

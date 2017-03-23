@@ -145,20 +145,20 @@ process_command_options (int argc, char **argv, source_t *s, gslseed_t *seed, in
   /* Instead of reporting ‘--verbose’
      and ‘--brief’ as they are encountered,
      we report the final status resulting from them. */
-  if (verbose_flag)
-    puts ("verbose flag is set");
+  /*if (verbose_flag)
+    puts ("verbose flag is set");*/
 
 
   /* Print any remaining command line arguments (not options). */
   *last_index = optind;
-  if (optind < argc)
+  /*if (optind < argc)
     {
       printf ("non-option ARGV-elements: ");
       while (optind < argc)
         printf ("%s ", argv[optind++]);
       putchar ('\n');
     }
-
+*/
     if (usage_flag) {
         print_usage();
         return -1;

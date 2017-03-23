@@ -68,16 +68,14 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 	psoParams.locMinIter = 0; /* original value was 10 */
 	psoParams.locMinStpSz = 0.01;
 	psoParams.rngGen = rngGen;
-	psoParams.debugDumpFile = fopen("ptapso_dump.txt","w");
-	/* Run PSO multiple times to check for memory leaks */
-	for(lpc = 0; lpc < 1; lpc++){
-		/*printf("Loop # %zu\n", lpc); */
-		ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
-	}
+	psoParams.debugDumpFile = NULL; /*fopen("ptapso_dump.txt","w"); */
 
-	fclose(psoParams.debugDumpFile);
+	ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
+
+	/*fclose(psoParams.debugDumpFile);*/
 
 	/* Information returned by PSO */
+	/*
 	printf("Total number of iterations %zu\n", psoResults->totalIterations);
 	printf("Total number of function evaluations %zu\n", psoResults->totalFuncEvals);
 	printf("Best Location found: \n");
@@ -86,6 +84,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 	}
 	printf("\n");
 	printf("Best Fitness Value: %f\n", psoResults->bestFitVal);
+	*/
 
 	/* convert values to function ranges, instead of pso ranges */
 	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord);

@@ -44,7 +44,21 @@
 #include "options.h"
 
 void pso_result_save(FILE *fid, pso_result_t *result) {
-	fprintf(fid, "%f\t %f\t %f", result->ra, result->dec, result->snr);
+	fprintf(fid, "%20.17g %20.17g %20.17g", result->ra, result->dec, result->snr);
+}
+
+void pso_result_print(pso_result_t *result) {
+	printf("%20.17g %20.17g %20.17g\n", result->ra, result->dec, result->snr);
+}
+
+int i_am_master() {
+#ifdef HAVE_MPI
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	return rank == 0;
+#else
+	return 1;
+#endif
 }
 
 int main(int argc, char* argv[]) {
@@ -108,7 +122,9 @@ int main(int argc, char* argv[]) {
 	params.strain = strain;
 	params.workspace = workspace;
 
+	/*
 	printf("The real values are: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
+	*/
 
 	gslseed_t *seeds = (gslseed_t*) malloc ( arg_num_pso_evaluations * sizeof(gslseed_t) );
 	for (i = 0; i < arg_num_pso_evaluations; i++) {
@@ -122,6 +138,7 @@ int main(int argc, char* argv[]) {
 		pso_result_t pso_result;
 		ptapso_estimate(&params, seeds[i], arg_pso_max_steps, &pso_result);
 		pso_result_save(fid, &pso_result);
+		pso_result_print(&pso_result);
 		if (i < arg_num_pso_evaluations-1) {
 			fprintf(fid, "\n");
 		}
@@ -150,6 +167,7 @@ int main(int argc, char* argv[]) {
 			pso_result.dec = buff[1];
 			pso_result.snr = buff[2];
 			pso_result_save(fid, &pso_result);
+			pso_result_print(&pso_result);
 			num_jobs_done++;
 			if (num_jobs_done != num_jobs) {
 				fprintf(fid, "\n");
@@ -194,6 +212,13 @@ int main(int argc, char* argv[]) {
 
 #ifdef HAVE_MPI
 	MPI_Finalize();
+	if (rank == 0) {
+#else
+	printf("program ended successfully.\n");
+#endif
+
+#ifdef HAVE_MPI
+	}
 #endif
 
 	return 0;
