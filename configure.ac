@@ -7,6 +7,7 @@ AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 AC_PROG_CC([mpicc])
 AC_PROG_CXX([mpicxx])
+AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
 
 # ****************************************************************************************************
