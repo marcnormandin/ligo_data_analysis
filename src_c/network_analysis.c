@@ -303,7 +303,7 @@ void coherent_network_statistic(
 		}
 	}
 
-	/* CN_save("tmp_ifft.dat", s, workspace->temp_ifft); */
+	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
 
 	max = workspace->temp_ifft[0];
 	for (i = 1; i < s; i++) {

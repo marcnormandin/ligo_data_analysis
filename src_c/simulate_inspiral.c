@@ -29,12 +29,55 @@
 #include "simulate_noise.h"
 #include "time_delay.h"
 
-
 signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
+	size_t i, j;
+
+	/* generate the unscaled signals */
+	signal_t **signals = simulate_inspiral_unscaled(f_low, f_high, net, strain, source);
+
+	/* temp hack */
+	for (i = 0; i < net->num_detectors; i++) {
+		signal_t* signal = signals[i];
+		for (j = 0; j < strain->len; ++j) {
+			signal->whitened_data[j] = signal->whitened_signal[j];
+		}
+	}
+
+
+	/* compute the network statistic so that we can determine the scale parameter */
+	chirp_factors_t chirp;
+	CF_compute(f_low, source, &chirp);
+
+	coherent_network_workspace_t *cnw = CN_workspace_malloc(net->num_detectors, strain->len);
+
+	double scale = 0;
+	coherent_network_statistic(net, strain, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
+			signals, cnw, &scale);
+
+	CN_workspace_free(cnw);
+
+	double scale_factor = source->snr / scale;
+
+	printf("scale = %g, scale_factor = %g\n", scale, scale_factor);
+
+	/* now scale the signals so that they have the desired network snr */
+	for (i = 0; i < net->num_detectors; i++) {
+		signal_t* signal = signals[i];
+		for (j = 0; j < strain->len; ++j) {
+			signal->whitened_signal[j] = gsl_complex_mul_real(signal->whitened_signal[j], scale_factor);
+
+			/* temp hack */
+			signal->whitened_data[j] = signal->whitened_signal[j];
+		}
+	}
+
+	return signals;
+}
+
+signal_t** simulate_inspiral_unscaled(double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
 	chirp_factors_t chirp;
 	signal_t** signals;
 	size_t i;
-	double multi_factor;
 	stationary_phase_t* sp;
 	size_t j;
 
@@ -53,20 +96,6 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 		signals[i] = Signal_malloc(strain->len);
 	}
 
-	/* !Fixme
-	   The hardcoded value should be computed using sqrt( sum (F+^2 + Fx^2) ) * SNR
-	   old value: double multi_factor = (1.0 / 2.8580) * 20.0;
-	 */
-	multi_factor = (1.0 / 2.8580) * source->snr;
-	/*
-	for (i = 0; i < net->num_detectors; i++) {
-		multi_factor += gsl_pow_2(net->detector[i].ant.f_plus);
-		multi_factor += gsl_pow_2(net->detector[i].ant.f_cross);
-	}
-	multi_factor = 0.5 * sqrt(multi_factor);
-	multi_factor *= source->snr;
-	*/
-
 	sp = SP_malloc(strain->len);
 
 	/* For each detector determine the stationary phase of the signal */
@@ -81,15 +110,11 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 				f_low, f_high,
 				sp);
 
-		/* This computes the signal and signal with noise */
+		/* This computes the unscaled (in terms of network snr) signal */
 		for (j = 0; j < strain->len; ++j) {
 			gsl_complex v;
 			gsl_complex A;
 			gsl_complex B;
-			gsl_complex C;
-			double noise_f_real;
-			double noise_f_imag;
-			gsl_complex noise_f;
 
 			signal->whitened_sf[j] = gsl_complex_div_real(sp->spa_0[j], strain->strain[j]);
 			signal->h_0[j] = signal->whitened_sf[j];
@@ -99,18 +124,7 @@ signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector
 
 			A = gsl_complex_mul_real( signal->h_0[j], ap[i].f_plus );
 			B = gsl_complex_mul_real( signal->h_90[j], ap[i].f_cross );
-			C = gsl_complex_add( A, B );
-			signal->whitened_signal[j] = gsl_complex_mul_real(C, multi_factor );
-
-			/* simulated noise */
-			noise_f = SN_wn_fd(rng);
-			/* The Nyquist term needs to be real, and have no imaginary component */
-			if (j == strain->len-1) {
-				noise_f = gsl_complex_rect(GSL_REAL(noise_f), 0.0);
-			}
-
-			/* signal + noise */
-			signal->whitened_data[j] = gsl_complex_add(signal->whitened_signal[j], noise_f);
+			signal->whitened_signal[j] = gsl_complex_add( A, B );
 		}
 	}
 
