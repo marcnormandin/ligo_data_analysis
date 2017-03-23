@@ -53,7 +53,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 
 	/* Set up storage for output from ptapso. */
 	struct returnData *psoResults = returnData_alloc(nDim);
-
+	/* nelder-meade method .. look up */
 	/* Set up the pso parameter structure.*/
 	struct psoParamStruct psoParams;
 	psoParams.popsize=40;
@@ -65,7 +65,7 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 	psoParams.dcLaw_b = 0.4;
 	psoParams.dcLaw_c = psoParams.maxSteps;
 	psoParams.dcLaw_d = 0.2;
-	psoParams.locMinIter = 10;
+	psoParams.locMinIter = 0; /* original value was 10 */
 	psoParams.locMinStpSz = 0.01;
 	psoParams.rngGen = rngGen;
 	psoParams.debugDumpFile = fopen("ptapso_dump.txt","w");
