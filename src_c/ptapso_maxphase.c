@@ -6,6 +6,7 @@
 */
 #include "ptapso_maxphase.h"
 
+#include <stddef.h>
 #include <gsl/gsl_vector.h>
 #include <stdio.h>
 #include <sys/types.h>

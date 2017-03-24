@@ -278,6 +278,9 @@ double dummyfitfunc(const gsl_vector *xVec, void *dffParams){
 	double (*trueFitFunc)(gsl_vector *, void *) = dfp->trufuncPr;
 	gsl_vector *xVec2 = (gsl_vector *)xVec;
 	double funcVal = trueFitFunc(xVec2,dfp->trufuncParam);
+
+	/* added by Marc */
+	return funcVal;
 }
 
 /*! Initializer of particle position, velocity, and other properties. */
