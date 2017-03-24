@@ -15,19 +15,20 @@
 
 #include <gsl/gsl_randist.h>
 
-#include "antenna_patterns.h"
-#include "chirp.h"
+#include "detector_antenna_patterns.h"
+#include "inspiral_chirp.h"
 #include "detector.h"
 #include "detector_network.h"
-#include "source.h"
-#include "stationary_phase.h"
+#include "inspiral_source.h"
+#include "inspiral_stationary_phase.h"
 #include "strain.h"
 #include "strain_interpolate.h"
 #include "signal.h"
-#include "network_analysis.h"
-#include "simulate_inspiral.h"
+#include "inspiral_network_statistic.h"
+#include "inspiral_signal.h"
+
+#include "detector_time_delay.h"
 #include "simulate_noise.h"
-#include "time_delay.h"
 
 signal_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *strain, source_t *source) {
 	size_t i, j;

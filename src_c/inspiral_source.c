@@ -10,7 +10,7 @@
 #include <gsl/gsl_const_mksa.h>
 #include <gsl/gsl_math.h>
 
-#include "source.h"
+#include "inspiral_source.h"
 
 void Source_print(source_t* source) {
 	printf("right ascension: %f\n", source->sky.ra);

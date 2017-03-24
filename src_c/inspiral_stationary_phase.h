@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <gsl/gsl_complex.h>
 
-#include "chirp.h"
+#include "inspiral_chirp.h"
 #include "strain.h"
 
 typedef struct stationary_phase_s {

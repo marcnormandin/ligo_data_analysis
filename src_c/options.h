@@ -9,7 +9,7 @@
 #define SRC_C_OPTIONS_H_
 
 #include "random.h"
-#include "source.h"
+#include "inspiral_source.h"
 
 int process_command_options (int argc, char **argv, source_t *s, gslseed_t *seed, int *last_index);
 

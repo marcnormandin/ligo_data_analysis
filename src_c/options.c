@@ -12,7 +12,7 @@
 #include <gsl/gsl_const_mksa.h>
 
 #include "random.h"
-#include "source.h"
+#include "inspiral_source.h"
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag = 0;

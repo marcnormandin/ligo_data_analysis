@@ -9,11 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "antenna_patterns.h"
 #include "detector.h"
 #include "detector_network.h"
-#include "sky.h"
-#include "time_delay.h"
 
 void Alloc_Detector_Network(int num, detector_network_t* net) {
 	size_t i;

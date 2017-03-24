@@ -18,11 +18,12 @@
 
 #include "strain.h"
 #include "strain_interpolate.h"
-#include "network_analysis.h"
+#include "inspiral_network_statistic.h"
 #include "detector.h"
+#include "detector_antenna_patterns.h"
 #include "detector_network.h"
+#include "detector_time_delay.h"
 #include "sampling_system.h"
-#include "time_delay.h"
 
 coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
 	size_t s;

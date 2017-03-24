@@ -6,7 +6,7 @@
 	#include <mpi.h>
 #endif
 
-#include "antenna_patterns.h"
+#include "detector_antenna_patterns.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -26,20 +26,19 @@
 #include <gsl/gsl_randist.h>
 
 #include "common.h"
-#include "antenna_patterns.h"
-#include "chirp.h"
+#include "detector_antenna_patterns.h"
+#include "inspiral_chirp.h"
 #include "detector.h"
 #include "detector_network.h"
-#include "source.h"
-#include "stationary_phase.h"
+#include "inspiral_source.h"
+#include "inspiral_stationary_phase.h"
 #include "strain.h"
 #include "strain_interpolate.h"
 #include "signal.h"
-#include "network_analysis.h"
+#include "inspiral_network_statistic.h"
 
-#include "ptapso_estimate.h"
-#include "ptapso_func.h"
-#include "simulate_inspiral.h"
+#include "inspiral_pso_fitness.h"
+#include "inspiral_signal.h"
 #include "random.h"
 #include "options.h"
 

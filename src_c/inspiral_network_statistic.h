@@ -15,15 +15,17 @@
 #include <gsl/gsl_cblas.h>
 #include <gsl/gsl_fft_complex.h>
 
-#include "antenna_patterns.h"
-#include "stationary_phase.h"
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_statistics_double.h>
+
+#include "inspiral_stationary_phase.h"
 #include "strain.h"
 #include "strain_interpolate.h"
-#include "network_analysis.h"
 
-#include "chirp.h"
+#include "inspiral_chirp.h"
 #include "strain.h"
 #include "detector_network.h"
+#include "detector_antenna_patterns.h"
 #include "signal.h"
 
 /* Data that the network will search for an inspiral in */

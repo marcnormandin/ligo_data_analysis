@@ -102,38 +102,38 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = lda_mpi_pso-antenna_patterns.$(OBJEXT) \
-	lda_mpi_pso-array.$(OBJEXT) lda_mpi_pso-chirp.$(OBJEXT) \
+am__objects_1 = lda_mpi_pso-detector_antenna_patterns.$(OBJEXT) \
 	lda_mpi_pso-detector_network.$(OBJEXT) \
+	lda_mpi_pso-detector_time_delay.$(OBJEXT) \
 	lda_mpi_pso-detector.$(OBJEXT) \
-	lda_mpi_pso-network_analysis.$(OBJEXT) \
+	lda_mpi_pso-inspiral_chirp.$(OBJEXT) \
+	lda_mpi_pso-inspiral_network_statistic.$(OBJEXT) \
+	lda_mpi_pso-inspiral_pso_fitness.$(OBJEXT) \
+	lda_mpi_pso-inspiral_signal.$(OBJEXT) \
+	lda_mpi_pso-inspiral_source.$(OBJEXT) \
+	lda_mpi_pso-inspiral_stationary_phase.$(OBJEXT) \
 	lda_mpi_pso-options.$(OBJEXT) \
-	lda_mpi_pso-ptapso_estimate.$(OBJEXT) \
-	lda_mpi_pso-ptapso_func.$(OBJEXT) \
 	lda_mpi_pso-ptapso_maxphase.$(OBJEXT) \
 	lda_mpi_pso-ptapso.$(OBJEXT) lda_mpi_pso-random.$(OBJEXT) \
 	lda_mpi_pso-sampling_system.$(OBJEXT) \
 	lda_mpi_pso-signal.$(OBJEXT) \
-	lda_mpi_pso-simulate_inspiral.$(OBJEXT) \
 	lda_mpi_pso-simulate_noise.$(OBJEXT) \
-	lda_mpi_pso-snr_sky_map.$(OBJEXT) lda_mpi_pso-source.$(OBJEXT) \
-	lda_mpi_pso-stationary_phase.$(OBJEXT) \
 	lda_mpi_pso-strain_interpolate.$(OBJEXT) \
-	lda_mpi_pso-strain.$(OBJEXT) lda_mpi_pso-time_delay.$(OBJEXT)
+	lda_mpi_pso-strain.$(OBJEXT)
 am_lda_mpi_pso_OBJECTS = lda_mpi_pso-lda_test_pso_main.$(OBJEXT) \
 	$(am__objects_1)
 lda_mpi_pso_OBJECTS = $(am_lda_mpi_pso_OBJECTS)
 lda_mpi_pso_DEPENDENCIES =
-am__objects_2 = antenna_patterns.$(OBJEXT) array.$(OBJEXT) \
-	chirp.$(OBJEXT) detector_network.$(OBJEXT) detector.$(OBJEXT) \
-	network_analysis.$(OBJEXT) options.$(OBJEXT) \
-	ptapso_estimate.$(OBJEXT) ptapso_func.$(OBJEXT) \
-	ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) random.$(OBJEXT) \
-	sampling_system.$(OBJEXT) signal.$(OBJEXT) \
-	simulate_inspiral.$(OBJEXT) simulate_noise.$(OBJEXT) \
-	snr_sky_map.$(OBJEXT) source.$(OBJEXT) \
-	stationary_phase.$(OBJEXT) strain_interpolate.$(OBJEXT) \
-	strain.$(OBJEXT) time_delay.$(OBJEXT)
+am__objects_2 = detector_antenna_patterns.$(OBJEXT) \
+	detector_network.$(OBJEXT) detector_time_delay.$(OBJEXT) \
+	detector.$(OBJEXT) inspiral_chirp.$(OBJEXT) \
+	inspiral_network_statistic.$(OBJEXT) \
+	inspiral_pso_fitness.$(OBJEXT) inspiral_signal.$(OBJEXT) \
+	inspiral_source.$(OBJEXT) inspiral_stationary_phase.$(OBJEXT) \
+	options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) \
+	random.$(OBJEXT) sampling_system.$(OBJEXT) signal.$(OBJEXT) \
+	simulate_noise.$(OBJEXT) strain_interpolate.$(OBJEXT) \
+	strain.$(OBJEXT)
 am_lda_test_pso_OBJECTS = lda_test_pso_main.$(OBJEXT) $(am__objects_2)
 lda_test_pso_OBJECTS = $(am_lda_test_pso_OBJECTS)
 lda_test_pso_DEPENDENCIES =
@@ -335,30 +335,27 @@ dist_bin_SCRIPTS = \
 	strain.txt 
 
 common_sources = \
-	antenna_patterns.c antenna_patterns.h \
-	array.c array.h \
-	chirp.c chirp.h \
 	common.h \
+	detector_antenna_patterns.c detector_antenna_patterns.h \
 	detector_network.c detector_network.h \
+	detector_time_delay.c detector_time_delay.h \
 	detector.c detector.h \
-	network_analysis.c network_analysis.h \
+	inspiral_chirp.c inspiral_chirp.h \
+	inspiral_network_statistic.c inspiral_network_statistic.h \
+	inspiral_pso_fitness.c inspiral_pso_fitness.h \
+	inspiral_signal.c inspiral_signal.h \
+	inspiral_source.c inspiral_source.h \
+	inspiral_stationary_phase.c inspiral_stationary_phase.h \
 	options.c options.h \
-	ptapso_estimate.c ptapso_estimate.h \
-	ptapso_func.c ptapso_func.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
 	random.c random.h \
 	sampling_system.c sampling_system.h \
 	signal.c signal.h \
-	simulate_inspiral.c simulate_inspiral.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \
-	snr_sky_map.c snr_sky_map.h \
-	source.c source.h \
-	stationary_phase.c stationary_phase.h \
 	strain_interpolate.c strain_interpolate.h \
-	strain.c strain.h \
-	time_delay.c time_delay.h
+	strain.c strain.h	
 
 lda_test_pso_LDADD = -lgsl -lgslcblas
 lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
@@ -504,54 +501,48 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/antenna_patterns.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/array.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chirp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_antenna_patterns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_network.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-antenna_patterns.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-array.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-chirp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_time_delay.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_chirp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_network_statistic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_pso_fitness.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_signal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_source.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_stationary_phase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-detector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-detector_network.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-detector_time_delay.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_chirp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_signal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_source.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-lda_test_pso_main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-network_analysis.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-ptapso.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-ptapso_estimate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-ptapso_func.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-ptapso_maxphase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-sampling_system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-signal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-simulate_inspiral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-simulate_noise.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-snr_sky_map.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-source.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-stationary_phase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-strain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-strain_interpolate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-time_delay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_pso_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_sky_map_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_snr_hist_main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network_analysis.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso_estimate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso_func.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso_maxphase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sampling_system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/signal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simulate_inspiral.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simulate_noise.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snr_sky_map.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stationary_phase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strain_interpolate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time_delay.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -581,47 +572,19 @@ lda_mpi_pso-lda_test_pso_main.obj: lda_test_pso_main.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-lda_test_pso_main.obj `if test -f 'lda_test_pso_main.c'; then $(CYGPATH_W) 'lda_test_pso_main.c'; else $(CYGPATH_W) '$(srcdir)/lda_test_pso_main.c'; fi`
 
-lda_mpi_pso-antenna_patterns.o: antenna_patterns.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-antenna_patterns.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-antenna_patterns.Tpo -c -o lda_mpi_pso-antenna_patterns.o `test -f 'antenna_patterns.c' || echo '$(srcdir)/'`antenna_patterns.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-antenna_patterns.Tpo $(DEPDIR)/lda_mpi_pso-antenna_patterns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='antenna_patterns.c' object='lda_mpi_pso-antenna_patterns.o' libtool=no @AMDEPBACKSLASH@
+lda_mpi_pso-detector_antenna_patterns.o: detector_antenna_patterns.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector_antenna_patterns.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Tpo -c -o lda_mpi_pso-detector_antenna_patterns.o `test -f 'detector_antenna_patterns.c' || echo '$(srcdir)/'`detector_antenna_patterns.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Tpo $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='detector_antenna_patterns.c' object='lda_mpi_pso-detector_antenna_patterns.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-antenna_patterns.o `test -f 'antenna_patterns.c' || echo '$(srcdir)/'`antenna_patterns.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector_antenna_patterns.o `test -f 'detector_antenna_patterns.c' || echo '$(srcdir)/'`detector_antenna_patterns.c
 
-lda_mpi_pso-antenna_patterns.obj: antenna_patterns.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-antenna_patterns.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-antenna_patterns.Tpo -c -o lda_mpi_pso-antenna_patterns.obj `if test -f 'antenna_patterns.c'; then $(CYGPATH_W) 'antenna_patterns.c'; else $(CYGPATH_W) '$(srcdir)/antenna_patterns.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-antenna_patterns.Tpo $(DEPDIR)/lda_mpi_pso-antenna_patterns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='antenna_patterns.c' object='lda_mpi_pso-antenna_patterns.obj' libtool=no @AMDEPBACKSLASH@
+lda_mpi_pso-detector_antenna_patterns.obj: detector_antenna_patterns.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector_antenna_patterns.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Tpo -c -o lda_mpi_pso-detector_antenna_patterns.obj `if test -f 'detector_antenna_patterns.c'; then $(CYGPATH_W) 'detector_antenna_patterns.c'; else $(CYGPATH_W) '$(srcdir)/detector_antenna_patterns.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Tpo $(DEPDIR)/lda_mpi_pso-detector_antenna_patterns.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='detector_antenna_patterns.c' object='lda_mpi_pso-detector_antenna_patterns.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-antenna_patterns.obj `if test -f 'antenna_patterns.c'; then $(CYGPATH_W) 'antenna_patterns.c'; else $(CYGPATH_W) '$(srcdir)/antenna_patterns.c'; fi`
-
-lda_mpi_pso-array.o: array.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-array.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-array.Tpo -c -o lda_mpi_pso-array.o `test -f 'array.c' || echo '$(srcdir)/'`array.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-array.Tpo $(DEPDIR)/lda_mpi_pso-array.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='array.c' object='lda_mpi_pso-array.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-array.o `test -f 'array.c' || echo '$(srcdir)/'`array.c
-
-lda_mpi_pso-array.obj: array.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-array.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-array.Tpo -c -o lda_mpi_pso-array.obj `if test -f 'array.c'; then $(CYGPATH_W) 'array.c'; else $(CYGPATH_W) '$(srcdir)/array.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-array.Tpo $(DEPDIR)/lda_mpi_pso-array.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='array.c' object='lda_mpi_pso-array.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-array.obj `if test -f 'array.c'; then $(CYGPATH_W) 'array.c'; else $(CYGPATH_W) '$(srcdir)/array.c'; fi`
-
-lda_mpi_pso-chirp.o: chirp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-chirp.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-chirp.Tpo -c -o lda_mpi_pso-chirp.o `test -f 'chirp.c' || echo '$(srcdir)/'`chirp.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-chirp.Tpo $(DEPDIR)/lda_mpi_pso-chirp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chirp.c' object='lda_mpi_pso-chirp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-chirp.o `test -f 'chirp.c' || echo '$(srcdir)/'`chirp.c
-
-lda_mpi_pso-chirp.obj: chirp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-chirp.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-chirp.Tpo -c -o lda_mpi_pso-chirp.obj `if test -f 'chirp.c'; then $(CYGPATH_W) 'chirp.c'; else $(CYGPATH_W) '$(srcdir)/chirp.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-chirp.Tpo $(DEPDIR)/lda_mpi_pso-chirp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chirp.c' object='lda_mpi_pso-chirp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-chirp.obj `if test -f 'chirp.c'; then $(CYGPATH_W) 'chirp.c'; else $(CYGPATH_W) '$(srcdir)/chirp.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector_antenna_patterns.obj `if test -f 'detector_antenna_patterns.c'; then $(CYGPATH_W) 'detector_antenna_patterns.c'; else $(CYGPATH_W) '$(srcdir)/detector_antenna_patterns.c'; fi`
 
 lda_mpi_pso-detector_network.o: detector_network.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector_network.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector_network.Tpo -c -o lda_mpi_pso-detector_network.o `test -f 'detector_network.c' || echo '$(srcdir)/'`detector_network.c
@@ -637,6 +600,20 @@ lda_mpi_pso-detector_network.obj: detector_network.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector_network.obj `if test -f 'detector_network.c'; then $(CYGPATH_W) 'detector_network.c'; else $(CYGPATH_W) '$(srcdir)/detector_network.c'; fi`
 
+lda_mpi_pso-detector_time_delay.o: detector_time_delay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector_time_delay.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector_time_delay.Tpo -c -o lda_mpi_pso-detector_time_delay.o `test -f 'detector_time_delay.c' || echo '$(srcdir)/'`detector_time_delay.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-detector_time_delay.Tpo $(DEPDIR)/lda_mpi_pso-detector_time_delay.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='detector_time_delay.c' object='lda_mpi_pso-detector_time_delay.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector_time_delay.o `test -f 'detector_time_delay.c' || echo '$(srcdir)/'`detector_time_delay.c
+
+lda_mpi_pso-detector_time_delay.obj: detector_time_delay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector_time_delay.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector_time_delay.Tpo -c -o lda_mpi_pso-detector_time_delay.obj `if test -f 'detector_time_delay.c'; then $(CYGPATH_W) 'detector_time_delay.c'; else $(CYGPATH_W) '$(srcdir)/detector_time_delay.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-detector_time_delay.Tpo $(DEPDIR)/lda_mpi_pso-detector_time_delay.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='detector_time_delay.c' object='lda_mpi_pso-detector_time_delay.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector_time_delay.obj `if test -f 'detector_time_delay.c'; then $(CYGPATH_W) 'detector_time_delay.c'; else $(CYGPATH_W) '$(srcdir)/detector_time_delay.c'; fi`
+
 lda_mpi_pso-detector.o: detector.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-detector.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-detector.Tpo -c -o lda_mpi_pso-detector.o `test -f 'detector.c' || echo '$(srcdir)/'`detector.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-detector.Tpo $(DEPDIR)/lda_mpi_pso-detector.Po
@@ -651,19 +628,89 @@ lda_mpi_pso-detector.obj: detector.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-detector.obj `if test -f 'detector.c'; then $(CYGPATH_W) 'detector.c'; else $(CYGPATH_W) '$(srcdir)/detector.c'; fi`
 
-lda_mpi_pso-network_analysis.o: network_analysis.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-network_analysis.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-network_analysis.Tpo -c -o lda_mpi_pso-network_analysis.o `test -f 'network_analysis.c' || echo '$(srcdir)/'`network_analysis.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-network_analysis.Tpo $(DEPDIR)/lda_mpi_pso-network_analysis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='network_analysis.c' object='lda_mpi_pso-network_analysis.o' libtool=no @AMDEPBACKSLASH@
+lda_mpi_pso-inspiral_chirp.o: inspiral_chirp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_chirp.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Tpo -c -o lda_mpi_pso-inspiral_chirp.o `test -f 'inspiral_chirp.c' || echo '$(srcdir)/'`inspiral_chirp.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_chirp.c' object='lda_mpi_pso-inspiral_chirp.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-network_analysis.o `test -f 'network_analysis.c' || echo '$(srcdir)/'`network_analysis.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_chirp.o `test -f 'inspiral_chirp.c' || echo '$(srcdir)/'`inspiral_chirp.c
 
-lda_mpi_pso-network_analysis.obj: network_analysis.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-network_analysis.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-network_analysis.Tpo -c -o lda_mpi_pso-network_analysis.obj `if test -f 'network_analysis.c'; then $(CYGPATH_W) 'network_analysis.c'; else $(CYGPATH_W) '$(srcdir)/network_analysis.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-network_analysis.Tpo $(DEPDIR)/lda_mpi_pso-network_analysis.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='network_analysis.c' object='lda_mpi_pso-network_analysis.obj' libtool=no @AMDEPBACKSLASH@
+lda_mpi_pso-inspiral_chirp.obj: inspiral_chirp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_chirp.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Tpo -c -o lda_mpi_pso-inspiral_chirp.obj `if test -f 'inspiral_chirp.c'; then $(CYGPATH_W) 'inspiral_chirp.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_chirp.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_chirp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_chirp.c' object='lda_mpi_pso-inspiral_chirp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-network_analysis.obj `if test -f 'network_analysis.c'; then $(CYGPATH_W) 'network_analysis.c'; else $(CYGPATH_W) '$(srcdir)/network_analysis.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_chirp.obj `if test -f 'inspiral_chirp.c'; then $(CYGPATH_W) 'inspiral_chirp.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_chirp.c'; fi`
+
+lda_mpi_pso-inspiral_network_statistic.o: inspiral_network_statistic.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_network_statistic.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Tpo -c -o lda_mpi_pso-inspiral_network_statistic.o `test -f 'inspiral_network_statistic.c' || echo '$(srcdir)/'`inspiral_network_statistic.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_network_statistic.c' object='lda_mpi_pso-inspiral_network_statistic.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_network_statistic.o `test -f 'inspiral_network_statistic.c' || echo '$(srcdir)/'`inspiral_network_statistic.c
+
+lda_mpi_pso-inspiral_network_statistic.obj: inspiral_network_statistic.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_network_statistic.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Tpo -c -o lda_mpi_pso-inspiral_network_statistic.obj `if test -f 'inspiral_network_statistic.c'; then $(CYGPATH_W) 'inspiral_network_statistic.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_network_statistic.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_network_statistic.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_network_statistic.c' object='lda_mpi_pso-inspiral_network_statistic.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_network_statistic.obj `if test -f 'inspiral_network_statistic.c'; then $(CYGPATH_W) 'inspiral_network_statistic.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_network_statistic.c'; fi`
+
+lda_mpi_pso-inspiral_pso_fitness.o: inspiral_pso_fitness.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_pso_fitness.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Tpo -c -o lda_mpi_pso-inspiral_pso_fitness.o `test -f 'inspiral_pso_fitness.c' || echo '$(srcdir)/'`inspiral_pso_fitness.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_pso_fitness.c' object='lda_mpi_pso-inspiral_pso_fitness.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_pso_fitness.o `test -f 'inspiral_pso_fitness.c' || echo '$(srcdir)/'`inspiral_pso_fitness.c
+
+lda_mpi_pso-inspiral_pso_fitness.obj: inspiral_pso_fitness.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_pso_fitness.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Tpo -c -o lda_mpi_pso-inspiral_pso_fitness.obj `if test -f 'inspiral_pso_fitness.c'; then $(CYGPATH_W) 'inspiral_pso_fitness.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_pso_fitness.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_pso_fitness.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_pso_fitness.c' object='lda_mpi_pso-inspiral_pso_fitness.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_pso_fitness.obj `if test -f 'inspiral_pso_fitness.c'; then $(CYGPATH_W) 'inspiral_pso_fitness.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_pso_fitness.c'; fi`
+
+lda_mpi_pso-inspiral_signal.o: inspiral_signal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_signal.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_signal.Tpo -c -o lda_mpi_pso-inspiral_signal.o `test -f 'inspiral_signal.c' || echo '$(srcdir)/'`inspiral_signal.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_signal.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_signal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_signal.c' object='lda_mpi_pso-inspiral_signal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_signal.o `test -f 'inspiral_signal.c' || echo '$(srcdir)/'`inspiral_signal.c
+
+lda_mpi_pso-inspiral_signal.obj: inspiral_signal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_signal.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_signal.Tpo -c -o lda_mpi_pso-inspiral_signal.obj `if test -f 'inspiral_signal.c'; then $(CYGPATH_W) 'inspiral_signal.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_signal.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_signal.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_signal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_signal.c' object='lda_mpi_pso-inspiral_signal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_signal.obj `if test -f 'inspiral_signal.c'; then $(CYGPATH_W) 'inspiral_signal.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_signal.c'; fi`
+
+lda_mpi_pso-inspiral_source.o: inspiral_source.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_source.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_source.Tpo -c -o lda_mpi_pso-inspiral_source.o `test -f 'inspiral_source.c' || echo '$(srcdir)/'`inspiral_source.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_source.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_source.c' object='lda_mpi_pso-inspiral_source.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_source.o `test -f 'inspiral_source.c' || echo '$(srcdir)/'`inspiral_source.c
+
+lda_mpi_pso-inspiral_source.obj: inspiral_source.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_source.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_source.Tpo -c -o lda_mpi_pso-inspiral_source.obj `if test -f 'inspiral_source.c'; then $(CYGPATH_W) 'inspiral_source.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_source.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_source.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_source.c' object='lda_mpi_pso-inspiral_source.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_source.obj `if test -f 'inspiral_source.c'; then $(CYGPATH_W) 'inspiral_source.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_source.c'; fi`
+
+lda_mpi_pso-inspiral_stationary_phase.o: inspiral_stationary_phase.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_stationary_phase.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Tpo -c -o lda_mpi_pso-inspiral_stationary_phase.o `test -f 'inspiral_stationary_phase.c' || echo '$(srcdir)/'`inspiral_stationary_phase.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_stationary_phase.c' object='lda_mpi_pso-inspiral_stationary_phase.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_stationary_phase.o `test -f 'inspiral_stationary_phase.c' || echo '$(srcdir)/'`inspiral_stationary_phase.c
+
+lda_mpi_pso-inspiral_stationary_phase.obj: inspiral_stationary_phase.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-inspiral_stationary_phase.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Tpo -c -o lda_mpi_pso-inspiral_stationary_phase.obj `if test -f 'inspiral_stationary_phase.c'; then $(CYGPATH_W) 'inspiral_stationary_phase.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_stationary_phase.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Tpo $(DEPDIR)/lda_mpi_pso-inspiral_stationary_phase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='inspiral_stationary_phase.c' object='lda_mpi_pso-inspiral_stationary_phase.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-inspiral_stationary_phase.obj `if test -f 'inspiral_stationary_phase.c'; then $(CYGPATH_W) 'inspiral_stationary_phase.c'; else $(CYGPATH_W) '$(srcdir)/inspiral_stationary_phase.c'; fi`
 
 lda_mpi_pso-options.o: options.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-options.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-options.Tpo -c -o lda_mpi_pso-options.o `test -f 'options.c' || echo '$(srcdir)/'`options.c
@@ -678,34 +725,6 @@ lda_mpi_pso-options.obj: options.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='options.c' object='lda_mpi_pso-options.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-options.obj `if test -f 'options.c'; then $(CYGPATH_W) 'options.c'; else $(CYGPATH_W) '$(srcdir)/options.c'; fi`
-
-lda_mpi_pso-ptapso_estimate.o: ptapso_estimate.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-ptapso_estimate.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Tpo -c -o lda_mpi_pso-ptapso_estimate.o `test -f 'ptapso_estimate.c' || echo '$(srcdir)/'`ptapso_estimate.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Tpo $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ptapso_estimate.c' object='lda_mpi_pso-ptapso_estimate.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-ptapso_estimate.o `test -f 'ptapso_estimate.c' || echo '$(srcdir)/'`ptapso_estimate.c
-
-lda_mpi_pso-ptapso_estimate.obj: ptapso_estimate.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-ptapso_estimate.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Tpo -c -o lda_mpi_pso-ptapso_estimate.obj `if test -f 'ptapso_estimate.c'; then $(CYGPATH_W) 'ptapso_estimate.c'; else $(CYGPATH_W) '$(srcdir)/ptapso_estimate.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Tpo $(DEPDIR)/lda_mpi_pso-ptapso_estimate.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ptapso_estimate.c' object='lda_mpi_pso-ptapso_estimate.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-ptapso_estimate.obj `if test -f 'ptapso_estimate.c'; then $(CYGPATH_W) 'ptapso_estimate.c'; else $(CYGPATH_W) '$(srcdir)/ptapso_estimate.c'; fi`
-
-lda_mpi_pso-ptapso_func.o: ptapso_func.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-ptapso_func.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-ptapso_func.Tpo -c -o lda_mpi_pso-ptapso_func.o `test -f 'ptapso_func.c' || echo '$(srcdir)/'`ptapso_func.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-ptapso_func.Tpo $(DEPDIR)/lda_mpi_pso-ptapso_func.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ptapso_func.c' object='lda_mpi_pso-ptapso_func.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-ptapso_func.o `test -f 'ptapso_func.c' || echo '$(srcdir)/'`ptapso_func.c
-
-lda_mpi_pso-ptapso_func.obj: ptapso_func.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-ptapso_func.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-ptapso_func.Tpo -c -o lda_mpi_pso-ptapso_func.obj `if test -f 'ptapso_func.c'; then $(CYGPATH_W) 'ptapso_func.c'; else $(CYGPATH_W) '$(srcdir)/ptapso_func.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-ptapso_func.Tpo $(DEPDIR)/lda_mpi_pso-ptapso_func.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ptapso_func.c' object='lda_mpi_pso-ptapso_func.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-ptapso_func.obj `if test -f 'ptapso_func.c'; then $(CYGPATH_W) 'ptapso_func.c'; else $(CYGPATH_W) '$(srcdir)/ptapso_func.c'; fi`
 
 lda_mpi_pso-ptapso_maxphase.o: ptapso_maxphase.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-ptapso_maxphase.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-ptapso_maxphase.Tpo -c -o lda_mpi_pso-ptapso_maxphase.o `test -f 'ptapso_maxphase.c' || echo '$(srcdir)/'`ptapso_maxphase.c
@@ -777,20 +796,6 @@ lda_mpi_pso-signal.obj: signal.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-signal.obj `if test -f 'signal.c'; then $(CYGPATH_W) 'signal.c'; else $(CYGPATH_W) '$(srcdir)/signal.c'; fi`
 
-lda_mpi_pso-simulate_inspiral.o: simulate_inspiral.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-simulate_inspiral.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Tpo -c -o lda_mpi_pso-simulate_inspiral.o `test -f 'simulate_inspiral.c' || echo '$(srcdir)/'`simulate_inspiral.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Tpo $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='simulate_inspiral.c' object='lda_mpi_pso-simulate_inspiral.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-simulate_inspiral.o `test -f 'simulate_inspiral.c' || echo '$(srcdir)/'`simulate_inspiral.c
-
-lda_mpi_pso-simulate_inspiral.obj: simulate_inspiral.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-simulate_inspiral.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Tpo -c -o lda_mpi_pso-simulate_inspiral.obj `if test -f 'simulate_inspiral.c'; then $(CYGPATH_W) 'simulate_inspiral.c'; else $(CYGPATH_W) '$(srcdir)/simulate_inspiral.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Tpo $(DEPDIR)/lda_mpi_pso-simulate_inspiral.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='simulate_inspiral.c' object='lda_mpi_pso-simulate_inspiral.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-simulate_inspiral.obj `if test -f 'simulate_inspiral.c'; then $(CYGPATH_W) 'simulate_inspiral.c'; else $(CYGPATH_W) '$(srcdir)/simulate_inspiral.c'; fi`
-
 lda_mpi_pso-simulate_noise.o: simulate_noise.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-simulate_noise.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-simulate_noise.Tpo -c -o lda_mpi_pso-simulate_noise.o `test -f 'simulate_noise.c' || echo '$(srcdir)/'`simulate_noise.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-simulate_noise.Tpo $(DEPDIR)/lda_mpi_pso-simulate_noise.Po
@@ -804,48 +809,6 @@ lda_mpi_pso-simulate_noise.obj: simulate_noise.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='simulate_noise.c' object='lda_mpi_pso-simulate_noise.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-simulate_noise.obj `if test -f 'simulate_noise.c'; then $(CYGPATH_W) 'simulate_noise.c'; else $(CYGPATH_W) '$(srcdir)/simulate_noise.c'; fi`
-
-lda_mpi_pso-snr_sky_map.o: snr_sky_map.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-snr_sky_map.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-snr_sky_map.Tpo -c -o lda_mpi_pso-snr_sky_map.o `test -f 'snr_sky_map.c' || echo '$(srcdir)/'`snr_sky_map.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-snr_sky_map.Tpo $(DEPDIR)/lda_mpi_pso-snr_sky_map.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='snr_sky_map.c' object='lda_mpi_pso-snr_sky_map.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-snr_sky_map.o `test -f 'snr_sky_map.c' || echo '$(srcdir)/'`snr_sky_map.c
-
-lda_mpi_pso-snr_sky_map.obj: snr_sky_map.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-snr_sky_map.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-snr_sky_map.Tpo -c -o lda_mpi_pso-snr_sky_map.obj `if test -f 'snr_sky_map.c'; then $(CYGPATH_W) 'snr_sky_map.c'; else $(CYGPATH_W) '$(srcdir)/snr_sky_map.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-snr_sky_map.Tpo $(DEPDIR)/lda_mpi_pso-snr_sky_map.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='snr_sky_map.c' object='lda_mpi_pso-snr_sky_map.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-snr_sky_map.obj `if test -f 'snr_sky_map.c'; then $(CYGPATH_W) 'snr_sky_map.c'; else $(CYGPATH_W) '$(srcdir)/snr_sky_map.c'; fi`
-
-lda_mpi_pso-source.o: source.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-source.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-source.Tpo -c -o lda_mpi_pso-source.o `test -f 'source.c' || echo '$(srcdir)/'`source.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-source.Tpo $(DEPDIR)/lda_mpi_pso-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='source.c' object='lda_mpi_pso-source.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-source.o `test -f 'source.c' || echo '$(srcdir)/'`source.c
-
-lda_mpi_pso-source.obj: source.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-source.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-source.Tpo -c -o lda_mpi_pso-source.obj `if test -f 'source.c'; then $(CYGPATH_W) 'source.c'; else $(CYGPATH_W) '$(srcdir)/source.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-source.Tpo $(DEPDIR)/lda_mpi_pso-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='source.c' object='lda_mpi_pso-source.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-source.obj `if test -f 'source.c'; then $(CYGPATH_W) 'source.c'; else $(CYGPATH_W) '$(srcdir)/source.c'; fi`
-
-lda_mpi_pso-stationary_phase.o: stationary_phase.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-stationary_phase.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-stationary_phase.Tpo -c -o lda_mpi_pso-stationary_phase.o `test -f 'stationary_phase.c' || echo '$(srcdir)/'`stationary_phase.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-stationary_phase.Tpo $(DEPDIR)/lda_mpi_pso-stationary_phase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='stationary_phase.c' object='lda_mpi_pso-stationary_phase.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-stationary_phase.o `test -f 'stationary_phase.c' || echo '$(srcdir)/'`stationary_phase.c
-
-lda_mpi_pso-stationary_phase.obj: stationary_phase.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-stationary_phase.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-stationary_phase.Tpo -c -o lda_mpi_pso-stationary_phase.obj `if test -f 'stationary_phase.c'; then $(CYGPATH_W) 'stationary_phase.c'; else $(CYGPATH_W) '$(srcdir)/stationary_phase.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-stationary_phase.Tpo $(DEPDIR)/lda_mpi_pso-stationary_phase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='stationary_phase.c' object='lda_mpi_pso-stationary_phase.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-stationary_phase.obj `if test -f 'stationary_phase.c'; then $(CYGPATH_W) 'stationary_phase.c'; else $(CYGPATH_W) '$(srcdir)/stationary_phase.c'; fi`
 
 lda_mpi_pso-strain_interpolate.o: strain_interpolate.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-strain_interpolate.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-strain_interpolate.Tpo -c -o lda_mpi_pso-strain_interpolate.o `test -f 'strain_interpolate.c' || echo '$(srcdir)/'`strain_interpolate.c
@@ -874,20 +837,6 @@ lda_mpi_pso-strain.obj: strain.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='strain.c' object='lda_mpi_pso-strain.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-strain.obj `if test -f 'strain.c'; then $(CYGPATH_W) 'strain.c'; else $(CYGPATH_W) '$(srcdir)/strain.c'; fi`
-
-lda_mpi_pso-time_delay.o: time_delay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-time_delay.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-time_delay.Tpo -c -o lda_mpi_pso-time_delay.o `test -f 'time_delay.c' || echo '$(srcdir)/'`time_delay.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-time_delay.Tpo $(DEPDIR)/lda_mpi_pso-time_delay.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='time_delay.c' object='lda_mpi_pso-time_delay.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-time_delay.o `test -f 'time_delay.c' || echo '$(srcdir)/'`time_delay.c
-
-lda_mpi_pso-time_delay.obj: time_delay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-time_delay.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-time_delay.Tpo -c -o lda_mpi_pso-time_delay.obj `if test -f 'time_delay.c'; then $(CYGPATH_W) 'time_delay.c'; else $(CYGPATH_W) '$(srcdir)/time_delay.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-time_delay.Tpo $(DEPDIR)/lda_mpi_pso-time_delay.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='time_delay.c' object='lda_mpi_pso-time_delay.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-time_delay.obj `if test -f 'time_delay.c'; then $(CYGPATH_W) 'time_delay.c'; else $(CYGPATH_W) '$(srcdir)/time_delay.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

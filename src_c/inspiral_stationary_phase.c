@@ -5,7 +5,7 @@
  *      Author: marcnormandin
  */
 
-#include "stationary_phase.h"
+#include "inspiral_stationary_phase.h"
 
 #include <stddef.h>
 #include <stdlib.h>

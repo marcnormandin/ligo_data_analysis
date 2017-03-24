@@ -8,7 +8,8 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
 
-#include "time_delay.h"
+#include "detector.h"
+#include "detector_time_delay.h"
 #include "sky.h"
 
 int time_delay(detector_t *d, sky_t *sky, double *td)

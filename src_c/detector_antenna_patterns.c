@@ -10,9 +10,9 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
 
-#include "antenna_patterns.h"
-#include "sky.h"
 #include "detector.h"
+#include "detector_antenna_patterns.h"
+#include "sky.h"
 
 antenna_patterns_workspace_t* antenna_patterns_workspace_alloc() {
 	antenna_patterns_workspace_t *ws = (antenna_patterns_workspace_t*)

@@ -10,7 +10,7 @@
 
 #include <gsl/gsl_rng.h>
 
-#include "source.h"
+#include "inspiral_source.h"
 #include "signal.h"
 #include "strain.h"
 #include "detector_network.h"

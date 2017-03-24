@@ -11,7 +11,7 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_const_mksa.h>
 
-#include "chirp.h"
+#include "inspiral_chirp.h"
 
 static double c = GSL_CONST_MKSA_SPEED_OF_LIGHT;
 static double G = GSL_CONST_MKSA_GRAVITATIONAL_CONSTANT;

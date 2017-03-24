@@ -9,7 +9,7 @@
 #define SRC_C_CHIRP_H_
 
 #include <stddef.h>
-#include "source.h"
+#include "inspiral_source.h"
 
 typedef struct chrip_time_s {
 	double chirp_time0;
