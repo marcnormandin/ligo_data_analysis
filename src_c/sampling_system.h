@@ -20,6 +20,9 @@ size_t SS_nyquist_array_index (size_t N);
 /* Returns the last unique index. Either the Nyquist index or last regular term before they are mirrored. */
 size_t SS_last_unique_index (size_t N);
 
+/* Returns the half-size (side with low frequencies including the DC term) */
+size_t SS_half_size(size_t N);
+
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided);
 

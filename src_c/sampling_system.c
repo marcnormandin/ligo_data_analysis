@@ -41,6 +41,11 @@ size_t SS_last_unique_index (size_t N) {
 	}
 }
 
+/* Returns the half-size (side with low frequencies including the DC term) */
+size_t SS_half_size(size_t N) {
+	return SS_last_unique_index(N) + 1;
+}
+
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided) {
 	size_t m, n;
