@@ -113,6 +113,7 @@ inspiral_signal_half_fft_t** simulate_inspiral(gsl_rng *rng, double f_low, doubl
 	double scale_factor = source->snr / scale;
 	printf("scale = %g, scale_factor = %g\n", scale, scale_factor);
 
+
 	/* now apply scale factor to the signals so that they have the desired network snr */
 	for (i = 0; i < net->num_detectors; i++) {
 		inspiral_signal_half_fft_t* signal = signals[i];
@@ -120,6 +121,19 @@ inspiral_signal_half_fft_t** simulate_inspiral(gsl_rng *rng, double f_low, doubl
 			signal->half_fft[j] = gsl_complex_mul_real(signal->half_fft[j], scale_factor);
 		}
 	}
+
+	/* add noise to each signal */
+	/*
+	for(i = 0; i < net->num_detectors; i++) {
+		inspiral_signal_half_fft_t *signal = signals[i];
+		for (j = 0; j < half_strain->len; ++j) {
+
+			gsl_complex noise = gsl_complex_mul_real(SN_wn_fd(rng), 0.5);
+
+			signal->half_fft[j] = gsl_complex_add(signal->half_fft[j], noise);
+		}
+
+	}*/
 
 	return signals;
 }

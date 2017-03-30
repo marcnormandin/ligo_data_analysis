@@ -111,15 +111,16 @@ int main(int argc, char* argv[]) {
 		exit(-1);
 	}
 
+	char* arg_settings_file = argv[last_index++];
 	int arg_num_ra = atoi(argv[last_index++]);
 	int arg_num_dec = atoi(argv[last_index++]);
 
 
 
 	/* Settings */
-	settings_file_t *settings_file = settings_file_open(argv[1]);
+	settings_file_t *settings_file = settings_file_open(arg_settings_file);
 	if (settings_file == NULL) {
-		printf("Error opening the settings file (%s). Aborting.\n", argv[1]);
+		printf("Error opening the settings file (%s). Aborting.\n", arg_settings_file);
 		abort();
 	}
 
@@ -131,6 +132,9 @@ int main(int argc, char* argv[]) {
 	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
 	const double num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
 
+	printf("num_ra: %d\n", arg_num_ra);
+	printf("num_dec: %d\n", arg_num_dec);
+	printf("\n\n");
 
 	/*
 	const double f_low = 40.0;
