@@ -42,6 +42,8 @@
 #include "random.h"
 #include "options.h"
 
+#include "settings.h"
+
 void snr_sky_map(ptapso_fun_params_t *splParams, int num_ra, int num_dec, const char* output_file) {
 	size_t ra_i, dec_i;
 	const size_t N_ra = num_ra;
@@ -104,10 +106,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* somehow these need to be set */
-	if ((argc - last_index) < 2) {
-		printf("last_index = %d\n", last_index);
-		printf("argc = %d\n", argc);
-		printf("Error: Must supply N_RA and N_DEC arguments!\n");
+	if ((argc - last_index) < 3) {
+		printf("Error: Usage -> [settings file] [num RA divisions] [num DEC divisions]\n");
 		exit(-1);
 	}
 
@@ -117,10 +117,27 @@ int main(int argc, char* argv[]) {
 
 
 	/* Settings */
-	const double f_low = 40.0; /* seismic cutoff */
-	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
+	settings_file_t *settings_file = settings_file_open(argv[1]);
+	if (settings_file == NULL) {
+		printf("Error opening the settings file (%s). Aborting.\n", argv[1]);
+		abort();
+	}
+
+	printf("Using the following settings:\n");
+	settings_file_print(settings_file);
+
+	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
+	const double f_high = atof(settings_file_get_value(settings_file, "f_high"));
+	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
+	const double num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
+
+
+	/*
+	const double f_low = 40.0;
+	const double f_high = 700.0;
 	const double sampling_frequency = 2048.0;
 	const size_t num_time_samples = 131072;
+	*/
 
 
 	detector_network_t net;
