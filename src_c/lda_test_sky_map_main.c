@@ -119,19 +119,22 @@ int main(int argc, char* argv[]) {
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
+	const double sampling_frequency = 2048.0;
+	const size_t num_time_samples = 131072;
+
 
 	detector_network_t net;
 	Init_Detector_Network(&net);
 
-	strain_t *strain = Strain_simulated(f_low, f_high);
+	strain_t *strain = Strain_simulated(f_low, f_high, sampling_frequency, num_time_samples);
 
 	/* Random number generator */
 	gsl_rng *rng = random_alloc(seed);
 
 	/* Simulate data for all the detectors composing the network */
-	signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
+	inspiral_signal_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
+	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, Strain_one_sided_length(strain) );
 
 	/* Setup the parameter structure for the pso fitness function */
 	ptapso_fun_params_t params;
@@ -154,7 +157,7 @@ int main(int argc, char* argv[]) {
 
 	/* Free the data */
 	for (i = 0; i < net.num_detectors; i++) {
-		Signal_free(signals[i]);
+		inspiral_signal_half_fft_free(signals[i]);
 	}
 	free(signals);
 

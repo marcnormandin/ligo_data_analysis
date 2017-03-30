@@ -25,7 +25,7 @@
 #include "detector_time_delay.h"
 #include "sampling_system.h"
 
-coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
+coherent_network_helper_t* CN_helper_malloc(size_t num_half_frequencies) {
 	size_t s;
 	coherent_network_helper_t *h;
 
@@ -34,7 +34,8 @@ coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies) {
 	/* Fixme
 	 * Check that this is always valid. It may depend on nyquist frequency being present
 	 */
-	s = 2*num_frequencies - 2;
+	/*s = 2*num_half_frequencies - 2;*/
+	s = SS_full_size(num_half_frequencies);
 	h->c_plus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	h->c_minus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	return h;
@@ -46,7 +47,7 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper);
 }
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t len_freq) {
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t num_half_freq) {
 	coherent_network_workspace_t * work;
 	size_t i;
 	size_t len_terms;
@@ -56,16 +57,17 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 	work->num_helpers = num_detectors;
 	work->helpers = (coherent_network_helper_t**) malloc( work->num_helpers * sizeof(coherent_network_helper_t*));
 	for (i = 0; i < work->num_helpers; i++) {
-		work->helpers[i] = CN_helper_malloc( len_freq );
+		work->helpers[i] = CN_helper_malloc( num_half_freq );
 	}
 
-	work->sp = SP_malloc( len_freq );
+	work->sp = SP_malloc( num_half_freq );
 
-	work->temp_array = (gsl_complex*) malloc( len_freq * sizeof(gsl_complex) );
+	work->temp_array = (gsl_complex*) malloc( num_half_freq * sizeof(gsl_complex) );
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
 	/* Fixme */
-	len_terms = 2 * len_freq - 2;
+	/*len_terms = 2 * len_freq - 2;*/
+	len_terms = SS_full_size(num_half_freq);
 	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( len_terms * sizeof(gsl_complex) );
 	}
@@ -76,7 +78,8 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t l
 	}
 
 	work->temp_ifft = (double*) malloc( len_terms * sizeof(double) );
-	s = 2 * len_freq - 2;
+	/*s = 2 * len_freq - 2;*/
+	s = len_terms;
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
@@ -115,7 +118,7 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free( workspace );
 }
 
-void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c) {
+void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
 	size_t k;
 	size_t t_index;
 	size_t c_index;
@@ -123,18 +126,20 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_d
 	for (k = 0; k < regular_strain->len; k++) {
 		temp[k] = gsl_complex_conjugate(spa[k]);
 		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
-		temp[k] = gsl_complex_mul( temp[k], whitened_data[k] );
-
-		out_c[k] = temp[k];
+		temp[k] = gsl_complex_mul( temp[k], half_fft_data[k] );
 	}
 
 	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
+	/*
 	t_index = regular_strain->len - 2;
 	c_index = regular_strain->len;
 	for (; t_index > 0; t_index--, c_index++) {
 		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
 	}
-	/*SS_make_two_sided( regular_strain->len, temp, )*/
+	*/
+	/*size_t N = 2*regular_strain->len - 2;*/
+	size_t N = Strain_two_sided_length(regular_strain);
+	SS_make_two_sided( regular_strain->len, temp, N, out_c);
 }
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {
@@ -156,7 +161,7 @@ void coherent_network_statistic(
 		chirp_time_t *chirp,
 		sky_t *sky,
 		double polarization_angle,
-		signal_t **signals,
+		inspiral_signal_half_fft_t **signals,
 		coherent_network_workspace_t *workspace,
 		double *out_val)
 {
@@ -249,7 +254,7 @@ void coherent_network_statistic(
 						f_low, f_high,
 						workspace->sp);
 
-		whitened_data = signals[i]->whitened_data;
+		whitened_data = signals[i]->half_fft;
 
 		do_work(workspace->sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
@@ -263,7 +268,9 @@ void coherent_network_statistic(
 	}
 
 	/* zero the memory */
-	s = 2 * regular_strain->len - 2;
+	/*s = 2 * regular_strain->len - 2;*/
+	s = Strain_two_sided_length(regular_strain);
+
 	for (tid = 0; tid < 4; tid++) {
 		memset( workspace->terms[tid], 0, s * sizeof(gsl_complex) );
 		memset( workspace->fs[tid], 0, s * sizeof(gsl_complex) );

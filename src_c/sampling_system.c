@@ -46,6 +46,14 @@ size_t SS_half_size(size_t N) {
 	return SS_last_unique_index(N) + 1;
 }
 
+size_t SS_full_size(size_t N_half) {
+	if (N_half%2 == 0) {
+		return 2*(N_half-2) + 2;
+	} else {
+		return 2*(N_half-1) + 1;
+	}
+}
+
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided) {
 	size_t m, n;

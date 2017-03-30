@@ -29,7 +29,7 @@ typedef struct ptapso_func_params {
 	strain_t *strain;
 	detector_network_t *network;
 	source_t *source;
-	signal_t **signals;
+	inspiral_signal_half_fft_t **signals;
 	coherent_network_workspace_t *workspace;
 
 } ptapso_fun_params_t;

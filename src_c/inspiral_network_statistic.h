@@ -23,6 +23,7 @@
 #include "strain_interpolate.h"
 
 #include "inspiral_chirp.h"
+#include "inspiral_signal.h"
 #include "strain.h"
 #include "detector_network.h"
 #include "detector_antenna_patterns.h"
@@ -64,7 +65,6 @@ typedef struct coherent_network_workspace_s {
 	gsl_complex **terms;
 	double **fs;
 
-
 	double *temp_ifft;
 	gsl_fft_complex_wavetable *fft_wavetable;
 	gsl_fft_complex_workspace *fft_workspace;
@@ -90,7 +90,7 @@ void coherent_network_statistic(
 		chirp_time_t *chirp,
 		sky_t *sky,
 		double polarization_angle,
-		signal_t **signals,
+		inspiral_signal_half_fft_t **signals,
 		coherent_network_workspace_t *workspace,
 		double *out_val);
 

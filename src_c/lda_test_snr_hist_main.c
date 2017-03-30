@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
 	/* Settings */
 	const double f_low = 40.0; /* seismic cutoff. */
 	const double f_high = 700.0; /* most stable inner orbit (last stable orbit related) */
+	const double sampling_frequency = 2048.0;
+	const size_t num_time_samples = 131072;
 
 	source_t source;
 	Source_load_testsource(&source);
@@ -48,7 +50,7 @@ int main(int argc, char* argv[]) {
 	detector_network_t net;
 	Init_Detector_Network(&net);
 
-	strain_t *strain = Strain_simulated(f_low, f_high);
+	strain_t *strain = Strain_simulated(f_low, f_high, sampling_frequency, num_time_samples);
 
 	/* Random number generator */
 	const gsl_rng_type *rng_type;
@@ -60,9 +62,9 @@ int main(int argc, char* argv[]) {
 
 	size_t num_realizations = 100000;
 	double *results_snr = (double*) malloc( num_realizations * sizeof(double) );
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, strain->len );
+	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, Strain_one_sided_length(strain) );
 	for (n = 0; n < num_realizations; n++) {
-		signal_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
+		inspiral_signal_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 
 		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
 		chirp_factors_t chirp;
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
 
 		size_t i;
 		for (i = 0; i < net.num_detectors; i++) {
-			Signal_free(signals[i]);
+			inspiral_signal_half_fft_free(signals[i]);
 		}
 		free(signals);
 	}

@@ -18,6 +18,7 @@ common_sources = \
 	ptapso.c ptapso.h \
 	random.c random.h \
 	sampling_system.c sampling_system.h \
+	settings.c settings.h \
 	signal.c signal.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \

@@ -116,7 +116,7 @@ am__objects_1 = lda_mpi_pso-detector_antenna_patterns.$(OBJEXT) \
 	lda_mpi_pso-ptapso_maxphase.$(OBJEXT) \
 	lda_mpi_pso-ptapso.$(OBJEXT) lda_mpi_pso-random.$(OBJEXT) \
 	lda_mpi_pso-sampling_system.$(OBJEXT) \
-	lda_mpi_pso-signal.$(OBJEXT) \
+	lda_mpi_pso-settings.$(OBJEXT) lda_mpi_pso-signal.$(OBJEXT) \
 	lda_mpi_pso-simulate_noise.$(OBJEXT) \
 	lda_mpi_pso-strain_interpolate.$(OBJEXT) \
 	lda_mpi_pso-strain.$(OBJEXT)
@@ -131,9 +131,9 @@ am__objects_2 = detector_antenna_patterns.$(OBJEXT) \
 	inspiral_pso_fitness.$(OBJEXT) inspiral_signal.$(OBJEXT) \
 	inspiral_source.$(OBJEXT) inspiral_stationary_phase.$(OBJEXT) \
 	options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) \
-	random.$(OBJEXT) sampling_system.$(OBJEXT) signal.$(OBJEXT) \
-	simulate_noise.$(OBJEXT) strain_interpolate.$(OBJEXT) \
-	strain.$(OBJEXT)
+	random.$(OBJEXT) sampling_system.$(OBJEXT) settings.$(OBJEXT) \
+	signal.$(OBJEXT) simulate_noise.$(OBJEXT) \
+	strain_interpolate.$(OBJEXT) strain.$(OBJEXT)
 am_lda_test_pso_OBJECTS = lda_test_pso_main.$(OBJEXT) $(am__objects_2)
 lda_test_pso_OBJECTS = $(am_lda_test_pso_OBJECTS)
 lda_test_pso_DEPENDENCIES =
@@ -351,6 +351,7 @@ common_sources = \
 	ptapso.c ptapso.h \
 	random.c random.h \
 	sampling_system.c sampling_system.h \
+	settings.c settings.h \
 	signal.c signal.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \
@@ -527,6 +528,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-ptapso_maxphase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-sampling_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-settings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-signal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-simulate_noise.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-strain.Po@am__quote@
@@ -539,6 +541,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso_maxphase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sampling_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/settings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/signal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simulate_noise.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strain.Po@am__quote@
@@ -781,6 +784,20 @@ lda_mpi_pso-sampling_system.obj: sampling_system.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sampling_system.c' object='lda_mpi_pso-sampling_system.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-sampling_system.obj `if test -f 'sampling_system.c'; then $(CYGPATH_W) 'sampling_system.c'; else $(CYGPATH_W) '$(srcdir)/sampling_system.c'; fi`
+
+lda_mpi_pso-settings.o: settings.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-settings.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-settings.Tpo -c -o lda_mpi_pso-settings.o `test -f 'settings.c' || echo '$(srcdir)/'`settings.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-settings.Tpo $(DEPDIR)/lda_mpi_pso-settings.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='settings.c' object='lda_mpi_pso-settings.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-settings.o `test -f 'settings.c' || echo '$(srcdir)/'`settings.c
+
+lda_mpi_pso-settings.obj: settings.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-settings.obj -MD -MP -MF $(DEPDIR)/lda_mpi_pso-settings.Tpo -c -o lda_mpi_pso-settings.obj `if test -f 'settings.c'; then $(CYGPATH_W) 'settings.c'; else $(CYGPATH_W) '$(srcdir)/settings.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lda_mpi_pso-settings.Tpo $(DEPDIR)/lda_mpi_pso-settings.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='settings.c' object='lda_mpi_pso-settings.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o lda_mpi_pso-settings.obj `if test -f 'settings.c'; then $(CYGPATH_W) 'settings.c'; else $(CYGPATH_W) '$(srcdir)/settings.c'; fi`
 
 lda_mpi_pso-signal.o: signal.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(lda_mpi_pso_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT lda_mpi_pso-signal.o -MD -MP -MF $(DEPDIR)/lda_mpi_pso-signal.Tpo -c -o lda_mpi_pso-signal.o `test -f 'signal.c' || echo '$(srcdir)/'`signal.c

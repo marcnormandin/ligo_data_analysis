@@ -10,6 +10,6 @@
 
 #include "strain.h"
 
-strain_t* InterpStrain_malloc_and_compute(strain_t* strain);
+strain_t* InterpStrain_malloc_and_compute(strain_t* strain, double sampling_frequency, size_t num_time_samples);
 
 #endif /* SRC_C_STRAIN_INTERPOLATE_H_ */
