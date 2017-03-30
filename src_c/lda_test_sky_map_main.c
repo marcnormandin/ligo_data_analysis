@@ -106,14 +106,15 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* somehow these need to be set */
-	if ((argc - last_index) < 3) {
-		printf("Error: Usage -> [settings file] [num RA divisions] [num DEC divisions]\n");
+	if ((argc - last_index) < 4) {
+		printf("Error: Usage -> [settings file] [num RA divisions] [num DEC divisions] [output data file]\n");
 		exit(-1);
 	}
 
 	char* arg_settings_file = argv[last_index++];
 	int arg_num_ra = atoi(argv[last_index++]);
 	int arg_num_dec = atoi(argv[last_index++]);
+	char* arg_output_file = argv[last_index++];
 
 
 
@@ -169,7 +170,7 @@ int main(int argc, char* argv[]) {
 
 	printf("The true source is at: RA = %f, DEC = %f\n", params.source->sky.ra, params.source->sky.dec);
 
-	snr_sky_map(&params, arg_num_ra, arg_num_dec, "snr_sky_map.dat");
+	snr_sky_map(&params, arg_num_ra, arg_num_dec, arg_output_file);
 
 	printf("The data has been saved to snr_sky_map.dat.\n");
 	printf("Plots can be made using lda_test_sky_map.ipynb.\n");
