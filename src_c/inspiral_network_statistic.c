@@ -36,6 +36,8 @@ coherent_network_helper_t* CN_helper_malloc(size_t num_half_frequencies) {
 	 */
 	/*s = 2*num_half_frequencies - 2;*/
 	s = SS_full_size(num_half_frequencies);
+	/*fprintf(stderr, "c_plus and c_plus have a length of: %d\n", s);*/
+
 	h->c_plus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	h->c_minus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
 	return h;
@@ -68,6 +70,8 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t n
 	/* Fixme */
 	/*len_terms = 2 * len_freq - 2;*/
 	len_terms = SS_full_size(num_half_freq);
+	/*fprintf(stderr, "len_terms has a length of: %d\n", len_terms);*/
+
 	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( len_terms * sizeof(gsl_complex) );
 	}
@@ -80,6 +84,8 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t n
 	work->temp_ifft = (double*) malloc( len_terms * sizeof(double) );
 	/*s = 2 * len_freq - 2;*/
 	s = len_terms;
+	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
+
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
 
@@ -139,6 +145,8 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_d
 	*/
 	/*size_t N = 2*regular_strain->len - 2;*/
 	size_t N = Strain_two_sided_length(regular_strain);
+	/*fprintf(stderr, "out_c, N has a length of: %d\n", N);*/
+
 	SS_make_two_sided( regular_strain->len, temp, N, out_c);
 }
 
@@ -270,6 +278,7 @@ void coherent_network_statistic(
 	/* zero the memory */
 	/*s = 2 * regular_strain->len - 2;*/
 	s = Strain_two_sided_length(regular_strain);
+	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
 
 	for (tid = 0; tid < 4; tid++) {
 		memset( workspace->terms[tid], 0, s * sizeof(gsl_complex) );
@@ -311,7 +320,7 @@ void coherent_network_statistic(
 		}
 	}
 
-	CN_save("tmp_ifft.dat", s, workspace->temp_ifft);
+	/*CN_save("tmp_ifft.dat", s, workspace->temp_ifft);*/
 
 	max = workspace->temp_ifft[0];
 	for (i = 1; i < s; i++) {

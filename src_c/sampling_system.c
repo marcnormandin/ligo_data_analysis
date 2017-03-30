@@ -42,8 +42,12 @@ size_t SS_last_unique_index (size_t N) {
 }
 
 /* Returns the half-size (side with low frequencies including the DC term) */
-size_t SS_half_size(size_t N) {
-	return SS_last_unique_index(N) + 1;
+size_t SS_half_size(size_t N_full) {
+	if (N_full%2 == 0) {
+		return 0.5*(N_full-2) + 2;
+	} else {
+		return 0.5*(N_full-1) + 1;
+	}
 }
 
 size_t SS_full_size(size_t N_half) {

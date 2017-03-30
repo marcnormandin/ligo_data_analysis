@@ -21,7 +21,7 @@ size_t SS_nyquist_array_index (size_t N);
 size_t SS_last_unique_index (size_t N);
 
 /* Returns the half-size (side with low frequencies including the DC term) */
-size_t SS_half_size(size_t N);
+size_t SS_half_size(size_t N_full);
 
 /* Returns the full-size given the half-size */
 size_t SS_full_size(size_t N_half);
