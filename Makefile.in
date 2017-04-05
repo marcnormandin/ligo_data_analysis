@@ -288,6 +288,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -298,7 +299,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = m4 .git .gitignore
-SUBDIRS = src_c notebooks
+SUBDIRS = src_c settings notebooks
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

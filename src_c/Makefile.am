@@ -25,7 +25,9 @@ common_sources = \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 	
-bin_PROGRAMS = lda_test_pso lda_mpi_pso lda_test_sky_map lda_test_snr_hist
+bin_PROGRAMS = lda_test_pso lda_mpi_pso lda_serial_pso
+
+# lda_test_sky_map lda_test_snr_hist
 
 lda_test_pso_LDADD = -lgsl -lgslcblas
 lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
@@ -33,10 +35,11 @@ lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
 lda_mpi_pso_mpi_CFLAGS=-DHAVE_MPI
 lda_mpi_pso_CXXFLAGS=-DHAVE_MPI
 lda_mpi_pso_CPPFLAGS=-DHAVE_MPI
-
 lda_mpi_pso_LDADD = -lgsl -lgslcblas -lmpi
 lda_mpi_pso_SOURCES = lda_test_pso_main.c $(common_sources)
 
+lda_serial_pso_LDADD = -lgsl -lgslcblas
+lda_serial_pso_SOURCES = lda_test_pso_main.c $(common_sources)
 
 lda_test_sky_map_LDADD = -lgsl -lgslcblas
 lda_test_sky_map_SOURCES = lda_test_sky_map_main.c $(common_sources)

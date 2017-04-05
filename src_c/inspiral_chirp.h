@@ -11,10 +11,11 @@
 #include <stddef.h>
 #include "inspiral_source.h"
 
-typedef struct chrip_time_s {
+typedef struct chirp_time_s {
 	double chirp_time0;
-	double chirp_time1;
 	double chirp_time1_5;
+
+	double chirp_time1;
 	double chirp_time2;
 	double tc;
 
@@ -78,6 +79,7 @@ void Print_Chirp_Factors(chirp_factors_t* f);
 
 void CF_compute(double f_low, source_t *source, chirp_factors_t *out_cf);
 
+void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, chirp_time_t *ct);
 
 
 #endif /* SRC_C_CHIRP_H_ */

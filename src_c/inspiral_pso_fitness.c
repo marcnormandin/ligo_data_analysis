@@ -16,6 +16,8 @@ and what the parameter structure for this function is.
 #include "random.h"
 #include "sky.h"
 
+#include "settings.h"
+
 /*
 fitFuncVal = ptapsotestfunc_gsl(xVec,P)
 A benchmark test function for PTAPSO
@@ -62,26 +64,31 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 
 		double ra = gsl_vector_get(inParams->realCoord, 0);
 		double dec = gsl_vector_get(inParams->realCoord, 1);
-		/*printf("%f %f\n", ra, dec);*/
+		double chirp_time_0 = gsl_vector_get(inParams->realCoord, 2);
+		double chirp_time_1_5 = gsl_vector_get(inParams->realCoord, 3);
 
-		/* apply the pso particle location */
-		splParams->source->sky.ra = ra;
-		splParams->source->sky.dec = dec;
+		chirp_time_t chirp_time;
+		CF_CT_compute(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
 
-		chirp_factors_t chirp;
-		CF_compute(splParams->f_low, splParams->source, &chirp);
 		/* The network statistic requires the time of arrival to be zero
 		   in order for the matched filtering to work correctly. */
-		chirp.ct.tc = chirp.t_chirp;
+
+
+		sky_t sky;
+		sky.ra = ra;
+		sky.dec = dec;
+
+		/* DANGER */
+		double polarization_angle = 0.0;
 
 		coherent_network_statistic(
 				splParams->network,
 				splParams->strain,
 				splParams->f_low,
 				splParams->f_high,
-				&chirp.ct,
-				&splParams->source->sky,
-				splParams->source->polarization_angle,
+				&chirp_time,
+				&sky,
+				polarization_angle,
 				splParams->signals,
 				splParams->workspace,
 				&fitFuncVal);
@@ -96,15 +103,18 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
    return fitFuncVal;
 }
 
-
-int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_steps, pso_result_t* result) {
+int ptapso_estimate_ra_dec_t0_t1_5(char *pso_settings_filename, ptapso_fun_params_t *splParams, gslseed_t seed, pso_result_t* result) {
 	/* Estimate right-ascension and declination */
-	unsigned int nDim = 2, lpc;
+	unsigned int nDim = 4, lpc;
 	/* [0] = RA
-	   [1] = Declination */
-	double rmin[2] = {-M_PI, -0.5*M_PI};
-	double rmax[2] = {M_PI, 0.5*M_PI};
-	double rangeVec[2];
+	   [1] = Declination
+	   [2] = Chirp time 0
+	   [3] = Chirp time 1.5
+	 */
+	/* Shihan said his PSO went from 0 to PI for dec */
+	double rmin[4] = {-M_PI, 	-0.5*M_PI, 	0.0, 		0.0};
+	double rmax[4] = {M_PI, 	0.5*M_PI, 	43.4673, 	1.0840};
+	double rangeVec[4];
 
 	/* Error handling off */
 	gsl_error_handler_t *old_handler = gsl_set_error_handler_off ();
@@ -138,22 +148,34 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 
 	/* Set up storage for output from ptapso. */
 	struct returnData *psoResults = returnData_alloc(nDim);
+
+
 	/* nelder-meade method .. look up */
 	/* Set up the pso parameter structure.*/
+
+	/* Load the pso settings */
+	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
+	if (settings_file == NULL) {
+		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
+		abort();
+	}
+
 	struct psoParamStruct psoParams;
-	psoParams.popsize=40;
-	psoParams.maxSteps= max_steps;
-	psoParams.c1=2;
-	psoParams.c2=2;
-	psoParams.max_velocity = 0.2;
-	psoParams.dcLaw_a = 0.9;
-	psoParams.dcLaw_b = 0.4;
+	psoParams.popsize = atoi(settings_file_get_value(settings_file, "popsize"));;
+	psoParams.maxSteps= atoi(settings_file_get_value(settings_file, "maxSteps"));;
+	psoParams.c1 = atof(settings_file_get_value(settings_file, "c1"));;
+	psoParams.c2 = atof(settings_file_get_value(settings_file, "c2"));;
+	psoParams.max_velocity = atof(settings_file_get_value(settings_file, "max_velocity"));;
+	psoParams.dcLaw_a = atof(settings_file_get_value(settings_file, "dcLaw_a"));;
+	psoParams.dcLaw_b = atof(settings_file_get_value(settings_file, "dcLaw_b"));;
 	psoParams.dcLaw_c = psoParams.maxSteps;
-	psoParams.dcLaw_d = 0.2;
-	psoParams.locMinIter = 0; /* original value was 10 */
-	psoParams.locMinStpSz = 0.01;
+	psoParams.dcLaw_d = atof(settings_file_get_value(settings_file, "dcLaw_d"));;
+	psoParams.locMinIter = atof(settings_file_get_value(settings_file, "locMinIter"));
+	psoParams.locMinStpSz = atof(settings_file_get_value(settings_file, "locMinStpSz"));
 	psoParams.rngGen = rngGen;
 	psoParams.debugDumpFile = NULL; /*fopen("ptapso_dump.txt","w"); */
+
+	settings_file_close(settings_file);
 
 	ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
 
@@ -175,6 +197,8 @@ int ptapso_estimate(ptapso_fun_params_t *splParams, gslseed_t seed, size_t max_s
 	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord);
 	result->ra = gsl_vector_get(inParams->realCoord, 0);
 	result->dec = gsl_vector_get(inParams->realCoord, 1);
+	result->chirp_t0 = gsl_vector_get(inParams->realCoord, 2);
+	result->chirp_t1_5 = gsl_vector_get(inParams->realCoord, 3);
 	result->snr = -1.0 * psoResults->bestFitVal;
 
 	/* Free allocated memory */

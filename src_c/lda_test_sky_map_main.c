@@ -133,6 +133,8 @@ int main(int argc, char* argv[]) {
 	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
 	const double num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
 
+	settings_file_close(settings_file);
+
 	printf("num_ra: %d\n", arg_num_ra);
 	printf("num_dec: %d\n", arg_num_dec);
 	printf("\n\n");

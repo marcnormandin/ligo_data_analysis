@@ -88,7 +88,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = lda_test_pso$(EXEEXT) lda_mpi_pso$(EXEEXT) \
-	lda_test_sky_map$(EXEEXT) lda_test_snr_hist$(EXEEXT)
+	lda_serial_pso$(EXEEXT)
 subdir = src_c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -134,17 +134,13 @@ am__objects_2 = detector_antenna_patterns.$(OBJEXT) \
 	random.$(OBJEXT) sampling_system.$(OBJEXT) settings.$(OBJEXT) \
 	signal.$(OBJEXT) simulate_noise.$(OBJEXT) \
 	strain_interpolate.$(OBJEXT) strain.$(OBJEXT)
+am_lda_serial_pso_OBJECTS = lda_test_pso_main.$(OBJEXT) \
+	$(am__objects_2)
+lda_serial_pso_OBJECTS = $(am_lda_serial_pso_OBJECTS)
+lda_serial_pso_DEPENDENCIES =
 am_lda_test_pso_OBJECTS = lda_test_pso_main.$(OBJEXT) $(am__objects_2)
 lda_test_pso_OBJECTS = $(am_lda_test_pso_OBJECTS)
 lda_test_pso_DEPENDENCIES =
-am_lda_test_sky_map_OBJECTS = lda_test_sky_map_main.$(OBJEXT) \
-	$(am__objects_2)
-lda_test_sky_map_OBJECTS = $(am_lda_test_sky_map_OBJECTS)
-lda_test_sky_map_DEPENDENCIES =
-am_lda_test_snr_hist_OBJECTS = lda_test_snr_hist_main.$(OBJEXT) \
-	$(am__objects_2)
-lda_test_snr_hist_OBJECTS = $(am_lda_test_snr_hist_OBJECTS)
-lda_test_snr_hist_DEPENDENCIES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -205,10 +201,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(lda_mpi_pso_SOURCES) $(lda_test_pso_SOURCES) \
-	$(lda_test_sky_map_SOURCES) $(lda_test_snr_hist_SOURCES)
-DIST_SOURCES = $(lda_mpi_pso_SOURCES) $(lda_test_pso_SOURCES) \
-	$(lda_test_sky_map_SOURCES) $(lda_test_snr_hist_SOURCES)
+SOURCES = $(lda_mpi_pso_SOURCES) $(lda_serial_pso_SOURCES) \
+	$(lda_test_pso_SOURCES)
+DIST_SOURCES = $(lda_mpi_pso_SOURCES) $(lda_serial_pso_SOURCES) \
+	$(lda_test_pso_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -323,6 +319,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -358,6 +355,8 @@ common_sources = \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 
+
+# lda_test_sky_map lda_test_snr_hist
 lda_test_pso_LDADD = -lgsl -lgslcblas
 lda_test_pso_SOURCES = lda_test_pso_main.c $(common_sources)
 lda_mpi_pso_mpi_CFLAGS = -DHAVE_MPI
@@ -365,6 +364,8 @@ lda_mpi_pso_CXXFLAGS = -DHAVE_MPI
 lda_mpi_pso_CPPFLAGS = -DHAVE_MPI
 lda_mpi_pso_LDADD = -lgsl -lgslcblas -lmpi
 lda_mpi_pso_SOURCES = lda_test_pso_main.c $(common_sources)
+lda_serial_pso_LDADD = -lgsl -lgslcblas
+lda_serial_pso_SOURCES = lda_test_pso_main.c $(common_sources)
 lda_test_sky_map_LDADD = -lgsl -lgslcblas
 lda_test_sky_map_SOURCES = lda_test_sky_map_main.c $(common_sources)
 lda_test_snr_hist_LDADD = -lgsl -lgslcblas
@@ -449,17 +450,13 @@ lda_mpi_pso$(EXEEXT): $(lda_mpi_pso_OBJECTS) $(lda_mpi_pso_DEPENDENCIES) $(EXTRA
 	@rm -f lda_mpi_pso$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(lda_mpi_pso_OBJECTS) $(lda_mpi_pso_LDADD) $(LIBS)
 
+lda_serial_pso$(EXEEXT): $(lda_serial_pso_OBJECTS) $(lda_serial_pso_DEPENDENCIES) $(EXTRA_lda_serial_pso_DEPENDENCIES) 
+	@rm -f lda_serial_pso$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(lda_serial_pso_OBJECTS) $(lda_serial_pso_LDADD) $(LIBS)
+
 lda_test_pso$(EXEEXT): $(lda_test_pso_OBJECTS) $(lda_test_pso_DEPENDENCIES) $(EXTRA_lda_test_pso_DEPENDENCIES) 
 	@rm -f lda_test_pso$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(lda_test_pso_OBJECTS) $(lda_test_pso_LDADD) $(LIBS)
-
-lda_test_sky_map$(EXEEXT): $(lda_test_sky_map_OBJECTS) $(lda_test_sky_map_DEPENDENCIES) $(EXTRA_lda_test_sky_map_DEPENDENCIES) 
-	@rm -f lda_test_sky_map$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(lda_test_sky_map_OBJECTS) $(lda_test_sky_map_LDADD) $(LIBS)
-
-lda_test_snr_hist$(EXEEXT): $(lda_test_snr_hist_OBJECTS) $(lda_test_snr_hist_DEPENDENCIES) $(EXTRA_lda_test_snr_hist_DEPENDENCIES) 
-	@rm -f lda_test_snr_hist$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(lda_test_snr_hist_OBJECTS) $(lda_test_snr_hist_LDADD) $(LIBS)
 install-dist_binSCRIPTS: $(dist_bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
@@ -534,8 +531,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-strain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_mpi_pso-strain_interpolate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_pso_main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_sky_map_main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_test_snr_hist_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso_maxphase.Po@am__quote@

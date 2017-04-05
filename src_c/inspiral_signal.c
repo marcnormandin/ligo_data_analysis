@@ -111,7 +111,7 @@ inspiral_signal_half_fft_t** simulate_inspiral(gsl_rng *rng, double f_low, doubl
 
 	/* now determine the scale factor we need to use in order to get the desired network snr */
 	double scale_factor = source->snr / scale;
-	printf("scale = %g, scale_factor = %g\n", scale, scale_factor);
+	/*printf("scale = %g, scale_factor = %g\n", scale, scale_factor);*/
 
 
 	/* now apply scale factor to the signals so that they have the desired network snr */

@@ -61,10 +61,12 @@ double Chirp_Calc_MultiFac(double f_low, double total_mass) {
 	return f_low * M_PI * G * total_mass / gsl_pow_3(c);
 }
 
+/* parameters for pso */
 double Chirp_Calc_ChirpTime0(double f_low, double multi_fac, double s_mass_ratio) {
 	return (5.0 / (256.0 * M_PI)) / f_low * pow(multi_fac, -5.0 / 3.0) / s_mass_ratio;
 }
 
+/* parameters for pso */
 double Chirp_Calc_ChirpTime1_5(double f_low, double multi_fac, double s_mass_ratio) {
 	return (1.0 / 8.0) / f_low * pow(multi_fac, -2.0 / 3.0) / s_mass_ratio;
 }
@@ -133,4 +135,23 @@ void CF_compute(double f_low, source_t *source, chirp_factors_t *fac) {
 	fac->t_chirp = Chirp_Calc_TChirp(fac->ct.chirp_time0, fac->ct.chirp_time1, fac->ct.chirp_time1_5, fac->ct.chirp_time2);
 
 	fac->ct.tc = Chirp_Calc_TC(source->time_of_arrival, fac->t_chirp);
+}
+
+/* this routine was written for the PSO code. The above code should use it. TODO */
+void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, chirp_time_t *ct) {
+	ct->chirp_time0 = chirp_time0;
+	ct->chirp_time1_5 = chirp_time1_5;
+
+	double calculated_reduced_mass = Chirp_Calc_CalculatedTotalMass(f_low, chirp_time0, chirp_time1_5);
+	double calculated_total_mass = Chirp_Calc_CalculatedTotalMass(f_low, chirp_time0, chirp_time1_5);
+	double multi_fac_cal = Chirp_Calc_MultiFacCal(f_low, calculated_total_mass);
+	double s_mass_ratio_cal = Chirp_Calc_SMassRatioCal(calculated_reduced_mass, calculated_total_mass);
+
+	ct->chirp_time1 =  Chirp_Calc_Time1(f_low, multi_fac_cal, s_mass_ratio_cal);
+	ct->chirp_time2 =  Chirp_Calc_Time1(f_low, multi_fac_cal, s_mass_ratio_cal);
+
+	double calc_tchirp = Chirp_Calc_TChirp(ct->chirp_time0, ct->chirp_time1, ct->chirp_time1_5, ct->chirp_time2);
+
+	/* careful because this doesn't use time of arrival because the network statistic wants it as 0 */
+	ct->tc = calc_tchirp;
 }
