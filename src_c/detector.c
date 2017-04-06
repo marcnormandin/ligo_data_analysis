@@ -8,6 +8,7 @@
 #include "detector.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
@@ -46,6 +47,27 @@ void Detector_init(DETECTOR_NAME name, detector_t *d) {
 	case T1: Detector_init_T1(d); break;
 	default:
 		printf("ERROR: Invalid detector name. Can not initialize.\n");
+		abort();
+	}
+}
+
+void Detector_init_name( char *name, detector_t *d) {
+	if (strcmp(name, "L1") == 0) {
+		Detector_init(L1, d);
+	} else if (strcmp(name, "H1") == 0) {
+		Detector_init(H1, d);
+	} else if (strcmp(name, "H2") == 0) {
+		Detector_init(H2, d);
+	} else if (strcmp(name, "V1") == 0) {
+		Detector_init(V1, d);
+	} else if (strcmp(name, "G1") == 0) {
+		Detector_init(G1, d);
+	} else if (strcmp(name, "K1") == 0) {
+		Detector_init(K1, d);
+	} else if (strcmp(name, "T1") == 0) {
+		Detector_init(T1, d);
+	} else {
+		printf("Error: Invalid detector name (%s). Can not initialize.\n", name);
 		abort();
 	}
 }

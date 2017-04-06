@@ -46,7 +46,7 @@ void inspiral_signal_half_fft_free(inspiral_signal_half_fft_t *signal) {
 	signal = NULL;
 }
 
-inspiral_signal_half_fft_t* inspiral_signal_half_fft(double f_low, double f_high, detector_t *det, strain_t *half_strain, source_t *source) {
+inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, detector_t *det, strain_t *half_strain, source_t *source) {
 	chirp_factors_t chirp;
 	size_t i;
 	stationary_phase_t* sp;
@@ -94,11 +94,23 @@ inspiral_signal_half_fft_t* inspiral_signal_half_fft(double f_low, double f_high
 	return signal;
 }
 
-inspiral_signal_half_fft_t** simulate_inspiral(gsl_rng *rng, double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
+inspiral_signal_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
+	size_t i;
+
+	/* One measured signal per detector */
+	inspiral_signal_half_fft_t **signals = (inspiral_signal_half_fft_t**) malloc( net->num_detectors * sizeof(inspiral_signal_half_fft_t*) );
+	for (i = 0; i < net->num_detectors; i++) {
+		signals[i] = inspiral_template_half_fft( f_low, f_high, net->detector[i], half_strain, source);
+	}
+
+	return signals;
+}
+
+inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
 	size_t i, j;
 
 	/* generate the unscaled signals */
-	inspiral_signal_half_fft_t **signals = simulate_inspiral_unscaled(f_low, f_high, net, half_strain, source);
+	inspiral_signal_half_fft_t **signals = inspiral_template_unscaled(f_low, f_high, net, half_strain, source);
 
 	/* compute the network statistic so that we can determine the scale parameter */
 	chirp_factors_t chirp;
@@ -120,31 +132,6 @@ inspiral_signal_half_fft_t** simulate_inspiral(gsl_rng *rng, double f_low, doubl
 		for (j = 0; j < half_strain->len; ++j) {
 			signal->half_fft[j] = gsl_complex_mul_real(signal->half_fft[j], scale_factor);
 		}
-	}
-
-	/* add noise to each signal */
-	/*
-	for(i = 0; i < net->num_detectors; i++) {
-		inspiral_signal_half_fft_t *signal = signals[i];
-		for (j = 0; j < half_strain->len; ++j) {
-
-			gsl_complex noise = gsl_complex_mul_real(SN_wn_fd(rng), 0.5);
-
-			signal->half_fft[j] = gsl_complex_add(signal->half_fft[j], noise);
-		}
-
-	}*/
-
-	return signals;
-}
-
-inspiral_signal_half_fft_t** simulate_inspiral_unscaled(double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
-	size_t i;
-
-	/* One measured signal per detector */
-	inspiral_signal_half_fft_t **signals = (inspiral_signal_half_fft_t**) malloc( net->num_detectors * sizeof(inspiral_signal_half_fft_t*) );
-	for (i = 0; i < net->num_detectors; i++) {
-		signals[i] = inspiral_signal_half_fft( f_low, f_high, net->detector[i], half_strain, source);
 	}
 
 	return signals;

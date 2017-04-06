@@ -116,3 +116,41 @@ void settings_file_print(settings_file_t *sf) {
 		current = current->next;
 	}
 }
+
+int settings_file_num_settings(settings_file_t *sf) {
+	setting_t *current;
+	int count;
+
+	assert(sf != NULL);
+
+	count = 0;
+
+	current = sf->first;
+
+	while(current != NULL) {
+		count++;
+		current = current->next;
+	}
+
+	return count;
+}
+
+char* settings_file_get_key_by_index(settings_file_t *sf, size_t index) {
+	setting_t *current;
+	int i;
+
+	assert(sf);
+
+	i = 0;
+	current = sf->first;
+	while (current != NULL) {
+		if (i == index) {
+			return current->key;
+		}
+		current = current->next;
+		i++;
+	}
+
+	fprintf(stderr, "Error: Attempt to return an invalid index.\n");
+	abort();
+}

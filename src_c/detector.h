@@ -57,6 +57,8 @@ detector_t* Detector_alloc();
 void Detector_free(detector_t *d);
 
 void Detector_init(DETECTOR_NAME name, detector_t *d);
+void Detector_init_name( char *name, detector_t *d);
+
 void Detector_init_L1(detector_t *d);
 void Detector_init_H1(detector_t *d);
 void Detector_init_H2(detector_t *d);
