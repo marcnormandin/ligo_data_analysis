@@ -94,19 +94,19 @@ inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_hi
 	return signal;
 }
 
-inspiral_signal_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
+inspiral_signal_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, detector_network_t *net, strain_t **half_strain, source_t *source) {
 	size_t i;
 
 	/* One measured signal per detector */
 	inspiral_signal_half_fft_t **signals = (inspiral_signal_half_fft_t**) malloc( net->num_detectors * sizeof(inspiral_signal_half_fft_t*) );
 	for (i = 0; i < net->num_detectors; i++) {
-		signals[i] = inspiral_template_half_fft( f_low, f_high, net->detector[i], half_strain, source);
+		signals[i] = inspiral_template_half_fft( f_low, f_high, net->detector[i], half_strain[i], source);
 	}
 
 	return signals;
 }
 
-inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, detector_network_t *net, strain_t *half_strain, source_t *source) {
+inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, detector_network_t *net, strain_t **half_strain, source_t *source) {
 	size_t i, j;
 
 	/* generate the unscaled signals */
@@ -115,7 +115,8 @@ inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, dete
 	/* compute the network statistic so that we can determine the scale parameter */
 	chirp_factors_t chirp;
 	CF_compute(f_low, source, &chirp);
-	coherent_network_workspace_t *cnw = CN_workspace_malloc(net->num_detectors, half_strain->len);
+	/* Assume that each strain has the same length */
+	coherent_network_workspace_t *cnw = CN_workspace_malloc(net->num_detectors, half_strain[0]->len);
 	double scale = 0;
 	coherent_network_statistic(net, half_strain, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
 			signals, cnw, &scale);
@@ -129,7 +130,7 @@ inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, dete
 	/* now apply scale factor to the signals so that they have the desired network snr */
 	for (i = 0; i < net->num_detectors; i++) {
 		inspiral_signal_half_fft_t* signal = signals[i];
-		for (j = 0; j < half_strain->len; ++j) {
+		for (j = 0; j < half_strain[i]->len; ++j) {
 			signal->half_fft[j] = gsl_complex_mul_real(signal->half_fft[j], scale_factor);
 		}
 	}

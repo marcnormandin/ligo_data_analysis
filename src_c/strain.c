@@ -99,14 +99,14 @@ int Strain_saveToFile(char* filename, strain_t* strain) {
 }
 
 /* Memory must be freed using Strain_free() */
-strain_t* Strain_simulated(double f_low, double f_high, double sampling_frequency, size_t num_time_samples) {
+strain_t* Strain_simulated(strain_t *irregular_strain, double f_low, double f_high, double sampling_frequency, size_t num_time_samples) {
 	size_t i;
 	strain_t* regular_strain;
 	double strain_f_low;
 	double strain_f_high;
 
-	strain_t* irregular_strain = Strain_readFromFile("strain.txt");
-	Strain_saveToFile("irregular_strain.txt", irregular_strain);
+	/*strain_t* irregular_strain = Strain_readFromFile(strain_file);*/
+	/*Strain_saveToFile("irregular_strain.txt", irregular_strain);*/
 
 	/* find the strains to use at the ends */
 	for (i = 0; i < irregular_strain->len; i++) {
@@ -139,7 +139,7 @@ strain_t* Strain_simulated(double f_low, double f_high, double sampling_frequenc
 
 	regular_strain = InterpStrain_malloc_and_compute(irregular_strain, sampling_frequency, num_time_samples);
 
-	Strain_saveToFile("regular_strain.txt", regular_strain);
+	/*Strain_saveToFile("regular_strain.txt", regular_strain);*/
 
 	Strain_free(irregular_strain);
 

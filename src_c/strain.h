@@ -38,7 +38,7 @@ strain_t* Strain_readFromFile(char* filename);
 int Strain_saveToFile(char* filename, strain_t* strain);
 
 /* Memory must be freed using Strain_free() */
-strain_t* Strain_simulated(double f_low, double f_high, double sampling_frequency, size_t num_time_samples);
+strain_t* Strain_simulated(strain_t *irregular_strain, double f_low, double f_high, double sampling_frequency, size_t num_time_samples);
 
 size_t Strain_two_sided_length(strain_t *strain);
 size_t Strain_one_sided_length(strain_t *strain);

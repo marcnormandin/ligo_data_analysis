@@ -84,7 +84,7 @@ void CN_save(char* filename, size_t len, double* tmp_ifft);
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		strain_t *regular_strain,
+		strain_t **regular_strain,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,

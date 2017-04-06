@@ -163,7 +163,7 @@ void CN_save(char* filename, size_t len, double* tmp_ifft) {
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		strain_t *regular_strain,
+		strain_t **regular_strain,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,
@@ -258,15 +258,15 @@ void coherent_network_statistic(
 		time_delay(det, sky, &td);
 
 		SP_compute(coalesce_phase, td,
-						chirp, regular_strain,
+						chirp, regular_strain[i],
 						f_low, f_high,
 						workspace->sp);
 
 		whitened_data = signals[i]->half_fft;
 
-		do_work(workspace->sp->spa_0, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		do_work(workspace->sp->spa_0, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-		do_work(workspace->sp->spa_90, regular_strain, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(workspace->sp->spa_90, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;
@@ -277,7 +277,8 @@ void coherent_network_statistic(
 
 	/* zero the memory */
 	/*s = 2 * regular_strain->len - 2;*/
-	s = Strain_two_sided_length(regular_strain);
+	/* Assume that all of the strains have the same length */
+	s = Strain_two_sided_length(regular_strain[0]);
 	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
 
 	for (tid = 0; tid < 4; tid++) {
