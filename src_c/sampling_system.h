@@ -24,14 +24,14 @@ size_t SS_last_unique_index (size_t N);
 size_t SS_half_size(size_t N_full);
 
 /* Returns the full-size given the half-size */
-size_t SS_full_size(size_t N_half);
+/* size_t SS_full_size(size_t N_half); */
 
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided);
 
 /* Write the fft frequencies */
-void SS_frequency_array(double samplingFrequency, size_t N, double *frequencies);
+void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies);
 
-void SS_time_array(double samplingFrequency, size_t N, double *times);
+void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, double *times);
 
 #endif /* SRC_C_SAMPLING_SYSTEM_H_ */

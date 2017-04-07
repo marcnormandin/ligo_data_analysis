@@ -22,6 +22,7 @@ common_sources = \
 	signal.c signal.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \
+	spectral_density.c spectral_density.h \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 	

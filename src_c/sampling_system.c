@@ -35,7 +35,7 @@ double SS_nyquist_frequency(double samplingFrequency, size_t N) {
 /* Returns the last unique index. Either the Nyquist index or last regular term before they are mirrored. */
 size_t SS_last_unique_index (size_t N) {
 	if (GSL_IS_ODD(N)) {
-		return (N-1) / 2;
+		return (N+1) / 2;
 	} else {
 		return N / 2;
 	}
@@ -43,13 +43,10 @@ size_t SS_last_unique_index (size_t N) {
 
 /* Returns the half-size (side with low frequencies including the DC term) */
 size_t SS_half_size(size_t N_full) {
-	if (N_full%2 == 0) {
-		return 0.5*(N_full-2) + 2;
-	} else {
-		return 0.5*(N_full-1) + 1;
-	}
+	return SS_last_unique_index( N_full ) + 1;
 }
 
+/*
 size_t SS_full_size(size_t N_half) {
 	if (N_half%2 == 0) {
 		return 2*(N_half-2) + 2;
@@ -57,6 +54,7 @@ size_t SS_full_size(size_t N_half) {
 		return 2*(N_half-1) + 1;
 	}
 }
+*/
 
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided) {
@@ -90,18 +88,20 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 	}
 }
 
-void SS_frequency_array(double samplingFrequency, size_t N, double *frequencies) {
+void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies)
+{
 	size_t i;
-	double f0 = samplingFrequency / N;
-	for (i = 0; i < N; i++) {
-		frequencies[i] = f0 * i;
+	double delta_f = samplingFrequency / num_total_samples;
+	for (i = 0; i < num_desired_freq_samples; i++) {
+		frequencies[i] = delta_f * i;
 	}
 }
 
-void SS_time_array(double samplingFrequency, size_t N, double *times) {
+void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, double *times)
+{
 	size_t i;
 	double Ts = 1.0 / samplingFrequency;
-	for (i = 0; i < N; i++) {
+	for (i = 0; i < num_desired_time_samples; i++) {
 		times[i] = i * Ts;
 	}
 }

@@ -20,6 +20,8 @@
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_interp.h>
+
 
 #include "common.h"
 #include "detector_antenna_patterns.h"
@@ -40,9 +42,10 @@
 #include "options.h"
 #include "settings.h"
 
+#include "spectral_density.h"
+
 #include <hdf5.h>
 #include <hdf5_hl.h>
-
 
 /* Compute the chirp factors so that we know the true chirp times, and save them to file. */
 void save_true_signal(double f_low, source_t *source, char *filename) {
@@ -55,7 +58,7 @@ void save_true_signal(double f_low, source_t *source, char *filename) {
 	fclose(true_parameters);
 }
 
-size_t hdf5_get_strain_length( const char *hdf_filename ) {
+size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* dataset_name ) {
 	hid_t file_id, dataset_id, dspace_id;
 	herr_t status;
 
@@ -66,8 +69,7 @@ size_t hdf5_get_strain_length( const char *hdf_filename ) {
 	}
 
 	/* Read the dataset */
-	const char* dataset_name = "/strain/Strain_1";
-	dataset_id = H5Dopen2(file_id, "/strain/Strain_1", H5P_DEFAULT);
+	dataset_id = H5Dopen2(file_id, dataset_name, H5P_DEFAULT);
 	if (dataset_id < 0) {
 		fprintf(stderr, "Error opening the dataset (%s) from the file (%s). Aborting.\n",
 				dataset_name, hdf_filename);
@@ -78,6 +80,8 @@ size_t hdf5_get_strain_length( const char *hdf_filename ) {
 	dspace_id = H5Dget_space(dataset_id);
 	int ndims = H5Sget_simple_extent_ndims(dspace_id);
 	hssize_t len = H5Sget_simple_extent_npoints(dspace_id);
+
+	H5Dclose(dataset_id);
 	H5Fclose(file_id);
 
 	return len;
@@ -110,11 +114,87 @@ size_t hdf5_get_num_strains( const char* hdf_filename ) {
 	return (int)num;
 }
 
+void hdf5_load_array( const char *hdf_filename, const char *dataset_name, double *data) {
+	hid_t file_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT );
+	if (file_id < 0) {
+		fprintf(stderr, "Error: Unable to open the HDF5 file (%s). Aborting.\n", hdf_filename);
+		abort();
+	}
+
+	status = H5LTread_dataset_double( file_id, dataset_name, data );
+	if (status < 0) {
+		fprintf(stderr, "Error reading the dataset (%s) from the file (%s). Aborting.\n",
+				dataset_name, hdf_filename);
+		abort();
+	}
+
+	H5Fclose( file_id );
+}
+
+psd_t* hdf5_load_psd( const char *hdf_filename ) {
+	size_t len_psd;
+
+	len_psd = hdf5_get_dataset_array_length( hdf_filename, "/psd/PSD" );
+
+	psd_t* psd = PSD_malloc ( len_psd );
+
+	hdf5_load_array( hdf_filename, "/psd/PSD", psd->psd );
+	hdf5_load_array( hdf_filename, "/psd/Freq", psd->f );
+
+	psd->type = PSD_ONE_SIDED;
+
+	return psd;
+}
+
+void hdf5_save_psd( const char *hdf_filename, psd_t *psd ) {
+	/* Save the PSD to the output file. */
+	hid_t output_file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT );
+	if (output_file_id < 0) {
+		fprintf(stderr, "Error opening the output hdf5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+
+	/* Create the group in the output file */
+	hid_t psd_group_id = H5Gcreate(output_file_id, "/psd", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	if (psd_group_id < 0) {
+		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+				"/psd", hdf_filename);
+		abort();
+	}
+
+	hsize_t dims[1];
+	dims[0] = psd->len;
+	herr_t status;
+
+	/* Save the PSD */
+	status = H5LTmake_dataset_double ( psd_group_id, "PSD", 1, dims, psd->psd );
+	if (status < 0) {
+		fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
+				"PSD", hdf_filename);
+		abort();
+	}
+
+	/* Save the frequencies */
+	status = H5LTmake_dataset_double ( psd_group_id, "Freq", 1, dims, psd->f );
+	if (status < 0) {
+		fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
+				"Freq", hdf_filename);
+		abort();
+	}
+
+	H5Gclose( psd_group_id );
+	H5Fclose(output_file_id);
+}
+
 void hdf5_save_simulated_data( size_t len_template, double *template, char *hdf5_noise_filename, char *hdf5_output_filename ) {
 	hid_t file_id, dataset_id, dspace_id, output_file_id;
 	herr_t status;
 
-	size_t strain_len = hdf5_get_strain_length( hdf5_noise_filename );
+	size_t strain_len = hdf5_get_dataset_array_length( hdf5_noise_filename, "/strain/Strain_1" );
 	printf("The strain length is %lu\n", strain_len);
 
 	size_t num_strains = hdf5_get_num_strains( hdf5_noise_filename );
@@ -239,6 +319,16 @@ void hdf5_save_simulated_data( size_t len_template, double *template, char *hdf5
 	printf("Finished writing to the HDF5 file.\n\n");
 }
 
+void hdf5_create_file( const char* hdf_filename ) {
+	hid_t file_id = H5Fcreate( hdf_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error. Unable to create the HDF5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+	H5Fclose(file_id);
+}
+
 int main(int argc, char* argv[]) {
 	size_t i, j;
 
@@ -299,165 +389,58 @@ int main(int argc, char* argv[]) {
 
 
 	char *hdf_filename = settings_file_get_value(settings_file, settings_file_get_key_by_index(settings_file, 0));
-	int num_time_samples = hdf5_get_strain_length( hdf_filename );
+	int num_time_samples = hdf5_get_dataset_array_length( hdf_filename, "/strain/Strain_1" );
 	printf("Simulated data will contain %d time samples.\n", num_time_samples);
-	/*int num_strains = hdf5_get_num_strains ( hdf_filename );
-	printf("There are %d strains in the file.\n", num_strains);*/
 
-	/*
-	strain_t *irregular_strain = Strain_readFromFile("strain.txt");
-	strain_t *hack = Strain_simulated(irregular_strain, f_low, f_high, sampling_frequency, num_time_samples);*/
+	size_t half_size = SS_half_size(num_time_samples);
+	printf("The half size is: %lu\n", half_size);
 
-	strain_t **strain = (strain_t**) malloc( num_detectors * sizeof(strain_t*) );
+	/*strain_t **strain = (strain_t**) malloc( num_detectors * sizeof(strain_t*) );*/
 
-	/* HUGE TEMP HACK */
+	/* For each detector, read in the PSD from file, and compute interpolated ASD for the analysis. */
 	for (i = 0; i < num_detectors; i++) {
-		/*strain[i] = Strain_simulated(f_low, f_high, sampling_frequency, num_time_samples);*/
-		//strain[i] = Strain_malloc(ST_ONE_SIDED, hack->len);
-		//memcpy(strain[i]->freq, hack->freq, hack->len * sizeof(double));
+		/* Get the input filename */
+		char *hdf_filename = settings_file_get_value(settings_file, settings_file_get_key_by_index(settings_file, i));
 
-		hid_t file_id;
+		/* Load the ASD from file */
+		psd_t *psd_unprocessed = hdf5_load_psd( hdf_filename );
+		asd_t *asd_unprocessed = ASD_malloc( psd_unprocessed->len );
+		ASD_init_from_psd( psd_unprocessed, asd_unprocessed );
+		PSD_free(psd_unprocessed);
 
-		/* Open the input file to get the PSD */
-		char *psd_filename = settings_file_get_value(settings_file, settings_file_get_key_by_index(settings_file, i));
-		printf("Opening %s to get the PSD.\n", psd_filename);
-		file_id = H5Fopen( psd_filename, H5F_ACC_RDWR, H5P_DEFAULT);
-		if (file_id < 0) {
-			fprintf(stderr, "Error: Unable to open the HDF5 file (%s). Aborting.\n", psd_filename);
-			abort();
+		/* Set the frequencies we want to use. */
+		asd_t *asd = ASD_malloc( half_size );
+		asd->type = ASD_ONE_SIDED;
+		SS_frequency_array(sampling_frequency, num_time_samples, asd->len, asd->f);
+
+		/* Interpolate the ASD to the desired frequencies. */
+		gsl_interp* interp = gsl_interp_alloc(gsl_interp_linear, asd_unprocessed->len);
+		gsl_interp_accel* acc = gsl_interp_accel_alloc();
+		gsl_interp_init(interp, asd_unprocessed->f, asd_unprocessed->asd, asd_unprocessed->len);
+		for (j = 0; j < asd->len; j++) {
+			double asd_interpolated = gsl_interp_eval(interp, asd_unprocessed->f, asd_unprocessed->asd, asd->f[j], acc);
+			asd->asd[j] = asd_interpolated;
 		}
+		gsl_interp_accel_free(acc);
+		gsl_interp_free(interp);
 
-		/* Read the PSD, but it has two many samples */
-		printf("Reading the PSD..\n");
-		strain_t* strain_two_sided = Strain_malloc(ST_TWO_SIDED, 2097152);
-		herr_t status = H5LTread_dataset_double( file_id, "/psd/PSD", strain_two_sided->strain );
-		if (status < 0) {
-			fprintf(stderr, "Error reading the dataset (%s) from the file (%s). Aborting.\n",
-					"/psd/PSD", psd_filename);
-			abort();
-		}
-		H5Fclose( file_id );
+		/* Convert the ASD to a PSD */
+		psd_t *psd = PSD_malloc( asd->len );
+		PSD_init_from_asd( asd, psd );
 
-		SS_frequency_array(4096.0, 2097152, strain_two_sided->freq);
-
-		/* Downsample the PSD */
-		printf("Downsampling the PSD for use in the network statistic that is used to scale the signals by network SNR... ");
-		strain[i] = Strain_simulated(strain_two_sided, f_low, f_high, sampling_frequency, num_time_samples);
-		printf("done.\n");
-
-
-
-
-
-		/* Save the PSD to the output file. */
+		/* Create the output file */
 		char output_filename[255];
 		memset(output_filename, '\0', 255 * sizeof(char));
 		sprintf(output_filename, "%s.hdf5", settings_file_get_key_by_index(settings_file, i));
-		printf("Creating %s HDF5 file for writing the PSD.\n", output_filename);
-		hid_t output_file_id = H5Fcreate( output_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-		if (output_file_id < 0) {
-			fprintf(stderr, "Error opening the output hdf5 file (%s). Aborting.\n",
-					output_filename);
-			abort();
-		}
+		hdf5_create_file( output_filename );
 
-		/* Create the groups in the output file */
-		hid_t psd_group_id = H5Gcreate(output_file_id, "/psd", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+		/* Save the PSD to file */
+		hdf5_save_psd( output_filename, psd );
 
-		hsize_t dims[1];
-		dims[0] = strain[i]->len;
-		status = H5LTmake_dataset_double ( psd_group_id, "PSD", 1, dims, strain[i]->strain );
-		if (status < 0) {
-			fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
-					"PSD", output_filename);
-			abort();
-		}
-		printf("Downsampled PSD saved to HDF5 file (%s).\n", output_filename);
-		H5Gclose( psd_group_id );
-		H5Fclose(output_file_id);
+		/* Clean up */
+		PSD_free(psd);
+		ASD_free(asd);
 	}
-
-	/* Generate the templates for all the detectors composing the network */
-	inspiral_signal_half_fft_t **templates = inspiral_template(f_low, f_high, &net, strain, &source);
-	for (i = 0; i < num_detectors; i++) {
-		inspiral_signal_half_fft_t *one_sided = templates[i];
-
-		/* Form the two-sided template so we can take the inverse FFT */
-		printf("Forming the two-sided template from the one-sided version.\n");
-		gsl_complex *two_sided = (gsl_complex*) malloc( one_sided->full_len * sizeof(gsl_complex) );
-		if (two_sided == NULL) {
-			fprintf(stderr, "Error. Unable to allocate memory for the two-sided array. Aborting.\n");
-			abort();
-		}
-		SS_make_two_sided (one_sided->half_fft_len, one_sided->half_fft, one_sided->full_len, two_sided);
-
-		gsl_fft_complex_wavetable *fft_wavetable;
-		gsl_fft_complex_workspace *fft_workspace;
-		fft_wavetable = gsl_fft_complex_wavetable_alloc( one_sided->full_len );
-		fft_workspace = gsl_fft_complex_workspace_alloc( one_sided->full_len );
-
-		printf("Creating strided array for the ifft.\n");
-		double *template_ifft = (double*) malloc( 2 * one_sided->full_len * sizeof(double) );
-		if (template_ifft == NULL) {
-			fprintf(stderr, "Error. Unable to allocate memory for the template_ifft. Aborting.\n");
-			abort();
-		}
-		for (j = 0; j < one_sided->full_len; j++) {
-			template_ifft[2*j + 0] = GSL_REAL( two_sided[j] );
-			template_ifft[2*j + 1] = GSL_IMAG( two_sided[j] );
-		}
-
-		printf("Computing the IFFT of the template...\n");
-		gsl_fft_complex_inverse( template_ifft, 1, one_sided->full_len, fft_wavetable, fft_workspace );
-
-		double *template = (double*) malloc( one_sided->full_len * sizeof(double) );
-		if (template == NULL) {
-			fprintf(stderr, "Error. Unable to allocate memory for the template. Aborting.\n");
-			abort();
-		}
-		for (j = 0; j < one_sided->full_len; j++) {
-			/* Only save the real part */
-			template[j] = template_ifft[2*j + 0];
-		}
-
-		gsl_fft_complex_workspace_free( fft_workspace );
-		gsl_fft_complex_wavetable_free( fft_wavetable );
-
-		char *detector_name = settings_file_get_key_by_index(settings_file, i);
-		char *hdf5_noise_filename = settings_file_get_value(settings_file, detector_name);
-		char hdf5_output_filename[255];
-		memset(hdf5_output_filename, '\0', 255 * sizeof(char));
-		sprintf(hdf5_output_filename, "%s.hdf5", detector_name);
-
-		printf("Saving the simulated data to file (%s)\n", hdf5_output_filename);
-		hdf5_save_simulated_data( one_sided->full_len, template, hdf5_noise_filename, hdf5_output_filename );
-
-		free(two_sided);
-		free(template_ifft);
-		free(template);
-	}
-
-
-	/* Free the data */
-	for (i = 0; i < net.num_detectors; i++) {
-		inspiral_signal_half_fft_free(templates[i]);
-	}
-	free(templates);
-
-	Free_Detector_Network(&net);
-
-	for (i = 0; i < num_detectors; i++) {
-		char strain_filename[255];
-		memset(strain_filename, '\0', 255 *sizeof(char));
-		sprintf(strain_filename, "%s.strain", settings_file_get_key_by_index(settings_file, i));
-		Strain_saveToFile(strain_filename, strain[i]);
-		Strain_free(strain[i]);
-	}
-	free(strain);
-
-	settings_file_close(settings_file);
-
-	/*Strain_free(hack);*/
 
 	printf("program ended successfully.\n");
 

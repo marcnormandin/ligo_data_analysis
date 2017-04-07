@@ -32,9 +32,9 @@
 #include "simulate_noise.h"
 #include "sampling_system.h"
 
-inspiral_signal_half_fft_t* inspiral_signal_half_fft_alloc(size_t full_len) {
+inspiral_signal_half_fft_t* inspiral_signal_half_fft_alloc(size_t num_time_samples) {
 	inspiral_signal_half_fft_t *signal = (inspiral_signal_half_fft_t*) malloc( sizeof(inspiral_signal_half_fft_t) );
-	signal->full_len = full_len;
+	signal->full_len = num_time_samples;
 	signal->half_fft_len = SS_half_size(signal->full_len);
 	signal->half_fft = (gsl_complex*) malloc( signal->half_fft_len * sizeof(gsl_complex) );
 	return signal;
@@ -46,7 +46,7 @@ void inspiral_signal_half_fft_free(inspiral_signal_half_fft_t *signal) {
 	signal = NULL;
 }
 
-inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, detector_t *det, strain_t *half_strain, source_t *source) {
+inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, strain_t *half_strain, source_t *source) {
 	chirp_factors_t chirp;
 	size_t i;
 	stationary_phase_t* sp;
@@ -60,7 +60,7 @@ inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_hi
 
 	antenna_patterns(det, &source->sky, source->polarization_angle, ap_ws, &ap);
 
-	inspiral_signal_half_fft_t *signal = inspiral_signal_half_fft_alloc(Strain_two_sided_length(half_strain));
+	inspiral_signal_half_fft_t *signal = inspiral_signal_half_fft_alloc( num_time_samples );
 
 	sp = SP_malloc(half_strain->len);
 	double td;
@@ -94,29 +94,29 @@ inspiral_signal_half_fft_t* inspiral_template_half_fft(double f_low, double f_hi
 	return signal;
 }
 
-inspiral_signal_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, detector_network_t *net, strain_t **half_strain, source_t *source) {
+inspiral_signal_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, strain_t **half_strain, source_t *source) {
 	size_t i;
 
 	/* One measured signal per detector */
 	inspiral_signal_half_fft_t **signals = (inspiral_signal_half_fft_t**) malloc( net->num_detectors * sizeof(inspiral_signal_half_fft_t*) );
 	for (i = 0; i < net->num_detectors; i++) {
-		signals[i] = inspiral_template_half_fft( f_low, f_high, net->detector[i], half_strain[i], source);
+		signals[i] = inspiral_template_half_fft( f_low, f_high, num_time_samples, net->detector[i], half_strain[i], source);
 	}
 
 	return signals;
 }
 
-inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, detector_network_t *net, strain_t **half_strain, source_t *source) {
+inspiral_signal_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, strain_t **half_strain, source_t *source) {
 	size_t i, j;
 
 	/* generate the unscaled signals */
-	inspiral_signal_half_fft_t **signals = inspiral_template_unscaled(f_low, f_high, net, half_strain, source);
+	inspiral_signal_half_fft_t **signals = inspiral_template_unscaled(f_low, f_high, num_time_samples, net, half_strain, source);
 
 	/* compute the network statistic so that we can determine the scale parameter */
 	chirp_factors_t chirp;
 	CF_compute(f_low, source, &chirp);
 	/* Assume that each strain has the same length */
-	coherent_network_workspace_t *cnw = CN_workspace_malloc(net->num_detectors, half_strain[0]->len);
+	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net->num_detectors, half_strain[0]->len);
 	double scale = 0;
 	coherent_network_statistic(net, half_strain, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
 			signals, cnw, &scale);

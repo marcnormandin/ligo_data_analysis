@@ -110,7 +110,8 @@ am__objects_1 = detector_antenna_patterns.$(OBJEXT) \
 	options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) \
 	random.$(OBJEXT) sampling_system.$(OBJEXT) settings.$(OBJEXT) \
 	signal.$(OBJEXT) simulate_noise.$(OBJEXT) \
-	strain_interpolate.$(OBJEXT) strain.$(OBJEXT)
+	spectral_density.$(OBJEXT) strain_interpolate.$(OBJEXT) \
+	strain.$(OBJEXT)
 am_lda_simulate_data_OBJECTS = lda_simulate_data_main.$(OBJEXT) \
 	$(am__objects_1)
 lda_simulate_data_OBJECTS = $(am_lda_simulate_data_OBJECTS)
@@ -319,6 +320,7 @@ common_sources = \
 	signal.c signal.h \
 	simulate_noise.c simulate_noise.h \
 	sky.h \
+	spectral_density.c spectral_density.h \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 
@@ -479,6 +481,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/settings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/signal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simulate_noise.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectral_density.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strain_interpolate.Po@am__quote@
 

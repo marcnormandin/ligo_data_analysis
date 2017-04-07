@@ -25,21 +25,15 @@
 #include "detector_time_delay.h"
 #include "sampling_system.h"
 
-coherent_network_helper_t* CN_helper_malloc(size_t num_half_frequencies) {
-	size_t s;
+coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples) {
 	coherent_network_helper_t *h;
 
 	h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
 
-	/* Fixme
-	 * Check that this is always valid. It may depend on nyquist frequency being present
-	 */
-	/*s = 2*num_half_frequencies - 2;*/
-	s = SS_full_size(num_half_frequencies);
 	/*fprintf(stderr, "c_plus and c_plus have a length of: %d\n", s);*/
 
-	h->c_plus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
-	h->c_minus = (gsl_complex*) malloc( s * sizeof(gsl_complex) );
+	h->c_plus = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
+	h->c_minus = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
 	return h;
 }
 
@@ -49,17 +43,16 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper);
 }
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t num_half_freq) {
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq) {
 	coherent_network_workspace_t * work;
 	size_t i;
-	size_t len_terms;
-	size_t s;
 
 	work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
+	work->num_time_samples = num_time_samples;
 	work->num_helpers = num_detectors;
 	work->helpers = (coherent_network_helper_t**) malloc( work->num_helpers * sizeof(coherent_network_helper_t*));
 	for (i = 0; i < work->num_helpers; i++) {
-		work->helpers[i] = CN_helper_malloc( num_half_freq );
+		work->helpers[i] = CN_helper_malloc( num_time_samples );
 	}
 
 	work->sp = SP_malloc( num_half_freq );
@@ -67,27 +60,24 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t n
 	work->temp_array = (gsl_complex*) malloc( num_half_freq * sizeof(gsl_complex) );
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
-	/* Fixme */
-	/*len_terms = 2 * len_freq - 2;*/
-	len_terms = SS_full_size(num_half_freq);
+
 	/*fprintf(stderr, "len_terms has a length of: %d\n", len_terms);*/
 
 	for (i = 0; i < 4; i++) {
-		work->terms[i] = (gsl_complex*) malloc( len_terms * sizeof(gsl_complex) );
+		work->terms[i] = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
 	}
 
 	work->fs = (double**) malloc( 4 * sizeof(double*) );
 	for (i = 0; i < 4; i++) {
-		work->fs[i] = (double*) malloc( 2 * len_terms * sizeof(double) );
+		work->fs[i] = (double*) malloc( 2 * num_time_samples * sizeof(double) );
 	}
 
-	work->temp_ifft = (double*) malloc( len_terms * sizeof(double) );
-	/*s = 2 * len_freq - 2;*/
-	s = len_terms;
+	work->temp_ifft = (double*) malloc( num_time_samples * sizeof(double) );
+
 	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
 
-	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( s );
-	work->fft_workspace = gsl_fft_complex_workspace_alloc( s );
+	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( num_time_samples );
+	work->fft_workspace = gsl_fft_complex_workspace_alloc( num_time_samples );
 
 	work->ap_workspace = antenna_patterns_workspace_alloc();
 	/* one antenna pattern structure per detector */
@@ -124,7 +114,7 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free( workspace );
 }
 
-void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
+void do_work(size_t num_time_samples, gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
 	size_t k;
 	size_t t_index;
 	size_t c_index;
@@ -143,11 +133,10 @@ void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_d
 		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
 	}
 	*/
-	/*size_t N = 2*regular_strain->len - 2;*/
-	size_t N = Strain_two_sided_length(regular_strain);
+
 	/*fprintf(stderr, "out_c, N has a length of: %d\n", N);*/
 
-	SS_make_two_sided( regular_strain->len, temp, N, out_c);
+	SS_make_two_sided( regular_strain->len, temp, num_time_samples, out_c);
 }
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {
@@ -193,13 +182,14 @@ void coherent_network_statistic(
 	double O12_input;
 	double O21_input;
 	double O22_input;
-	size_t s;
 	size_t tid;
 	size_t did;
 	size_t fid;
 	size_t j;
 	double max;
-	/* double std; */
+
+	/* WARNING: This assumes that all of the signals have the same lengths. */
+	size_t num_time_samples = signals[0]->full_len;
 
 	/* Compute the antenna patterns for each detector */
 	for (i = 0; i < net->num_detectors; i++) {
@@ -264,9 +254,9 @@ void coherent_network_statistic(
 
 		whitened_data = signals[i]->half_fft;
 
-		do_work(workspace->sp->spa_0, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		do_work(num_time_samples, workspace->sp->spa_0, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-		do_work(workspace->sp->spa_90, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(num_time_samples, workspace->sp->spa_90, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;
@@ -276,18 +266,13 @@ void coherent_network_statistic(
 	}
 
 	/* zero the memory */
-	/*s = 2 * regular_strain->len - 2;*/
-	/* Assume that all of the strains have the same length */
-	s = Strain_two_sided_length(regular_strain[0]);
-	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
-
 	for (tid = 0; tid < 4; tid++) {
-		memset( workspace->terms[tid], 0, s * sizeof(gsl_complex) );
-		memset( workspace->fs[tid], 0, s * sizeof(gsl_complex) );
+		memset( workspace->terms[tid], 0, num_time_samples * sizeof(gsl_complex) );
+		memset( workspace->fs[tid], 0, num_time_samples * sizeof(gsl_complex) );
 	}
 
 	for (did = 0; did < net->num_detectors; did++) {
-		for (fid = 0; fid < s; fid++) {
+		for (fid = 0; fid < num_time_samples; fid++) {
 			gsl_complex t;
 
 			t = gsl_complex_mul_real(workspace->helpers[did]->c_plus[fid], workspace->helpers[did]->w_plus_input);
@@ -305,19 +290,19 @@ void coherent_network_statistic(
 	}
 
 	for (i = 0; i < 4; i++) {
-		for (j = 0; j < s; j++) {
+		for (j = 0; j < num_time_samples; j++) {
 			workspace->fs[i][2*j + 0] = GSL_REAL( workspace->terms[i][j] );
 			workspace->fs[i][2*j + 1] = GSL_IMAG( workspace->terms[i][j] );
 		}
-		gsl_fft_complex_inverse( workspace->fs[i], 1, s, workspace->fft_wavetable, workspace->fft_workspace );
+		gsl_fft_complex_inverse( workspace->fs[i], 1, num_time_samples, workspace->fft_wavetable, workspace->fft_workspace );
 	}
 
-	memset(workspace->temp_ifft, 0, s * sizeof(double));
+	memset(workspace->temp_ifft, 0, num_time_samples * sizeof(double));
 	for (i = 0; i < 4; i++) {
-		for (j = 0; j < s; j++) {
+		for (j = 0; j < num_time_samples; j++) {
 			/* Take only the real part. The imaginary part should be zero. */
 			double x = workspace->fs[i][2*j + 0];
-			workspace->temp_ifft[j] += gsl_pow_2(x*s);
+			workspace->temp_ifft[j] += gsl_pow_2(x*num_time_samples);
 		}
 	}
 
@@ -325,7 +310,7 @@ void coherent_network_statistic(
 
 	max = workspace->temp_ifft[0];
 	/* check statistical behavior of this time series */
-	for (i = 1; i < s; i++) {
+	for (i = 1; i < num_time_samples; i++) {
 		double m = workspace->temp_ifft[i];
 		if (m > max) {
 			max = m;

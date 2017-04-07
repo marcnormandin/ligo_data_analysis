@@ -146,6 +146,7 @@ strain_t* Strain_simulated(strain_t *irregular_strain, double f_low, double f_hi
 	return regular_strain;
 }
 
+/*
 size_t Strain_two_sided_length(strain_t *strain) {
 	switch (strain->type) {
 	case ST_ONE_SIDED:
@@ -176,4 +177,5 @@ size_t Strain_one_sided_length(strain_t *strain) {
 	}
 }
 
+*/
 

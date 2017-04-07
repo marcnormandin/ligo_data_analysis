@@ -47,11 +47,13 @@ typedef struct coherent_network_helper_s {
 
 } coherent_network_helper_t;
 
-coherent_network_helper_t* CN_helper_malloc(size_t num_frequencies);
+coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples);
 
 void CN_helper_free( coherent_network_helper_t* helper);
 
 typedef struct coherent_network_workspace_s {
+	size_t num_time_samples;
+
 	size_t num_helpers;
 	coherent_network_helper_t **helpers;
 
@@ -74,11 +76,11 @@ typedef struct coherent_network_workspace_s {
 
 } coherent_network_workspace_t;
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_detectors, size_t len_freq);
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t len_freq);
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 
-void do_work(gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
+void do_work(size_t num_time_samples, gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
 
 void CN_save(char* filename, size_t len, double* tmp_ifft);
 
