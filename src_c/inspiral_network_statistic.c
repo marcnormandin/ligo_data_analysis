@@ -324,6 +324,7 @@ void coherent_network_statistic(
 	/*CN_save("tmp_ifft.dat", s, workspace->temp_ifft);*/
 
 	max = workspace->temp_ifft[0];
+	/* check statistical behavior of this time series */
 	for (i = 1; i < s; i++) {
 		double m = workspace->temp_ifft[i];
 		if (m > max) {
@@ -332,9 +333,13 @@ void coherent_network_statistic(
 	}
 
 	/* divide the standard deviation to convert to SNR */
-	/* std = gsl_stats_sd(workspace->temp_ifft, 1, s);
+	/*double std = gsl_stats_sd(workspace->temp_ifft, 1, s);
 
-	*out_val = sqrt(max) / std; */
+	*out_val = sqrt(max) / std;*/
 	*out_val = sqrt(max);
+	/* check, sqrt sbould behave accordding to chi */
+	/* check, use this with just noise and see if the mean is 4, std should be sqrt(8). Chi-sqre if not sqrt(max). Check 'max' dist.*/
+
 	/* *out_val = max; */
+	/* *out_val = max / std; */
 }
