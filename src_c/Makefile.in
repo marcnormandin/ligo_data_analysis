@@ -105,7 +105,7 @@ am__objects_1 = detector_antenna_patterns.$(OBJEXT) \
 	detector_network.$(OBJEXT) detector_time_delay.$(OBJEXT) \
 	detector.$(OBJEXT) inspiral_chirp.$(OBJEXT) \
 	inspiral_network_statistic.$(OBJEXT) \
-	inspiral_pso_fitness.$(OBJEXT) inspiral_signal.$(OBJEXT) \
+	inspiral_pso_fitness.$(OBJEXT) inspiral_template.$(OBJEXT) \
 	inspiral_source.$(OBJEXT) inspiral_stationary_phase.$(OBJEXT) \
 	options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) \
 	random.$(OBJEXT) sampling_system.$(OBJEXT) settings.$(OBJEXT) \
@@ -308,7 +308,7 @@ common_sources = \
 	inspiral_chirp.c inspiral_chirp.h \
 	inspiral_network_statistic.c inspiral_network_statistic.h \
 	inspiral_pso_fitness.c inspiral_pso_fitness.h \
-	inspiral_signal.c inspiral_signal.h \
+	inspiral_template.c inspiral_template.h \
 	inspiral_source.c inspiral_source.h \
 	inspiral_stationary_phase.c inspiral_stationary_phase.h \
 	options.c options.h \
@@ -469,9 +469,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_chirp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_network_statistic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_pso_fitness.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_signal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_source.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_stationary_phase.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_template.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_simulate_data_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso.Po@am__quote@

@@ -114,14 +114,14 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free( workspace );
 }
 
-void do_work(size_t num_time_samples, gsl_complex *spa, strain_t *regular_strain, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
+void do_work(size_t num_time_samples, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
 	size_t k;
 	size_t t_index;
 	size_t c_index;
 
-	for (k = 0; k < regular_strain->len; k++) {
+	for (k = 0; k < asd->len; k++) {
 		temp[k] = gsl_complex_conjugate(spa[k]);
-		temp[k] = gsl_complex_div_real(temp[k], regular_strain->strain[k]);
+		temp[k] = gsl_complex_div_real(temp[k], asd->asd[k]);
 		temp[k] = gsl_complex_mul( temp[k], half_fft_data[k] );
 	}
 
@@ -135,8 +135,9 @@ void do_work(size_t num_time_samples, gsl_complex *spa, strain_t *regular_strain
 	*/
 
 	/*fprintf(stderr, "out_c, N has a length of: %d\n", N);*/
+	fprintf(stderr, "do_work: num_time_samples = %lu\n", num_time_samples);
 
-	SS_make_two_sided( regular_strain->len, temp, num_time_samples, out_c);
+	SS_make_two_sided( asd->len, temp, num_time_samples, out_c);
 }
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {
@@ -152,13 +153,13 @@ void CN_save(char* filename, size_t len, double* tmp_ifft) {
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		strain_t **regular_strain,
+		asd_t **net_asd,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,
 		sky_t *sky,
 		double polarization_angle,
-		inspiral_signal_half_fft_t **signals,
+		inspiral_template_half_fft_t **signals,
 		coherent_network_workspace_t *workspace,
 		double *out_val)
 {
@@ -190,6 +191,7 @@ void coherent_network_statistic(
 
 	/* WARNING: This assumes that all of the signals have the same lengths. */
 	size_t num_time_samples = signals[0]->full_len;
+	fprintf(stderr, "inspiral network statistic: num_time_samples = %lu\n", num_time_samples);
 
 	/* Compute the antenna patterns for each detector */
 	for (i = 0; i < net->num_detectors; i++) {
@@ -248,15 +250,15 @@ void coherent_network_statistic(
 		time_delay(det, sky, &td);
 
 		SP_compute(coalesce_phase, td,
-						chirp, regular_strain[i],
+						chirp, net_asd[i],
 						f_low, f_high,
 						workspace->sp);
 
 		whitened_data = signals[i]->half_fft;
 
-		do_work(num_time_samples, workspace->sp->spa_0, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		do_work(num_time_samples, workspace->sp->spa_0, net_asd[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-		do_work(num_time_samples, workspace->sp->spa_90, regular_strain[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(num_time_samples, workspace->sp->spa_90, net_asd[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;

@@ -83,7 +83,7 @@ double ptapso_func(gsl_vector *xVec, void  *inParamsPointer){
 
 		coherent_network_statistic(
 				splParams->network,
-				splParams->strain,
+				splParams->net_asd,
 				splParams->f_low,
 				splParams->f_high,
 				&chirp_time,

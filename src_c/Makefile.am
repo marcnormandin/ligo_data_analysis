@@ -10,7 +10,7 @@ common_sources = \
 	inspiral_chirp.c inspiral_chirp.h \
 	inspiral_network_statistic.c inspiral_network_statistic.h \
 	inspiral_pso_fitness.c inspiral_pso_fitness.h \
-	inspiral_signal.c inspiral_signal.h \
+	inspiral_template.c inspiral_template.h \
 	inspiral_source.c inspiral_source.h \
 	inspiral_stationary_phase.c inspiral_stationary_phase.h \
 	options.c options.h \

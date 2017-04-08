@@ -12,7 +12,7 @@
 #include "random.h"
 #include "inspiral_source.h"
 #include "signal.h"
-#include "strain.h"
+#include "spectral_density.h"
 #include "detector_network.h"
 #include "inspiral_network_statistic.h"
 
@@ -28,9 +28,9 @@ typedef struct pso_result_s {
 typedef struct ptapso_func_params {
 	double f_low;
 	double f_high;
-	strain_t **strain;
+	asd_t **net_asd;
 	detector_network_t *network;
-	inspiral_signal_half_fft_t **signals;
+	inspiral_template_half_fft_t **signals;
 	coherent_network_workspace_t *workspace;
 
 } ptapso_fun_params_t;

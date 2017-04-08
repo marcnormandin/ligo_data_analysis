@@ -23,8 +23,8 @@
 #include "strain_interpolate.h"
 
 #include "inspiral_chirp.h"
-#include "inspiral_signal.h"
-#include "strain.h"
+#include "inspiral_template.h"
+#include "spectral_density.h"
 #include "detector_network.h"
 #include "detector_antenna_patterns.h"
 #include "signal.h"
@@ -80,19 +80,19 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 
-void do_work(size_t num_time_samples, gsl_complex *spa, strain_t *regular_strain, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
+void do_work(size_t num_time_samples, gsl_complex *spa, asd_t *asd, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
 
 void CN_save(char* filename, size_t len, double* tmp_ifft);
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		strain_t **regular_strain,
+		asd_t **net_asd,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,
 		sky_t *sky,
 		double polarization_angle,
-		inspiral_signal_half_fft_t **signals,
+		inspiral_template_half_fft_t **signals,
 		coherent_network_workspace_t *workspace,
 		double *out_val);
 

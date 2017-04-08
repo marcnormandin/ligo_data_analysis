@@ -30,14 +30,12 @@
 #include "detector_network.h"
 #include "inspiral_source.h"
 #include "inspiral_stationary_phase.h"
-#include "strain.h"
-#include "strain_interpolate.h"
 #include "signal.h"
 #include "inspiral_network_statistic.h"
 #include "sampling_system.h"
 
 #include "inspiral_pso_fitness.h"
-#include "inspiral_signal.h"
+#include "inspiral_template.h"
 #include "random.h"
 #include "options.h"
 #include "settings.h"
@@ -199,9 +197,6 @@ void hdf5_save_simulated_data( size_t len_template, double *template, char *hdf5
 
 	size_t num_strains = hdf5_get_num_strains( hdf5_noise_filename );
 	printf("There are %zu strains in the file (%s).\n", num_strains, hdf5_noise_filename);
-
-	/* TEMP HACK */
-	len_template--;
 
 	printf("Checking that the noise in the file matches the length of the template... ");
 	if (len_template != strain_len) {
@@ -395,7 +390,7 @@ int main(int argc, char* argv[]) {
 	size_t half_size = SS_half_size(num_time_samples);
 	printf("The half size is: %lu\n", half_size);
 
-	/*strain_t **strain = (strain_t**) malloc( num_detectors * sizeof(strain_t*) );*/
+	asd_t **net_asd = (asd_t**) malloc( num_detectors * sizeof(asd_t*) );
 
 	/* For each detector, read in the PSD from file, and compute interpolated ASD for the analysis. */
 	for (i = 0; i < num_detectors; i++) {
@@ -409,7 +404,8 @@ int main(int argc, char* argv[]) {
 		PSD_free(psd_unprocessed);
 
 		/* Set the frequencies we want to use. */
-		asd_t *asd = ASD_malloc( half_size );
+		net_asd[i] = ASD_malloc( half_size );
+		asd_t *asd = net_asd[i];
 		asd->type = ASD_ONE_SIDED;
 		SS_frequency_array(sampling_frequency, num_time_samples, asd->len, asd->f);
 
@@ -439,8 +435,86 @@ int main(int argc, char* argv[]) {
 
 		/* Clean up */
 		PSD_free(psd);
-		ASD_free(asd);
 	}
+
+	/* Generate the templates for all the detectors composing the network */
+	inspiral_template_half_fft_t **templates = inspiral_template(f_low, f_high, num_time_samples, &net, net_asd, &source);
+	for (i = 0; i < num_detectors; i++) {
+		inspiral_template_half_fft_t *one_sided = templates[i];
+
+		/* Form the two-sided template so we can take the inverse FFT */
+		printf("Forming the two-sided template from the one-sided version.\n");
+		gsl_complex *two_sided = (gsl_complex*) malloc( one_sided->full_len * sizeof(gsl_complex) );
+		if (two_sided == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory for the two-sided array. Aborting.\n");
+			abort();
+		}
+		fprintf(stderr, "one-sided->full_len = %lu\n", one_sided->full_len);
+
+		SS_make_two_sided (one_sided->half_fft_len, one_sided->half_fft, one_sided->full_len, two_sided);
+
+		gsl_fft_complex_wavetable *fft_wavetable;
+		gsl_fft_complex_workspace *fft_workspace;
+		fft_wavetable = gsl_fft_complex_wavetable_alloc( one_sided->full_len );
+		fft_workspace = gsl_fft_complex_workspace_alloc( one_sided->full_len );
+
+		printf("Creating strided array for the ifft.\n");
+		double *template_ifft = (double*) malloc( 2 * one_sided->full_len * sizeof(double) );
+		if (template_ifft == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory for the template_ifft. Aborting.\n");
+			abort();
+		}
+		for (j = 0; j < one_sided->full_len; j++) {
+			template_ifft[2*j + 0] = GSL_REAL( two_sided[j] );
+			template_ifft[2*j + 1] = GSL_IMAG( two_sided[j] );
+		}
+
+		printf("Computing the IFFT of the template...\n");
+		gsl_fft_complex_inverse( template_ifft, 1, one_sided->full_len, fft_wavetable, fft_workspace );
+
+		double *template = (double*) malloc( one_sided->full_len * sizeof(double) );
+		if (template == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory for the template. Aborting.\n");
+			abort();
+		}
+		for (j = 0; j < one_sided->full_len; j++) {
+			/* Only save the real part */
+			template[j] = template_ifft[2*j + 0];
+		}
+
+		gsl_fft_complex_workspace_free( fft_workspace );
+		gsl_fft_complex_wavetable_free( fft_wavetable );
+
+		char *detector_name = settings_file_get_key_by_index(settings_file, i);
+		char *hdf5_noise_filename = settings_file_get_value(settings_file, detector_name);
+		char hdf5_output_filename[255];
+		memset(hdf5_output_filename, '\0', 255 * sizeof(char));
+		sprintf(hdf5_output_filename, "%s.hdf5", detector_name);
+
+		printf("Saving the simulated data to file (%s)\n", hdf5_output_filename);
+		hdf5_save_simulated_data( one_sided->full_len, template, hdf5_noise_filename, hdf5_output_filename );
+
+		free(two_sided);
+		free(template_ifft);
+		free(template);
+	}
+
+
+	/* Free the data */
+	for (i = 0; i < net.num_detectors; i++) {
+		inspiral_signal_half_fft_free(templates[i]);
+	}
+	free(templates);
+
+	Free_Detector_Network(&net);
+
+	/* Free the ASD */
+	for (i = 0; i < num_detectors; i++) {
+		ASD_free( net_asd[i] );
+	}
+	free(net_asd);
+
+	settings_file_close(settings_file);
 
 	printf("program ended successfully.\n");
 

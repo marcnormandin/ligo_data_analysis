@@ -12,7 +12,7 @@
 #include <gsl/gsl_complex.h>
 
 #include "inspiral_chirp.h"
-#include "strain.h"
+#include "spectral_density.h"
 
 typedef struct stationary_phase_s {
 	size_t 			len;
@@ -24,13 +24,13 @@ stationary_phase_t* SP_malloc(size_t size);
 
 void SP_free(stationary_phase_t *sp);
 
-double SP_g(double f_low, double f_high, chirp_time_t *chirp, strain_t *interp_strain);
+double SP_g(double f_low, double f_high, chirp_time_t *chirp, asd_t *asd);
 
 void SP_compute(double coalesce_phase, double time_delay,
-		chirp_time_t *chirp, strain_t *interp_strain,
+		chirp_time_t *chirp, asd_t *asd,
 		double f_low, double f_high,
 		stationary_phase_t *out_sp);
 
-void SP_save(char *filename, strain_t *interp_strain, stationary_phase_t *sp);
+void SP_save(char *filename, asd_t *asd, stationary_phase_t *sp);
 
 #endif /* SRC_C_STATIONARY_PHASE_H_ */

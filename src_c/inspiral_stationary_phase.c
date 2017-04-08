@@ -28,26 +28,26 @@ void SP_free(stationary_phase_t* sp) {
 	free(sp);
 }
 
-void SP_save(char* filename, strain_t* interp_strain, stationary_phase_t* sp) {
+void SP_save(char* filename, asd_t* asd, stationary_phase_t* sp) {
 	FILE* file;
 	size_t i;
 
 	file = fopen(filename, "w");
 	for (i = 0; i < sp->len; i++) {
-		fprintf(file, "%e %e %e\n", interp_strain->freq[i], GSL_REAL(sp->spa_0[i]), GSL_REAL(sp->spa_90[i]));
+		fprintf(file, "%e %e %e\n", asd->asd[i], GSL_REAL(sp->spa_0[i]), GSL_REAL(sp->spa_90[i]));
 	}
 	fclose(file);
 }
 
-double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_strain) {
+double SP_g(double f_low, double f_high, chirp_time_t* chirp, asd_t* asd) {
 	size_t i;
 	double sum_tempval;
 
 	/* whitening normalization factor */
-	double *tempval = (double*) malloc(interp_strain->len * sizeof(double));
-	for (i = 0; i < interp_strain->len; i++) {
-		double f = interp_strain->freq[i];
-		double s = interp_strain->strain[i];
+	double *tempval = (double*) malloc(asd->len * sizeof(double));
+	for (i = 0; i < asd->len; i++) {
+		double f = asd->f[i];
+		double s = asd->asd[i];
 
 		if (f > f_low && f < f_high) {
 			tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
@@ -58,7 +58,7 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 	}
 
 	sum_tempval = 0.0;
-	for (i = 0; i < interp_strain->len; i++) {
+	for (i = 0; i < asd->len; i++) {
 		sum_tempval += tempval[i];
 	}
 
@@ -68,18 +68,18 @@ double SP_g(double f_low, double f_high, chirp_time_t* chirp, strain_t* interp_s
 }
 
 void SP_compute(double coalesce_phase, double time_delay,
-		chirp_time_t *chirp, strain_t *interp_strain,
+		chirp_time_t *chirp, asd_t *asd,
 		double f_low, double f_high,
 		stationary_phase_t *out_sp)
 {
 	size_t j;
 
 	/* This doesn't change unless the strain changes */
-	double g = SP_g(f_low, f_high, chirp, interp_strain);
+	double g = SP_g(f_low, f_high, chirp, asd);
 
 	/* This is not efficient! */
-	for (j = 0; j < interp_strain->len; j++) {
-		double f = interp_strain->freq[j];
+	for (j = 0; j < asd->len; j++) {
+		double f = asd->f[j];
 		/* double s = interp_strain->strain[j]; */
 
 		if (f > f_low && f < f_high) {

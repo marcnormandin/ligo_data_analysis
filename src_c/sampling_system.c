@@ -63,11 +63,13 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 	/* Check that the dimensions make sense */
 	if (GSL_IS_ODD(N) && M != (N+1)/2) {
 		/* error */
-		printf("SS_make_two_sided failed.\n");
+		printf("SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu).\n",
+				M, N);
 		abort();
 	} else if (GSL_IS_EVEN(N) && M != (N/2 + 1)) {
 		/* error */
-		printf("SS_make_two_sided failed.\n");
+		printf("SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu).\n",
+						M, N);
 		abort();
 	}
 
@@ -91,7 +93,7 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies)
 {
 	size_t i;
-	double delta_f = samplingFrequency / num_total_samples;
+	double delta_f = samplingFrequency / (1.0*num_total_samples);
 	for (i = 0; i < num_desired_freq_samples; i++) {
 		frequencies[i] = delta_f * i;
 	}

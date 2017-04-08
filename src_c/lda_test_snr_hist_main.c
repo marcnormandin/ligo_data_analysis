@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	double *results_snr = (double*) malloc( num_realizations * sizeof(double) );
 	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, Strain_one_sided_length(strain) );
 	for (n = 0; n < num_realizations; n++) {
-		inspiral_signal_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
+		inspiral_template_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 
 		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
 		chirp_factors_t chirp;
