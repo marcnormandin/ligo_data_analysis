@@ -39,33 +39,50 @@ void SP_save(char* filename, asd_t* asd, stationary_phase_t* sp) {
 	fclose(file);
 }
 
-double SP_g(double f_low, double f_high, chirp_time_t* chirp, asd_t* asd) {
+/* whitening normalization factor */
+double SP_g(double f_low, double f_high, chirp_time_t* chirp, asd_t* asd, stationary_phase_lookup_t *lookup) {
+	size_t i;
+	double sum;
+
+	/* All values that are not used below are assigned a value of 1, so simply
+	 * determine how many there would be, and use that instead of iterating and sum += 1.
+	 */
+	sum = lookup->f_low_index + (asd->len - lookup->f_high_index + 1);
+
+	for (i = lookup->f_low_index; i <= lookup->f_high_index; i++) {
+		double f = asd->f[i];
+		double s = asd->asd[i];
+
+		sum  += pow(f, -7.0 / 3.0) / gsl_pow_2(s);
+	}
+
+	return sqrt(sum);
+}
+
+/*
+double SP_g_OLD(double f_low, double f_high, chirp_time_t* chirp, asd_t* asd, stationary_phase_lookup_t *lookup) {
 	size_t i;
 	double sum_tempval;
 
-	/* whitening normalization factor */
-	double *tempval = (double*) malloc(asd->len * sizeof(double));
 	for (i = 0; i < asd->len; i++) {
 		double f = asd->f[i];
 		double s = asd->asd[i];
 
 		if (f > f_low && f < f_high) {
-			tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
+			lookup->g_tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
 		} else {
-			/* Matlab version allocates tempval as "ones(1,length(f))" */
-			tempval[i] = 1.0;
+			lookup->g_tempval[i] = 1.0;
 		}
 	}
 
 	sum_tempval = 0.0;
 	for (i = 0; i < asd->len; i++) {
-		sum_tempval += tempval[i];
+		sum_tempval += lookup->g_tempval[i];
 	}
-
-	free(tempval);
 
 	return sqrt(sum_tempval);
 }
+*/
 
 stationary_phase_lookup_t* SP_lookup_alloc(double f_low, double f_high, asd_t *asd) {
 	size_t i;
@@ -153,7 +170,7 @@ void SP_compute(double coalesce_phase, double time_delay,
 	size_t i;
 
 	/* This doesn't change unless the strain changes */
-	double g = SP_g(f_low, f_high, chirp, asd);
+	double g = SP_g(f_low, f_high, chirp, asd, lookup);
 
 	for (i = 0; i < lookup->len; i++) {
 		double amp_2pn = (1.0 / g) * lookup->g_coeff[i];
