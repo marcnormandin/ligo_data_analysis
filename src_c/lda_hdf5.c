@@ -215,4 +215,55 @@ void hdf5_save_psd( const char *hdf_filename, psd_t *psd ) {
 	H5Fclose(output_file_id);
 }
 
+void hdf5_create_group(const char *hdf5_filename, const char* group_name) {
+	hid_t file_id, group_id;
+	herr_t status;
 
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening (%s) to create the group (%s). Aborting.\n",
+				hdf5_filename, group_name);
+		abort();
+	}
+
+	group_id = H5Gcreate( file_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	if (group_id < 0) {
+		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		abort();
+	}
+
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}
+
+void hdf5_save_array(const char *hdf5_filename, const char* group_name, const char *array_name, size_t len, double *array) {
+	hid_t file_id, group_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening (%s) to create the group (%s). Aborting.\n",
+				hdf5_filename, group_name);
+		abort();
+	}
+
+	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT);
+	if (group_id < 0) {
+		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		abort();
+	}
+
+	hsize_t dims[1];
+	dims[0] = len;
+	status = H5LTmake_dataset_double ( group_id, array_name, 1, dims, array );
+	if (status < 0) {
+		fprintf(stderr, "Error saving the dataset (//%s//%s) to the hdf5 file (%s). Aborting.\n",
+				group_name, array_name, hdf5_filename);
+		abort();
+	}
+
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}

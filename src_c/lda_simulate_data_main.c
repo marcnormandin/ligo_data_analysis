@@ -58,10 +58,15 @@ void save_true_signal(double f_low, source_t *source, char *filename) {
 	fclose(true_parameters);
 }
 
+void append_index_to_prefix(char* buff, size_t buff_len, const char *prefix, size_t index) {
+	memset(buff, '\0', buff_len * sizeof(char));
+	sprintf(buff, "%s%lu", prefix, index+1);
+}
 
 void hdf5_save_simulated_data( size_t len_template, double *template, const char *hdf5_noise_filename, const char *hdf5_output_filename ) {
 	hid_t file_id, dataset_id, dspace_id, output_file_id;
 	herr_t status;
+	char dset_name[255];
 
 	size_t strain_len = hdf5_get_dataset_array_length( hdf5_noise_filename, "/strain/Strain_1" );
 	printf("The strain length is %lu\n", strain_len);
@@ -77,50 +82,22 @@ void hdf5_save_simulated_data( size_t len_template, double *template, const char
 	}
 	printf("yes.\n");
 
-	/* Open the input file */
-	printf("Opening %s for reading.\n", hdf5_noise_filename);
-	file_id = H5Fopen( hdf5_noise_filename, H5F_ACC_RDWR, H5P_DEFAULT);
-	if (file_id < 0) {
-		fprintf(stderr, "Error: Unable to open the HDF5 file (%s). Aborting.\n", hdf5_noise_filename);
-		abort();
-	}
-
-	/* Open the output file */
-	/*output_file_id = H5Fcreate( hdf5_output_filename, H5F_ACC_RDWR, H5P_DEFAULT);*/
-	printf("Creating %s HDF5 file for writing.\n", hdf5_output_filename);
-	output_file_id = H5Fopen( hdf5_output_filename, H5F_ACC_RDWR, H5P_DEFAULT);
-	/*output_file_id = H5Fcreate( hdf5_output_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);*/
-	if (output_file_id < 0) {
-		fprintf(stderr, "Error opening the output hdf5 file (%s). Aborting.\n",
-				hdf5_output_filename);
-		abort();
-	}
-
 	/* Create the groups in the output file */
-	hid_t template_group_id = H5Gcreate(output_file_id, "/template", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	hid_t noise_group_id = H5Gcreate(output_file_id, "/noise", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	hid_t signal_group_id = H5Gcreate(output_file_id, "/strain", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-	char *dataset_prefix = "/strain/Strain_";
+	hdf5_create_group( hdf5_output_filename, "/signal");
+	hdf5_create_group( hdf5_output_filename, "/noise");
+	hdf5_create_group( hdf5_output_filename, "/strain");
 
 	size_t i, j;
 	for (i = 0; i < num_strains; i++) {
-		/* Form the strain name */
-		char dataset_name[255];
-		memset(dataset_name, '\0', 255 *sizeof(char));
-		sprintf(dataset_name, "%s%lu", dataset_prefix, i+1);
-
-		/* Read the noise strain */
+		/* Read the input LIGO noise strain */
+		append_index_to_prefix(dset_name, 255, "/strain/Strain_", i);
+		size_t strain_len = hdf5_get_dataset_array_length( hdf5_noise_filename, "/strain/Strain_1" );
 		double *noise = (double*) malloc( strain_len * sizeof(double) );
 		if (noise == NULL) {
 			fprintf(stderr, "Error. Unable to allocate memory to read the noise. Aborting.\n");
 			abort();
 		}
-		status = H5LTread_dataset_double( file_id, dataset_name, noise );
-		if (status < 0) {
-			fprintf(stderr, "Error reading the dataset (%s) from the file (%s). Aborting.\n",
-					dataset_name, hdf5_noise_filename);
-			abort();
-		}
+		hdf5_load_array( hdf5_noise_filename, dset_name, noise);
 
 		double *template_plus_noise = (double*) malloc( len_template * sizeof(double));
 		if (template_plus_noise == NULL) {
@@ -134,53 +111,20 @@ void hdf5_save_simulated_data( size_t len_template, double *template, const char
 		}
 
 		/* Save the template */
-		const char *template_dset_name_prefix = "Template_";
-		char template_dset_name[255];
-		memset(template_dset_name, '\0', 255 * sizeof(char));
-		sprintf(template_dset_name, "%s%lu", template_dset_name_prefix, i+1);
-		hsize_t dims[1];
-		dims[0] = len_template;
-		status = H5LTmake_dataset_double ( template_group_id, template_dset_name, 1, dims, template );
-		if (status < 0) {
-			fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
-					template_dset_name, hdf5_output_filename);
-			abort();
-		}
+		append_index_to_prefix(dset_name, 255, "Signal_", i);
+		hdf5_save_array( hdf5_output_filename, "/signal", dset_name, len_template, template );
 
 		/* Save the noise */
-		const char *noise_dset_name_prefix = "Noise_";
-		char noise_dset_name[255];
-		memset(noise_dset_name, '\0', 255 * sizeof(char));
-		sprintf(noise_dset_name, "%s%lu", noise_dset_name_prefix, i+1);
-		status = H5LTmake_dataset_double ( noise_group_id, noise_dset_name, 1, dims, noise );
-		if (status < 0) {
-			fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
-					noise_dset_name, hdf5_output_filename);
-			abort();
-		}
+		append_index_to_prefix(dset_name, 255, "Noise_", i);
+		hdf5_save_array( hdf5_output_filename, "/noise", dset_name, len_template, noise );
 
 		/* Save the signal = template + noise */
-		const char *signal_dset_name_prefix = "Strain_";
-		char signal_dset_name[255];
-		memset(signal_dset_name, '\0', 255 * sizeof(char));
-		sprintf(signal_dset_name, "%s%lu", signal_dset_name_prefix, i+1);
-		status = H5LTmake_dataset_double ( signal_group_id, signal_dset_name, 1, dims, template_plus_noise );
-		if (status < 0) {
-			fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
-					signal_dset_name, hdf5_output_filename);
-			abort();
-		}
+		append_index_to_prefix(dset_name, 255, "Strain_", i);
+		hdf5_save_array( hdf5_output_filename, "/strain", dset_name, len_template, template_plus_noise);
 
 		free(noise);
 		free(template_plus_noise);
 	}
-
-	status = H5Gclose (template_group_id);
-	status = H5Gclose (noise_group_id);
-	status = H5Gclose (signal_group_id);
-
-	H5Fclose(output_file_id);
-	H5Fclose(file_id);
 
 	printf("Finished writing to the HDF5 file.\n\n");
 }
@@ -288,7 +232,7 @@ int main(int argc, char* argv[]) {
 		}
 		for (j = 0; j < one_sided->full_len; j++) {
 			/* Only save the real part */
-			template[j] = template_ifft[2*j + 0] / (1.0 * num_time_samples);
+			template[j] = template_ifft[2*j + 0];
 		}
 
 		gsl_fft_complex_workspace_free( fft_workspace );

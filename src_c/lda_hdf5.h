@@ -26,6 +26,8 @@ psd_t* hdf5_load_psd( const char *hdf_filename );
 
 void hdf5_save_psd( const char *hdf_filename, psd_t *psd );
 
+void hdf5_create_group(const char *hdf5_filename, const char* group_name);
 
+void hdf5_save_array(const char *hdf5_filename, const char* group_name, const char *array_name, size_t len, double *array);
 
 #endif /* SRC_C_LDA_HDF5_H_ */
