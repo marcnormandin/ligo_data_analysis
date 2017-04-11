@@ -87,7 +87,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = lda_simulate_data$(EXEEXT)
+bin_PROGRAMS = lda_simulate_data$(EXEEXT) lda_shihan_pso$(EXEEXT)
 subdir = src_c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -102,16 +102,20 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = detector_antenna_patterns.$(OBJEXT) \
-	detector_network.$(OBJEXT) detector_time_delay.$(OBJEXT) \
-	detector.$(OBJEXT) inspiral_chirp.$(OBJEXT) \
-	inspiral_network_statistic.$(OBJEXT) \
+	detector_mapping.$(OBJEXT) detector_network.$(OBJEXT) \
+	detector_time_delay.$(OBJEXT) detector.$(OBJEXT) \
+	inspiral_chirp.$(OBJEXT) inspiral_network_statistic.$(OBJEXT) \
 	inspiral_pso_fitness.$(OBJEXT) inspiral_template.$(OBJEXT) \
 	inspiral_source.$(OBJEXT) inspiral_stationary_phase.$(OBJEXT) \
-	options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) ptapso.$(OBJEXT) \
-	random.$(OBJEXT) sampling_system.$(OBJEXT) settings.$(OBJEXT) \
-	signal.$(OBJEXT) simulate_noise.$(OBJEXT) \
+	lda_hdf5.$(OBJEXT) options.$(OBJEXT) ptapso_maxphase.$(OBJEXT) \
+	ptapso.$(OBJEXT) random.$(OBJEXT) sampling_system.$(OBJEXT) \
+	settings.$(OBJEXT) signal.$(OBJEXT) simulate_noise.$(OBJEXT) \
 	spectral_density.$(OBJEXT) strain_interpolate.$(OBJEXT) \
 	strain.$(OBJEXT)
+am_lda_shihan_pso_OBJECTS = lda_shihan_pso_main.$(OBJEXT) \
+	$(am__objects_1)
+lda_shihan_pso_OBJECTS = $(am_lda_shihan_pso_OBJECTS)
+lda_shihan_pso_DEPENDENCIES =
 am_lda_simulate_data_OBJECTS = lda_simulate_data_main.$(OBJEXT) \
 	$(am__objects_1)
 lda_simulate_data_OBJECTS = $(am_lda_simulate_data_OBJECTS)
@@ -172,8 +176,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(lda_simulate_data_SOURCES)
-DIST_SOURCES = $(lda_simulate_data_SOURCES)
+SOURCES = $(lda_shihan_pso_SOURCES) $(lda_simulate_data_SOURCES)
+DIST_SOURCES = $(lda_shihan_pso_SOURCES) $(lda_simulate_data_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -302,6 +306,7 @@ dist_bin_SCRIPTS = \
 common_sources = \
 	common.h \
 	detector_antenna_patterns.c detector_antenna_patterns.h \
+	detector_mapping.c detector_mapping.h \
 	detector_network.c detector_network.h \
 	detector_time_delay.c detector_time_delay.h \
 	detector.c detector.h \
@@ -311,6 +316,7 @@ common_sources = \
 	inspiral_template.c inspiral_template.h \
 	inspiral_source.c inspiral_source.h \
 	inspiral_stationary_phase.c inspiral_stationary_phase.h \
+	lda_hdf5.c lda_hdf5.h \
 	options.c options.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
@@ -324,6 +330,8 @@ common_sources = \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 
+lda_shihan_pso_LDADD = -lgsl -lgslcblas -lhdf5 -lhdf5_hl
+lda_shihan_pso_SOURCES = lda_shihan_pso_main.c $(common_sources)
 
 # lda_test_sky_map lda_test_snr_hist
 lda_test_pso_LDADD = -lgsl -lgslcblas
@@ -417,6 +425,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+lda_shihan_pso$(EXEEXT): $(lda_shihan_pso_OBJECTS) $(lda_shihan_pso_DEPENDENCIES) $(EXTRA_lda_shihan_pso_DEPENDENCIES) 
+	@rm -f lda_shihan_pso$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(lda_shihan_pso_OBJECTS) $(lda_shihan_pso_LDADD) $(LIBS)
+
 lda_simulate_data$(EXEEXT): $(lda_simulate_data_OBJECTS) $(lda_simulate_data_DEPENDENCIES) $(EXTRA_lda_simulate_data_DEPENDENCIES) 
 	@rm -f lda_simulate_data$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(lda_simulate_data_OBJECTS) $(lda_simulate_data_LDADD) $(LIBS)
@@ -464,6 +476,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_antenna_patterns.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_mapping.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_time_delay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_chirp.Po@am__quote@
@@ -472,6 +485,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_source.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_stationary_phase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_template.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_hdf5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_shihan_pso_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lda_simulate_data_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ptapso.Po@am__quote@

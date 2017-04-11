@@ -98,6 +98,8 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 	   above for initialization.
 	*/
 	for (lpPsoIter = 1; lpPsoIter <= maxSteps-1; lpPsoIter++){
+		printf("Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
+
 		if (psoParams->debugDumpFile != NULL){
 			fprintf(psoParams->debugDumpFile,"Loop %zu \n",lpPsoIter);
 			particleInfoDump(psoParams->debugDumpFile,pop,popsize);
@@ -243,6 +245,8 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 			particleInfoDump(psoParams->debugDumpFile,pop,popsize);
 			fprintf(psoParams->debugDumpFile,"--------\n");			      
 	    }
+
+		printf("done!\n");
 	}
 	
 	/* Prepare output */

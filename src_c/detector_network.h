@@ -19,9 +19,16 @@ typedef struct detector_network_s {
 } detector_network_t;
 
 /* Detector functions */
-void Alloc_Detector_Network(int num, detector_network_t* net);
+detector_network_t* Alloc_Detector_Network(size_t num_detectors);
+
 void Free_Detector_Network(detector_network_t* net);
+
+/*
 void Init_Detector_Network(detector_network_t* net);
+*/
+
 void Print_Detector_Network(detector_network_t* net);
+
+detector_network_t* detector_network_load( const char* detector_mapping_file );
 
 #endif /* SRC_C_DETECTOR_NETWORK_H_ */

@@ -28,7 +28,6 @@ typedef struct pso_result_s {
 typedef struct ptapso_func_params {
 	double f_low;
 	double f_high;
-	asd_t **net_asd;
 	detector_network_t *network;
 	inspiral_template_half_fft_t **signals;
 	coherent_network_workspace_t *workspace;

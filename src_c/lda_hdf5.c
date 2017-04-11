@@ -1,0 +1,218 @@
+/*
+ * lda_hdf5.c
+ *
+ *  Created on: Apr 10, 2017
+ *      Author: marcnormandin
+ */
+
+#include "lda_hdf5.h"
+
+#include "spectral_density.h"
+
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <hdf5.h>
+#include <hdf5_hl.h>
+
+void hdf5_create_file( const char* hdf_filename ) {
+	hid_t file_id = H5Fcreate( hdf_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error. Unable to create the HDF5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+	H5Fclose(file_id);
+}
+
+size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* dataset_name ) {
+	hid_t file_id, dataset_id, dspace_id;
+	herr_t status;
+
+	/* Open the file */
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening hdf5 file (%s) for reading. Aborting.\n", hdf_filename);
+	}
+
+	/* Read the dataset */
+	dataset_id = H5Dopen2(file_id, dataset_name, H5P_DEFAULT);
+	if (dataset_id < 0) {
+		fprintf(stderr, "Error opening the dataset (%s) from the file (%s). Aborting.\n",
+				dataset_name, hdf_filename);
+		abort();
+	}
+
+	/* Get the length of the dataset */
+	dspace_id = H5Dget_space(dataset_id);
+	int ndims = H5Sget_simple_extent_ndims(dspace_id);
+	hssize_t len = H5Sget_simple_extent_npoints(dspace_id);
+
+	H5Dclose(dataset_id);
+	H5Fclose(file_id);
+
+	return len;
+}
+
+
+size_t hdf5_get_num_strains( const char* hdf_filename ) {
+	hid_t file_id, dataset_id, dspace_id;
+	herr_t status;
+
+	/* Open the file */
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+
+	/* Read the attribute */
+	double num;
+	const char *attribute_name = "num_strains";
+	status = H5LTget_attribute_double( file_id, "/", attribute_name, &num);
+	if (status < 0) {
+		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf_filename);
+		abort();
+	}
+
+	H5Fclose(file_id);
+
+	return (int)num;
+}
+
+double hdf5_get_sampling_frequency( const char* hdf_filename )
+{
+	hid_t file_id, dataset_id, dspace_id;
+	herr_t status;
+
+	/* Open the file */
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+
+	/* Read the attribute */
+	double fs;
+	const char *attribute_name = "fs";
+	status = H5LTget_attribute_double( file_id, "/", attribute_name, &fs);
+	if (status < 0) {
+		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf_filename);
+		abort();
+	}
+
+	H5Fclose(file_id);
+
+	return fs;
+}
+
+size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
+	hid_t file_id, dataset_id, dspace_id;
+	herr_t status;
+
+	/* Open the file */
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+
+	/* Read the attribute */
+	double num;
+	const char *attribute_name = "num_time_samples";
+	status = H5LTget_attribute_double( file_id, "/", attribute_name, &num);
+	if (status < 0) {
+		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf_filename);
+		abort();
+	}
+
+	H5Fclose(file_id);
+
+	return (size_t)num;
+}
+
+void hdf5_load_array( const char *hdf_filename, const char *dataset_name, double *data) {
+	hid_t file_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT );
+	if (file_id < 0) {
+		fprintf(stderr, "Error: Unable to open the HDF5 file (%s). Aborting.\n", hdf_filename);
+		abort();
+	}
+
+	status = H5LTread_dataset_double( file_id, dataset_name, data );
+	if (status < 0) {
+		fprintf(stderr, "Error reading the dataset (%s) from the file (%s). Aborting.\n",
+				dataset_name, hdf_filename);
+		abort();
+	}
+
+	H5Fclose( file_id );
+}
+
+psd_t* hdf5_load_psd( const char *hdf_filename ) {
+	size_t len_psd;
+
+	len_psd = hdf5_get_dataset_array_length( hdf_filename, "/psd/PSD" );
+
+	psd_t* psd = PSD_malloc ( len_psd );
+
+	hdf5_load_array( hdf_filename, "/psd/PSD", psd->psd );
+	hdf5_load_array( hdf_filename, "/psd/Freq", psd->f );
+
+	psd->type = PSD_ONE_SIDED;
+
+	return psd;
+}
+
+void hdf5_save_psd( const char *hdf_filename, psd_t *psd ) {
+	/* Save the PSD to the output file. */
+	hid_t output_file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT );
+	if (output_file_id < 0) {
+		fprintf(stderr, "Error opening the output hdf5 file (%s). Aborting.\n",
+				hdf_filename);
+		abort();
+	}
+
+	/* Create the group in the output file */
+	hid_t psd_group_id = H5Gcreate(output_file_id, "/psd", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	if (psd_group_id < 0) {
+		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+				"/psd", hdf_filename);
+		abort();
+	}
+
+	hsize_t dims[1];
+	dims[0] = psd->len;
+	herr_t status;
+
+	/* Save the PSD */
+	status = H5LTmake_dataset_double ( psd_group_id, "PSD", 1, dims, psd->psd );
+	if (status < 0) {
+		fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
+				"PSD", hdf_filename);
+		abort();
+	}
+
+	/* Save the frequencies */
+	status = H5LTmake_dataset_double ( psd_group_id, "Freq", 1, dims, psd->f );
+	if (status < 0) {
+		fprintf(stderr, "Error saving the dataset (%s) to the hdf5 file (%s). Aborting.\n",
+				"Freq", hdf_filename);
+		abort();
+	}
+
+	H5Gclose( psd_group_id );
+	H5Fclose(output_file_id);
+}
+
+

@@ -4,6 +4,7 @@ dist_bin_SCRIPTS = \
 common_sources = \
 	common.h \
 	detector_antenna_patterns.c detector_antenna_patterns.h \
+	detector_mapping.c detector_mapping.h \
 	detector_network.c detector_network.h \
 	detector_time_delay.c detector_time_delay.h \
 	detector.c detector.h \
@@ -13,6 +14,7 @@ common_sources = \
 	inspiral_template.c inspiral_template.h \
 	inspiral_source.c inspiral_source.h \
 	inspiral_stationary_phase.c inspiral_stationary_phase.h \
+	lda_hdf5.c lda_hdf5.h \
 	options.c options.h \
 	ptapso_maxphase.c ptapso_maxphase.h \
 	ptapso.c ptapso.h \
@@ -26,7 +28,10 @@ common_sources = \
 	strain_interpolate.c strain_interpolate.h \
 	strain.c strain.h	
 	
-bin_PROGRAMS = lda_simulate_data
+bin_PROGRAMS = lda_simulate_data lda_shihan_pso
+
+lda_shihan_pso_LDADD = -lgsl -lgslcblas -lhdf5 -lhdf5_hl
+lda_shihan_pso_SOURCES = lda_shihan_pso_main.c $(common_sources)
 
 # lda_test_sky_map lda_test_snr_hist
 

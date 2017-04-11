@@ -135,7 +135,7 @@ void do_work(size_t num_time_samples, gsl_complex *spa, asd_t *asd, gsl_complex 
 	*/
 
 	/*fprintf(stderr, "out_c, N has a length of: %d\n", N);*/
-	fprintf(stderr, "do_work: num_time_samples = %lu\n", num_time_samples);
+	/*fprintf(stderr, "do_work: num_time_samples = %lu\n", num_time_samples);*/
 
 	SS_make_two_sided( asd->len, temp, num_time_samples, out_c);
 }
@@ -153,7 +153,6 @@ void CN_save(char* filename, size_t len, double* tmp_ifft) {
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		asd_t **net_asd,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,
@@ -191,7 +190,7 @@ void coherent_network_statistic(
 
 	/* WARNING: This assumes that all of the signals have the same lengths. */
 	size_t num_time_samples = signals[0]->full_len;
-	fprintf(stderr, "inspiral network statistic: num_time_samples = %lu\n", num_time_samples);
+	/*fprintf(stderr, "inspiral network statistic: num_time_samples = %lu\n", num_time_samples);*/
 
 	/* Compute the antenna patterns for each detector */
 	for (i = 0; i < net->num_detectors; i++) {
@@ -250,15 +249,15 @@ void coherent_network_statistic(
 		time_delay(det, sky, &td);
 
 		SP_compute(coalesce_phase, td,
-						chirp, net_asd[i],
+						chirp, det->asd,
 						f_low, f_high,
 						workspace->sp);
 
 		whitened_data = signals[i]->half_fft;
 
-		do_work(num_time_samples, workspace->sp->spa_0, net_asd[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		do_work(num_time_samples, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-		do_work(num_time_samples, workspace->sp->spa_90, net_asd[i], whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(num_time_samples, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;

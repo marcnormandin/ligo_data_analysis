@@ -13,6 +13,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 
+#include "spectral_density.h"
+
 typedef enum {
 	L1,
 	H1,
@@ -21,11 +23,17 @@ typedef enum {
 	K1,
 	G1,
 	T1
-} DETECTOR_NAME;
+} DETECTOR_ID;
+
+const char* detector_id_to_name(DETECTOR_ID id);
+
+DETECTOR_ID detector_name_to_id(const char* name);
 
 /* For a given source, this records the values for a given detector. */
 typedef struct {
-	DETECTOR_NAME name;
+	DETECTOR_ID id;
+
+	char name[255];
 
 	/* position vector for location on the Earth */
 	gsl_vector *location;
@@ -37,8 +45,15 @@ typedef struct {
 	/* detector tensor */
 	gsl_matrix *detector_tensor;
 
+	/* detector PSD */
+	psd_t *psd;
+
+	/* detector ASD */
+	asd_t *asd;
+
 } detector_t;
 
+/*
 typedef struct detector_data_s {
 	DETECTOR_NAME name;
 	double sampling_frequency;
@@ -49,23 +64,24 @@ typedef struct detector_data_s {
 	gsl_complex *fft_recordings;
 
 } detector_data_t;
-
+*/
 
 void Print_Detector(detector_t* det);
 
 detector_t* Detector_alloc();
 void Detector_free(detector_t *d);
 
-void Detector_init(DETECTOR_NAME name, detector_t *d);
-void Detector_init_name( char *name, detector_t *d);
+void Detector_init(DETECTOR_ID name, psd_t *psd, detector_t *d);
+void Detector_init_name( char *name, psd_t *psd, detector_t *d);
 
-void Detector_init_L1(detector_t *d);
-void Detector_init_H1(detector_t *d);
-void Detector_init_H2(detector_t *d);
-void Detector_init_V1(detector_t *d);
-void Detector_init_G1(detector_t *d);
-void Detector_init_K1(detector_t *d);
-void Detector_init_T1(detector_t *d);
+void Detector_init_L1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_H1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_H2(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_V1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_G1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_K1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_T1(asd_t *asd, psd_t *psd, detector_t *d);
+
 void Detector_tensor(detector_t *d);
 
 

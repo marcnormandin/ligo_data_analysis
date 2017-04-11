@@ -76,7 +76,7 @@ typedef struct coherent_network_workspace_s {
 
 } coherent_network_workspace_t;
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t len_freq);
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq);
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 
@@ -86,7 +86,6 @@ void CN_save(char* filename, size_t len, double* tmp_ifft);
 
 void coherent_network_statistic(
 		detector_network_t* net,
-		asd_t **net_asd,
 		double f_low,
 		double f_high,
 		chirp_time_t *chirp,

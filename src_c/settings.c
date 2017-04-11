@@ -56,7 +56,7 @@ void read_file(settings_file_t* sf) {
 	}
 }
 
-settings_file_t* settings_file_open(char *filename) {
+settings_file_t* settings_file_open(const char *filename) {
 	FILE *fid;
 	settings_file_t *sf;
 
@@ -71,7 +71,11 @@ settings_file_t* settings_file_open(char *filename) {
 	sf = (settings_file_t*) malloc(sizeof(settings_file_t));
 	sf->fid = fid;
 	sf->first = NULL;
-	sf->fname = filename;
+
+	size_t n = strnlen(filename, 254);
+	sf->fname = (char*) malloc( (n+1) * sizeof(char));
+	memset(sf->fname, '\0', (n+1) * sizeof(char));
+	strncpy(sf->fname, filename, n);
 
 	read_file(sf);
 
@@ -91,11 +95,12 @@ void settings_file_close(settings_file_t* sf) {
 		}
 		fclose(sf->fid);
 	}
+	free(sf->fname);
 	free(sf);
 	sf = NULL;
 }
 
-char* settings_file_get_value(settings_file_t *sf, char *key) {
+const char* settings_file_get_value(settings_file_t *sf, const char *key) {
 	setting_t *current;
 	current = sf->first;
 	while (current != NULL) {
@@ -135,7 +140,7 @@ int settings_file_num_settings(settings_file_t *sf) {
 	return count;
 }
 
-char* settings_file_get_key_by_index(settings_file_t *sf, size_t index) {
+const char* settings_file_get_key_by_index(settings_file_t *sf, size_t index) {
 	setting_t *current;
 	int i;
 

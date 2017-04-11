@@ -29,11 +29,11 @@ typedef struct inspiral_signal_half_fft_s {
 inspiral_template_half_fft_t* inspiral_template_half_fft_alloc(size_t num_time_samples);
 void inspiral_signal_half_fft_free(inspiral_template_half_fft_t *signal);
 
-inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, asd_t *asd, source_t *source);
+inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, source_t *source);
 
-inspiral_template_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, asd_t **net_asd, source_t *source);
+inspiral_template_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
 
 /* This is the main routine that generates the inspiral template. The memory must be freed. */
-inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, asd_t **net_asd, source_t *source);
+inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
 
 #endif /* SRC_C_DATAGEN_H_ */

@@ -46,7 +46,7 @@ void inspiral_signal_half_fft_free(inspiral_template_half_fft_t *signal) {
 	signal = NULL;
 }
 
-inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, asd_t *asd, source_t *source) {
+inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, source_t *source) {
 	chirp_factors_t chirp;
 	size_t i;
 	stationary_phase_t* sp;
@@ -62,22 +62,22 @@ inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_
 
 	inspiral_template_half_fft_t *signal = inspiral_template_half_fft_alloc( num_time_samples );
 
-	sp = SP_malloc(asd->len);
+	sp = SP_malloc(det->asd->len);
 	double td;
 	time_delay(det, &source->sky, &td);
 
 	SP_compute(source->coalesce_phase, td,
-			&chirp.ct, asd,
+			&chirp.ct, det->asd,
 			f_low, f_high,
 			sp);
 
 	/* This computes the unscaled (in terms of network snr) inspiral template */
-	for (j = 0; j < asd->len; ++j) {
+	for (j = 0; j < det->asd->len; ++j) {
 		gsl_complex v;
 		gsl_complex A;
 		gsl_complex B;
 
-		gsl_complex whitened_sf = gsl_complex_div_real(sp->spa_0[j], asd->asd[j]);
+		gsl_complex whitened_sf = gsl_complex_div_real(sp->spa_0[j], det->asd->asd[j]);
 		gsl_complex h_0 = whitened_sf;
 
 		v = gsl_complex_rect(0.0, -1.0);
@@ -94,31 +94,33 @@ inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_
 	return signal;
 }
 
-inspiral_template_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, asd_t **net_asd, source_t *source) {
+inspiral_template_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source) {
 	size_t i;
 
 	/* One measured signal per detector */
 	inspiral_template_half_fft_t **signals = (inspiral_template_half_fft_t**) malloc( net->num_detectors * sizeof(inspiral_template_half_fft_t*) );
 	for (i = 0; i < net->num_detectors; i++) {
-		signals[i] = inspiral_template_half_fft( f_low, f_high, num_time_samples, net->detector[i], net_asd[i], source);
+		signals[i] = inspiral_template_half_fft( f_low, f_high, num_time_samples, net->detector[i], source);
 	}
 
 	return signals;
 }
 
-inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, asd_t **net_asd, source_t *source) {
+inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source) {
 	size_t i, j;
 
 	/* generate the unscaled signals */
-	inspiral_template_half_fft_t **signals = inspiral_template_unscaled(f_low, f_high, num_time_samples, net, net_asd, source);
+	inspiral_template_half_fft_t **signals = inspiral_template_unscaled(f_low, f_high, num_time_samples, net, source);
 
 	/* compute the network statistic so that we can determine the scale parameter */
 	chirp_factors_t chirp;
 	CF_compute(f_low, source, &chirp);
+
 	/* Assume that each strain has the same length */
-	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net->num_detectors, net_asd[0]->len);
+	size_t len_asd = net->detector[0]->asd->len;
+	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net->num_detectors, len_asd);
 	double scale = 0;
-	coherent_network_statistic(net, net_asd, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
+	coherent_network_statistic(net, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
 			signals, cnw, &scale);
 	CN_workspace_free(cnw);
 
@@ -130,7 +132,7 @@ inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, si
 	/* now apply scale factor to the signals so that they have the desired network snr */
 	for (i = 0; i < net->num_detectors; i++) {
 		inspiral_template_half_fft_t* signal = signals[i];
-		for (j = 0; j < net_asd[i]->len; ++j) {
+		for (j = 0; j < net->detector[i]->asd->len; ++j) {
 			signal->half_fft[j] = gsl_complex_mul_real(signal->half_fft[j], scale_factor);
 		}
 	}

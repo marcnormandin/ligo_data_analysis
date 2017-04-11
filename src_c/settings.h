@@ -31,11 +31,11 @@ typedef struct settings_file_s {
 } settings_file_t;
 
 
-settings_file_t* settings_file_open(char *filename);
+settings_file_t* settings_file_open(const char *filename);
 void settings_file_close(settings_file_t* sf);
-char* settings_file_get_value(settings_file_t *sf, char *key);
+const char* settings_file_get_value(settings_file_t *sf, const char *key);
 void settings_file_print(settings_file_t *sf);
 int settings_file_num_settings(settings_file_t *sf);
-char* settings_file_get_key_by_index(settings_file_t *sf, size_t index);
+const char* settings_file_get_key_by_index(settings_file_t *sf, size_t index);
 
 #endif /* TESTS_SETTINGS_FILE_SETTINGS_H_ */
