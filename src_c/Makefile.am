@@ -30,7 +30,8 @@ common_sources = \
 	
 bin_PROGRAMS = lda_simulate_data lda_shihan_pso
 
-lda_shihan_pso_LDADD = -lgsl -lgslcblas -lhdf5 -lhdf5_hl
+#  -lprofiler -ltcmalloc
+lda_shihan_pso_LDADD = -lgsl -lgslcblas -lhdf5 -lhdf5_hl -lprofiler -ltcmalloc
 lda_shihan_pso_SOURCES = lda_shihan_pso_main.c $(common_sources)
 
 # lda_test_sky_map lda_test_snr_hist

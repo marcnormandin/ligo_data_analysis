@@ -6,6 +6,8 @@
 	#include <mpi.h>
 #endif
 
+#include "gperftools/profiler.h"
+
 #include "detector_antenna_patterns.h"
 #include <math.h>
 #include <string.h>
