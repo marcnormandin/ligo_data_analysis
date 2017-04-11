@@ -15,10 +15,18 @@
 #include <gsl/gsl_complex_math.h>
 
 stationary_phase_t* SP_malloc(size_t size) {
+	size_t i;
+
 	stationary_phase_t* sp = (stationary_phase_t*) malloc( sizeof(stationary_phase_t) );
 	sp->len = size;
 	sp->spa_0 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
 	sp->spa_90 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
+
+	for (i = 0; i < size; i++) {
+		sp->spa_0[i] = gsl_complex_rect(0.0, 0.0);
+		sp->spa_90[i] = gsl_complex_rect(0.0, 0.0);
+	}
+
 	return sp;
 }
 

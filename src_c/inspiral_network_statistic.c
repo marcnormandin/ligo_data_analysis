@@ -65,6 +65,9 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_
 	work->sp = SP_malloc( num_half_freq );
 
 	work->temp_array = (gsl_complex*) malloc( num_half_freq * sizeof(gsl_complex) );
+	for (i = 0; i < num_half_freq; i++) {
+		work->temp_array[i] = gsl_complex_rect(0.0, 0.0);
+	}
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
 
@@ -122,12 +125,12 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free( workspace );
 }
 
-void do_work(size_t num_time_samples, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
+void do_work(size_t num_time_samples, stationary_phase_lookup_t *sp_lookup, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
 	size_t k;
 	size_t t_index;
 	size_t c_index;
 
-	for (k = 0; k < asd->len; k++) {
+	for (k = sp_lookup->f_low_index; k <= sp_lookup->f_high_index; k++) {
 		temp[k] = gsl_complex_conjugate(spa[k]);
 		temp[k] = gsl_complex_div_real(temp[k], asd->asd[k]);
 		temp[k] = gsl_complex_mul( temp[k], half_fft_data[k] );
@@ -264,9 +267,9 @@ void coherent_network_statistic(
 
 		whitened_data = signals[i]->half_fft;
 
-		do_work(num_time_samples, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
-		do_work(num_time_samples, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;
