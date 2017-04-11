@@ -49,6 +49,7 @@ void inspiral_signal_half_fft_free(inspiral_template_half_fft_t *signal) {
 inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, source_t *source) {
 	chirp_factors_t chirp;
 	size_t i;
+	stationary_phase_lookup_t *sp_lookup;
 	stationary_phase_t* sp;
 	size_t j;
 
@@ -62,6 +63,9 @@ inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_
 
 	inspiral_template_half_fft_t *signal = inspiral_template_half_fft_alloc( num_time_samples );
 
+	sp_lookup = SP_lookup_alloc(f_low, f_high, det->asd);
+	SP_lookup_init(f_low, f_high, det->asd, sp_lookup);
+
 	sp = SP_malloc(det->asd->len);
 	double td;
 	time_delay(det, &source->sky, &td);
@@ -69,6 +73,7 @@ inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_
 	SP_compute(source->coalesce_phase, td,
 			&chirp.ct, det->asd,
 			f_low, f_high,
+			sp_lookup,
 			sp);
 
 	/* This computes the unscaled (in terms of network snr) inspiral template */
@@ -89,6 +94,7 @@ inspiral_template_half_fft_t* inspiral_template_half_fft(double f_low, double f_
 	}
 	antenna_patterns_workspace_free(ap_ws);
 
+	SP_lookup_free(sp_lookup);
 	SP_free(sp);
 
 	return signal;
@@ -118,7 +124,8 @@ inspiral_template_half_fft_t** inspiral_template(double f_low, double f_high, si
 
 	/* Assume that each strain has the same length */
 	size_t len_asd = net->detector[0]->asd->len;
-	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net->num_detectors, len_asd);
+	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net->num_detectors, len_asd,
+			f_low, f_high, net->detector[0]->asd);
 	double scale = 0;
 	coherent_network_statistic(net, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
 			signals, cnw, &scale);

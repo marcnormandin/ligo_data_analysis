@@ -57,6 +57,7 @@ typedef struct coherent_network_workspace_s {
 	size_t num_helpers;
 	coherent_network_helper_t **helpers;
 
+	stationary_phase_lookup_t *sp_lookup;
 	stationary_phase_t *sp;
 
 	/* temporary array that is repeatedly used.
@@ -76,7 +77,8 @@ typedef struct coherent_network_workspace_s {
 
 } coherent_network_workspace_t;
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq);
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq,
+		double f_low, double f_high, asd_t *asd);
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 

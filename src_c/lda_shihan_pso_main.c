@@ -151,7 +151,8 @@ int main(int argc, char* argv[]) {
 	gsl_rng *rng = random_alloc(seed);
 
 	size_t num_time_samples = 131072;
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( num_time_samples, net->num_detectors, net->detector[0]->asd->len );
+	coherent_network_workspace_t *workspace = CN_workspace_malloc( num_time_samples, net->num_detectors, net->detector[0]->asd->len,
+			f_low, f_high, net->detector[0]->asd);
 
 	/* Setup the parameter structure for the pso fitness function */
 	ptapso_fun_params_t params;

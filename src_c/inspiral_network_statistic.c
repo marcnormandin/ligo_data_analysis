@@ -43,7 +43,11 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper);
 }
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq) {
+/* Note, the asd is only needed to get the frequency values and the number of frequency bins. This should be the
+ * same for every ASD used for a detector network, so any detector from the network can be used.
+ */
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq,
+		double f_low, double f_high, asd_t *asd) {
 	coherent_network_workspace_t * work;
 	size_t i;
 
@@ -54,6 +58,9 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_
 	for (i = 0; i < work->num_helpers; i++) {
 		work->helpers[i] = CN_helper_malloc( num_time_samples );
 	}
+
+	work->sp_lookup = SP_lookup_alloc(f_low, f_high, asd);
+	SP_lookup_init(f_low, f_high, asd, work->sp_lookup);
 
 	work->sp = SP_malloc( num_half_freq );
 
@@ -94,6 +101,7 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	}
 	free(workspace->helpers);
 
+	SP_lookup_free(workspace->sp_lookup);
 	SP_free(workspace->sp);
 
 	for (i = 0; i < 4; i++) {
@@ -251,6 +259,7 @@ void coherent_network_statistic(
 		SP_compute(coalesce_phase, td,
 						chirp, det->asd,
 						f_low, f_high,
+						workspace->sp_lookup,
 						workspace->sp);
 
 		whitened_data = signals[i]->half_fft;

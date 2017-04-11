@@ -20,6 +20,21 @@ typedef struct stationary_phase_s {
 	gsl_complex		*spa_90;
 } stationary_phase_t;
 
+typedef struct stationary_phase_lookup_s {
+	double f_low, f_high;
+	size_t f_low_index, f_high_index;
+
+	size_t len;
+	double *g_coeff;
+	double *chirp_tc_coeff;
+	double *coalesce_phase_coeff;
+	double *chirp_time_0_coeff;
+	double *chirp_time_1_coeff;
+	double *chirp_time1_5_coeff;
+	double *chirp_time2_coeff;
+
+} stationary_phase_lookup_t;
+
 stationary_phase_t* SP_malloc(size_t size);
 
 void SP_free(stationary_phase_t *sp);
@@ -29,8 +44,16 @@ double SP_g(double f_low, double f_high, chirp_time_t *chirp, asd_t *asd);
 void SP_compute(double coalesce_phase, double time_delay,
 		chirp_time_t *chirp, asd_t *asd,
 		double f_low, double f_high,
+		stationary_phase_lookup_t *lookup,
 		stationary_phase_t *out_sp);
 
 void SP_save(char *filename, asd_t *asd, stationary_phase_t *sp);
+
+
+stationary_phase_lookup_t* SP_lookup_alloc(double f_low, double f_high, asd_t *asd);
+
+void SP_lookup_free( stationary_phase_lookup_t *lookup);
+
+void SP_lookup_init(double f_low, double f_high, asd_t *asd, stationary_phase_lookup_t *lookup);
 
 #endif /* SRC_C_STATIONARY_PHASE_H_ */
