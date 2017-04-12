@@ -2,7 +2,7 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[0.1],[normandin.utb@gmail.com])
+AC_INIT([lda],[1.0],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 #AC_PROG_CC([mpicc])
@@ -12,6 +12,7 @@ AC_PROG_CXX([g++])
 
 AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
+AC_PROG_LIBTOOL
 
 # ****************************************************************************************************
 # Google test library
@@ -47,9 +48,9 @@ AC_SUBST(ac_top_srcdir)
 
 # ****************************************************************************************************
 # List of Makefile.am's
-AC_CONFIG_SRCDIR([src_c/lda_test_sky_map_main.c])
+AC_CONFIG_SRCDIR([libcore/detector_antenna_patterns.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile settings/Makefile notebooks/Makefile src_c/Makefile])
+AC_CONFIG_FILES([Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data/Makefile])
 
 # ****************************************************************************************************
 # Done!
