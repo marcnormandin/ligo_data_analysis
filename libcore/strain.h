@@ -1,14 +1,8 @@
-/*
- * strain.h
- *
- *  Created on: Apr 12, 2017
- *      Author: marcnormandin
- */
-
-#ifndef LIBCORE_STRAIN_H_
-#define LIBCORE_STRAIN_H_
+#ifndef STRAIN_H_
+#define STRAIN_H_
 
 #include <stddef.h>
+
 #include <gsl/gsl_complex.h>
 
 typedef struct strain_half_fft_s {
@@ -36,4 +30,4 @@ void strain_half_fft_free(strain_half_fft_t *strain);
 network_strain_half_fft_t* network_strain_half_fft_alloc(size_t num_strains, size_t num_time_samples);
 void network_strain_half_fft_free(network_strain_half_fft_t *strains);
 
-#endif /* LIBCORE_STRAIN_H_ */
+#endif /* STRAIN_H_ */

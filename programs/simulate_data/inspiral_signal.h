@@ -34,10 +34,10 @@ typedef struct source_s {
 
 strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, source_t *source);
 
-strain_half_fft_t** inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
+network_strain_half_fft_t* inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
 
 /* This is the main routine that generates the inspiral template. The memory must be freed. */
-strain_half_fft_t** inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
+network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
 
 void Source_print(source_t* source);
 

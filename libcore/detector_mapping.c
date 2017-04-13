@@ -1,25 +1,26 @@
-/*
- * detector_mapping.c
- *
- *  Created on: Apr 10, 2017
- *      Author: marcnormandin
- */
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "detector_mapping.h"
-
-#include <string.h>
-#include <stdlib.h>
 #include "settings_file.h"
 
-detector_mapping_t* detector_mapping_load( const char* filename ) {
+detector_network_mapping_t* Detector_Network_Mapping_load( const char* filename ) {
+	assert(filename != NULL);
+
 	size_t i;
 
-	detector_mapping_t *dm = (detector_mapping_t*) malloc(sizeof(detector_mapping_t));
+	detector_network_mapping_t *dm = (detector_network_mapping_t*) malloc(sizeof(detector_network_mapping_t));
+	if (dm == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for detector_mappting_t. Aborting.\n");
+		abort();
+	}
 
 	/* open the mapping file */
 	settings_file_t *settings_file = settings_file_open( filename );
 	if (settings_file == NULL) {
-		printf("Error opening the detector mappings file (%s). Aborting.\n", filename );
+		fprintf(stderr, "Error opening the detector mappings file (%s). Aborting.\n", filename );
 		abort();
 	}
 
@@ -28,7 +29,16 @@ detector_mapping_t* detector_mapping_load( const char* filename ) {
 	dm->num_detectors = num_detectors;
 
 	dm->detector_names = (char**) malloc( num_detectors * sizeof(char*));
+	if (dm->detector_names == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for dm->detector_names. Aborting.\n");
+		abort();
+	}
+
 	dm->data_filenames = (char**) malloc( num_detectors * sizeof(char*));
+	if (dm->data_filenames == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for dm->data_filenames. Aborting.\n");
+		abort();
+	}
 
 	/* Store each detectors information */
 	for (i = 0; i < num_detectors; i++) {
@@ -39,9 +49,17 @@ detector_mapping_t* detector_mapping_load( const char* filename ) {
 		const char *hdf_filename = settings_file_get_value(settings_file, detector_name);
 
 		dm->detector_names[i] = (char*) malloc( (strlen(detector_name)+1) * sizeof(char) );
+		if (dm->detector_names[i] == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory for dm->detector_names[i]. Aborting.\n");
+			abort();
+		}
 		strcpy( dm->detector_names[i], detector_name);
 
 		dm->data_filenames[i] = (char*) malloc( (strlen(hdf_filename) +1) * sizeof(char) );
+		if (dm->data_filenames[i] == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory for dm->data_filnames[i]. Aborting.\n");
+			abort();
+		}
 		strcpy( dm->data_filenames[i], hdf_filename);
 	}
 
@@ -50,14 +68,28 @@ detector_mapping_t* detector_mapping_load( const char* filename ) {
 	return dm;
 }
 
-void detector_mapping_close( detector_mapping_t *dm) {
+void Detector_Network_Mapping_close( detector_network_mapping_t *dm) {
+	assert(dm != NULL);
+	assert(dm->detector_names != NULL);
+	assert(dm->data_filenames != NULL);
+
 	size_t i;
 	for (i = 0; i < dm->num_detectors; i++) {
+		assert(dm->detector_names[i] != NULL);
 		free(dm->detector_names[i]);
+		dm->detector_names[i] = NULL;
+
+		assert(dm->data_filenames[i] != NULL);
 		free(dm->data_filenames[i]);
+		dm->data_filenames[i] = NULL;
 	}
-	free(dm->data_filenames);
+
 	free(dm->detector_names);
+	dm->detector_names = NULL;
+
+	free(dm->data_filenames);
+	dm->data_filenames = NULL;
+
 	free(dm);
 	dm = NULL;
 }

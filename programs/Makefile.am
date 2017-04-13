@@ -1,1 +1,1 @@
-SUBDIRS = matlab_data
+SUBDIRS = matlab_data simulate_data

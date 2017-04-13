@@ -1,10 +1,3 @@
-/*
- * lda_hdf5.h
- *
- *  Created on: Apr 10, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_LDA_HDF5_H_
 #define SRC_C_LDA_HDF5_H_
 

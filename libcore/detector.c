@@ -1,19 +1,22 @@
-/*
- * detector.c
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
-
-#include "../libcore/detector.h"
-
 #include <stdio.h>
 #include <string.h>
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_blas.h>
 
-const char* detector_id_to_name(DETECTOR_ID id) {
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
+
+#include "detector.h"
+
+void Detector_init_L1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_H1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_H2(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_V1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_G1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_K1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_init_T1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_tensor(detector_t *d);
+
+const char* Detector_id_to_name(DETECTOR_ID id) {
 	switch (id) {
 	case L1: return "L1"; break;
 	case H1: return "H1"; break;
@@ -28,7 +31,7 @@ const char* detector_id_to_name(DETECTOR_ID id) {
 	}
 }
 
-DETECTOR_ID detector_name_to_id(const char* name) {
+DETECTOR_ID Detector_name_to_id(const char* name) {
 	if (strcmp(name, "L1") == 0) {
 		return L1;
 	} else if (strcmp(name, "H1") == 0) {
@@ -44,12 +47,12 @@ DETECTOR_ID detector_name_to_id(const char* name) {
 	} else if (strcmp(name, "T1") == 0) {
 		return T1;
 	} else {
-		printf("Error: Invalid detector name (%s). Can not convert to DETECTOR_ID.\n", name);
+		fprintf(stderr, "Error: Invalid detector name (%s). Can not convert to DETECTOR_ID.\n", name);
 		abort();
 	}
 }
 
-void Print_Detector(detector_t* det) {
+void Detector_print(detector_t* det) {
 	printf("DETECTOR:\n");
 }
 
@@ -79,7 +82,7 @@ void Detector_free(detector_t *d) {
 void Detector_init(DETECTOR_ID id, psd_t *psd, detector_t *d) {
 	d->id = id;
 
-	const char* name = detector_id_to_name(id);
+	const char* name = Detector_id_to_name(id);
 	memcpy(d->name, name, (strnlen(name, 254)+1) * sizeof(char));
 
 	asd_t *asd = ASD_malloc( psd->len );

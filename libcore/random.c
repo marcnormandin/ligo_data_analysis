@@ -1,17 +1,12 @@
-/*
- * random.c
- *
- *  Created on: Mar 22, 2017
- *      Author: marcnormandin
- */
-
-#include "../libcore/random.h"
-
 #include <time.h>
+
 #include <gsl/gsl_math.h> // M_PI
-#include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_rng.h>
 #include <gsl/gsl_sf.h>
+
+#include "random.h"
+
 
 gsl_rng* random_alloc(gslseed_t seed) {
 	const gsl_rng_type *rng_type;

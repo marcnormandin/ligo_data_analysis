@@ -1,24 +1,16 @@
-/*
- * detector_network.c
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
-
-#include "detector_network.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <gsl/gsl_interp.h>
 
-#include "hdf5_file.h"
 #include "detector.h"
 #include "detector_mapping.h"
+#include "detector_network.h"
+#include "hdf5_file.h"
 #include "sampling_system.h"
 
-detector_network_t* Alloc_Detector_Network(size_t num_detectors) {
+detector_network_t* Detector_Network_alloc(size_t num_detectors) {
 	size_t i;
 
 	detector_network_t *net = (detector_network_t*) malloc( sizeof(detector_network_t) );
@@ -33,7 +25,7 @@ detector_network_t* Alloc_Detector_Network(size_t num_detectors) {
 	return net;
 }
 
-void Free_Detector_Network(detector_network_t* net) {
+void Detector_Network_free(detector_network_t* net) {
 	size_t i;
 	for (i = 0; i < net->num_detectors; i++) {
 		Detector_free(net->detector[i]);
@@ -41,31 +33,20 @@ void Free_Detector_Network(detector_network_t* net) {
 	free(net->detector);
 }
 
-/*
-void Init_Detector_Network(detector_network_t* net) {
-	Alloc_Detector_Network(4, net);
-
-	Detector_init(H1, net->detector[0]);
-	Detector_init(L1, net->detector[1]);
-	Detector_init(V1, net->detector[2]);
-	Detector_init(K1, net->detector[3]);
-}
-*/
-
-void Print_Detector_Network(detector_network_t* net) {
+void Detector_Network_print(detector_network_t* net) {
 	size_t i;
 
 	printf("DETECTOR NEWTORK: %d detectors\n", net->num_detectors);
 	for (i = 0; i < net->num_detectors; i++) {
-		Print_Detector(net->detector[i]);
+		Detector_print(net->detector[i]);
 		printf("\n");
 	}
 }
 
-detector_network_t* detector_network_load( const char* detector_mapping_file ) {
+detector_network_t* Detector_Network_load( const char* detector_mapping_file ) {
 	size_t i, j;
 
-	detector_mapping_t *dmap = detector_mapping_load( detector_mapping_file );
+	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( detector_mapping_file );
 
 	/* sampling frequency */
 	double fs = hdf5_get_sampling_frequency( dmap->data_filenames[0] );
@@ -78,7 +59,7 @@ detector_network_t* detector_network_load( const char* detector_mapping_file ) {
 	printf("The half size is: %lu\n", half_size);
 
 	fprintf(stderr, "Allocating a (%lu) detector network... ", dmap->num_detectors);
-	detector_network_t* net = Alloc_Detector_Network ( dmap->num_detectors );
+	detector_network_t* net = Detector_Network_alloc ( dmap->num_detectors );
 	fprintf(stderr, "done.\n");
 
 	for (i = 0; i < net->num_detectors; i++) {
@@ -112,7 +93,7 @@ detector_network_t* detector_network_load( const char* detector_mapping_file ) {
 	}
 	printf("\n");
 
-	detector_mapping_close(dmap);
+	Detector_Network_Mapping_close(dmap);
 
 	return net;
 }

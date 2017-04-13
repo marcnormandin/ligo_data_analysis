@@ -1,19 +1,19 @@
-#include "../libcore/detector_time_delay.h"
-
 #include <math.h>
 #include <string.h>
+
 #include <gsl/gsl_const_mksa.h>
-#include <gsl/gsl_math.h>
+#include <gsl/gsl_blas.h>
 #include <gsl/gsl_errno.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_matrix.h>
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_vector.h>
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_blas.h>
 
-#include "../libcore/detector.h"
-#include "../libcore/sky.h"
+#include "detector.h"
+#include "detector_time_delay.h"
+#include "sky.h"
 
-int time_delay(detector_t *d, sky_t *sky, double *td)
+int Detector_time_delay(detector_t *d, sky_t *sky, double *td)
 {
     double xifo;
     double yifo;

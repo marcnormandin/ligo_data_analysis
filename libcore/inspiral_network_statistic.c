@@ -1,27 +1,20 @@
-/*
- * coherent_new_sec2.c
- *
- *  Created on: Feb 23, 2017
- *      Author: marcnormandin
- */
-
-#include "inspiral_network_statistic.h"
-
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gsl/gsl_math.h>
+
 #include <gsl/gsl_cblas.h>
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_fft_complex.h>
+#include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics_double.h>
 
 #include "detector.h"
 #include "detector_antenna_patterns.h"
 #include "detector_network.h"
 #include "detector_time_delay.h"
+#include "inspiral_network_statistic.h"
 #include "sampling_system.h"
 
 coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples) {
@@ -42,24 +35,24 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper);
 }
 
-/* Note, the asd is only needed to get the frequency values and the number of frequency bins. This should be the
- * same for every ASD used for a detector network, so any detector from the network can be used.
- */
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq,
-		double f_low, double f_high, asd_t *asd) {
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
+		double f_low, double f_high) {
 	coherent_network_workspace_t * work;
 	size_t i;
 
 	work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
 	work->num_time_samples = num_time_samples;
-	work->num_helpers = num_detectors;
+	work->num_helpers = net->num_detectors;
 	work->helpers = (coherent_network_helper_t**) malloc( work->num_helpers * sizeof(coherent_network_helper_t*));
 	for (i = 0; i < work->num_helpers; i++) {
 		work->helpers[i] = CN_helper_malloc( num_time_samples );
 	}
 
-	work->sp_lookup = SP_workspace_alloc(f_low, f_high, asd);
-	SP_workspace_init(f_low, f_high, asd, work->sp_lookup);
+	/* Note, the asd is only needed to get the frequency values and the number of frequency bins. This should be the
+	 * same for every ASD used for a detector network, so any detector from the network can be used.
+	 */
+	work->sp_lookup = SP_workspace_alloc(f_low, f_high, net->detector[0]->asd);
+	SP_workspace_init(f_low, f_high, net->detector[0]->asd, work->sp_lookup);
 
 	work->sp = SP_malloc( num_half_freq );
 
@@ -88,9 +81,14 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( num_time_samples );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( num_time_samples );
 
-	work->ap_workspace = detector_antenna_patterns_workspace_alloc();
+	work->ap_workspace = Detector_Antenna_Patterns_workspace_alloc();
 	/* one antenna pattern structure per detector */
-	work->ap = (detector_antenna_patterns_t*) malloc (num_detectors * sizeof(detector_antenna_patterns_t) );
+	work->ap = (detector_antenna_patterns_t*) malloc (net->num_detectors * sizeof(detector_antenna_patterns_t) );
+
+	work->normalization_factors = (double*) malloc( net->num_detectors * sizeof(double) );
+	for (i = 0; i < net->num_detectors; i++) {
+		work->normalization_factors[i] = SP_g(f_low, f_high, net->detector[i]->asd, work->sp_lookup);
+	}
 
 	return work;
 }
@@ -118,8 +116,10 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	gsl_fft_complex_workspace_free( workspace->fft_workspace );
 	gsl_fft_complex_wavetable_free( workspace->fft_wavetable );
 
-	detector_antenna_patterns_workspace_free(workspace->ap_workspace);
+	Detector_Antenna_Patterns_workspace_free(workspace->ap_workspace);
 	free(workspace->ap);
+
+	free(workspace->normalization_factors);
 
 	free( workspace );
 }
@@ -135,18 +135,7 @@ void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, g
 		temp[k] = gsl_complex_mul( temp[k], half_fft_data[k] );
 	}
 
-	/* This should extend the array with a flipped conjugated version that has 2 less elements. */
-	/*
-	t_index = regular_strain->len - 2;
-	c_index = regular_strain->len;
-	for (; t_index > 0; t_index--, c_index++) {
-		out_c[c_index] = gsl_complex_conjugate(temp[t_index]);
-	}
-	*/
-
-	/*fprintf(stderr, "out_c, N has a length of: %d\n", N);*/
-	/*fprintf(stderr, "do_work: num_time_samples = %lu\n", num_time_samples);*/
-
+	/* This should extend the array with a flipped conjugated version. */
 	SS_make_two_sided( asd->len, temp, num_time_samples, out_c);
 }
 
@@ -201,11 +190,9 @@ void coherent_network_statistic(
 	/* WARNING: This assumes that all of the signals have the same lengths. */
 	size_t num_time_samples = network_strain->num_time_samples;
 
-	/*fprintf(stderr, "inspiral network statistic: num_time_samples = %lu\n", num_time_samples);*/
-
 	/* Compute the antenna patterns for each detector */
 	for (i = 0; i < net->num_detectors; i++) {
-		detector_antenna_patterns_compute(net->detector[i], sky, polarization_angle,
+		Detector_Antenna_Patterns_compute(net->detector[i], sky, polarization_angle,
 				workspace->ap_workspace, &workspace->ap[i]);
 	}
 
@@ -257,11 +244,12 @@ void coherent_network_statistic(
 		coalesce_phase = 0.0;
 
 		/* Compute time delay */
-		time_delay(det, sky, &td);
+		Detector_time_delay(det, sky, &td);
 
 		SP_compute(coalesce_phase, td,
 						chirp, det->asd,
 						f_low, f_high,
+						workspace->normalization_factors[i],
 						workspace->sp_lookup,
 						workspace->sp);
 

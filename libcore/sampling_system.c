@@ -1,19 +1,13 @@
-/*
- * sampling_system.c
- *
- *  Created on: Mar 17, 2017
- *      Author: marcnormandin
- */
-
-#include "../libcore/sampling_system.h"
-
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gsl/gsl_math.h>
+
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_math.h>
+
+#include "sampling_system.h"
 
 int SS_has_nyquist_term(size_t N) {
 	return GSL_IS_EVEN(N);
@@ -25,12 +19,6 @@ size_t SS_nyquist_array_index (size_t N) {
 	assert(GSL_IS_EVEN(N));
 	return N / 2;
 }
-
-/*
-double SS_nyquist_frequency(double samplingFrequency, size_t N) {
-
-}
-*/
 
 /* Returns the last unique index. Either the Nyquist index or last regular term before they are mirrored. */
 size_t SS_last_unique_index (size_t N) {
@@ -45,16 +33,6 @@ size_t SS_last_unique_index (size_t N) {
 size_t SS_half_size(size_t N_full) {
 	return SS_last_unique_index( N_full ) + 1;
 }
-
-/*
-size_t SS_full_size(size_t N_half) {
-	if (N_half%2 == 0) {
-		return 2*(N_half-2) + 2;
-	} else {
-		return 2*(N_half-1) + 1;
-	}
-}
-*/
 
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided) {

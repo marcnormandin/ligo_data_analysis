@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
 	}
 	free(signals);
 
-	Free_Detector_Network(&net);
+	Detector_Network_free(&net);
 	Strain_free(strain);
 	random_free(rng);
 

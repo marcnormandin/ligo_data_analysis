@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 	}
 	fclose(fid);
 
-	Free_Detector_Network(&net);
+	Detector_Network_free(&net);
 	Strain_free(strain);
 	free(results_snr);
 

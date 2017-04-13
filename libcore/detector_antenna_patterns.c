@@ -1,11 +1,8 @@
-/*
- * GW Interferometer Antenna Patterns
- * Written by Marc Normandin, 2017.
- */
-
-#include "detector_antenna_patterns.h"
-
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_vector.h>
@@ -13,11 +10,16 @@
 #include <gsl/gsl_blas.h>
 
 #include "detector.h"
+#include "detector_antenna_patterns.h"
 #include "sky.h"
 
-detector_antenna_patterns_workspace_t* detector_antenna_patterns_workspace_alloc() {
+detector_antenna_patterns_workspace_t* Detector_Antenna_Patterns_workspace_alloc() {
 	detector_antenna_patterns_workspace_t *ws = (detector_antenna_patterns_workspace_t*)
 			malloc( sizeof(detector_antenna_patterns_workspace_t) );
+	if (ws == NULL) {
+		fprintf(stderr, "Error. Unable to allocate detector_antenna_patterns_workspace_t. Aborting.\n");
+		abort();
+	}
 
 	ws->n_hat = gsl_vector_alloc(3);
 	ws->ex_i = gsl_vector_alloc(3);
@@ -30,7 +32,8 @@ detector_antenna_patterns_workspace_t* detector_antenna_patterns_workspace_alloc
 	return ws;
 }
 
-void detector_antenna_patterns_workspace_free( detector_antenna_patterns_workspace_t* ws ) {
+void Detector_Antenna_Patterns_workspace_free( detector_antenna_patterns_workspace_t* ws ) {
+	assert(ws != NULL);
 	gsl_vector_free(ws->n_hat);
 	gsl_vector_free(ws->ex_i);
 	gsl_vector_free(ws->ey_j);
@@ -41,11 +44,11 @@ void detector_antenna_patterns_workspace_free( detector_antenna_patterns_workspa
 	free(ws);
 	ws = NULL;
 }
-/*
-void antenna_patterns_workspace_init( antenna_patterns_workspace_t* ws) {
-}*/
 
 static int trace(gsl_matrix* A, double* r) {
+	assert(A != NULL);
+	assert(r != NULL);
+
 	int i;
 	double sum = 0.0;
 	size_t n = A->size1;
@@ -65,14 +68,20 @@ static int trace(gsl_matrix* A, double* r) {
 
 /* Local helper function */
 static void init_gsl_vector(double x, double y, double z, gsl_vector *v) {
+	assert(v != NULL);
 	gsl_vector_set(v, 0, x);
 	gsl_vector_set(v, 1, y);
 	gsl_vector_set(v, 2, z);
 }
 
-int detector_antenna_patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
+int Detector_Antenna_Patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
 		detector_antenna_patterns_workspace_t *ws, detector_antenna_patterns_t *ant)
 {
+	assert(d != NULL);
+	assert(sky != NULL);
+	assert(ws != NULL);
+	assert(ant != NULL);
+
 	/* Define X and Y unit vectors in gw frame. (exEarth)
 	   (This is found from rotating about z counterclockwise angle
 	   sky->ra and then rotating counterclockwise about y angle

@@ -1,39 +1,22 @@
-/*
- * network_analysis.h
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_NETWORK_ANALYSIS_H_
 #define SRC_C_NETWORK_ANALYSIS_H_
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gsl/gsl_math.h>
+
 #include <gsl/gsl_cblas.h>
 #include <gsl/gsl_fft_complex.h>
-
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics_double.h>
-
-#include "strain.h"
 
 #include "detector_antenna_patterns.h"
 #include "detector_network.h"
 #include "inspiral_chirp_time.h"
 #include "inspiral_stationary_phase.h"
 #include "spectral_density.h"
+#include "strain.h"
 
-/* Data that the network will search for an inspiral in */
-/*
-typedef struct coherent_network_data_s {
-	size_t len_data;
-	array_t *data;
-
-} coherent_network_data_t;
-*/
 
 /* There is one helper per detector */
 typedef struct coherent_network_helper_s {
@@ -72,10 +55,13 @@ typedef struct coherent_network_workspace_s {
 	detector_antenna_patterns_workspace_t *ap_workspace;
 	detector_antenna_patterns_t *ap;
 
+	/* g, normalization factor */
+	double *normalization_factors;
+
 } coherent_network_workspace_t;
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, size_t num_detectors, size_t num_half_freq,
-		double f_low, double f_high, asd_t *asd);
+coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
+		double f_low, double f_high);
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 

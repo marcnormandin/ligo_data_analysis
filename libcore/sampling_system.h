@@ -1,14 +1,8 @@
-/*
- * sampling_system.h
- *
- *  Created on: Mar 17, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_SAMPLING_SYSTEM_H_
 #define SRC_C_SAMPLING_SYSTEM_H_
 
 #include <stddef.h>
+
 #include <gsl/gsl_complex.h>
 
 int SS_has_nyquist_term(size_t N);
@@ -22,9 +16,6 @@ size_t SS_last_unique_index (size_t N);
 
 /* Returns the half-size (side with low frequencies including the DC term) */
 size_t SS_half_size(size_t N_full);
-
-/* Returns the full-size given the half-size */
-/* size_t SS_full_size(size_t N_half); */
 
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided);

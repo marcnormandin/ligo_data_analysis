@@ -25,8 +25,8 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 	}
 
 	coherent_network_workspace_t *workspace = CN_workspace_malloc(
-			network_strain->num_time_samples, network->num_detectors, network->detector[0]->asd->len,
-			f_low, f_high, network->detector[0]->asd);
+			network_strain->num_time_samples, network, network->detector[0]->asd->len,
+			f_low, f_high);
 
 	/* Setup the parameter structure for the pso fitness function */
 	params->f_low = f_low;

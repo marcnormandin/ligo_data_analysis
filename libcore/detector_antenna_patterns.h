@@ -1,15 +1,8 @@
-/*
- * antenna_patterns.h
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_ANTENNA_PATTERNS_H_
 #define SRC_C_ANTENNA_PATTERNS_H_
 
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 
 #include "detector.h"
 #include "sky.h"
@@ -35,10 +28,10 @@ typedef struct detector_antenna_patterns_workspace_s {
 
 } detector_antenna_patterns_workspace_t;
 
-detector_antenna_patterns_workspace_t* detector_antenna_patterns_workspace_alloc();
-void detector_antenna_patterns_workspace_free( detector_antenna_patterns_workspace_t* workspace );
+detector_antenna_patterns_workspace_t* Detector_Antenna_Patterns_workspace_alloc();
+void Detector_Antenna_Patterns_workspace_free( detector_antenna_patterns_workspace_t* workspace );
 
-int detector_antenna_patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
+int Detector_Antenna_Patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
 		detector_antenna_patterns_workspace_t *workspace, detector_antenna_patterns_t *ant);
 
 #endif /* SRC_C_ANTENNA_PATTERNS_H_ */

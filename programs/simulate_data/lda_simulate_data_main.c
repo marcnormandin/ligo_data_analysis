@@ -2,7 +2,6 @@
 	#include "config.h"
 #endif
 
-#include "detector_antenna_patterns.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,30 +21,29 @@
 #include <gsl/gsl_randist.h>
 
 
-#include "common.h"
 #include "detector_antenna_patterns.h"
 #include "inspiral_chirp.h"
 #include "detector.h"
 #include "detector_network.h"
-#include "inspiral_source.h"
+#include "inspiral_signal.h"
+#include "inspiral_chirp_factors.h"
 #include "inspiral_stationary_phase.h"
 #include "signal.h"
 #include "inspiral_network_statistic.h"
 #include "sampling_system.h"
 
 #include "inspiral_pso_fitness.h"
-#include "inspiral_template.h"
 #include "random.h"
 #include "options.h"
-#include "settings.h"
+#include "settings_file.h"
 
 #include "spectral_density.h"
 #include "detector_mapping.h"
 
-#include "lda_hdf5.h"
+#include "hdf5_file.h"
 
-#include <hdf5/hdf5.h>
-#include <hdf5/hdf5_hl.h>
+//#include <hdf5/hdf5.h>
+//#include <hdf5/hdf5_hl.h>
 
 /* Compute the chirp factors so that we know the true chirp times, and save them to file. */
 void save_true_signal(double f_low, source_t *source, char *filename) {
@@ -64,8 +62,8 @@ void append_index_to_prefix(char* buff, size_t buff_len, const char *prefix, siz
 }
 
 void hdf5_save_simulated_data( size_t len_template, double *template, const char *hdf5_noise_filename, const char *hdf5_output_filename ) {
-	hid_t file_id, dataset_id, dspace_id, output_file_id;
-	herr_t status;
+	//hid_t file_id, dataset_id, dspace_id, output_file_id;
+	//herr_t status;
 	char dset_name[255];
 
 	size_t strain_len = hdf5_get_dataset_array_length( hdf5_noise_filename, "/strain/Strain_1" );
@@ -171,7 +169,7 @@ int main(int argc, char* argv[]) {
 
 
 	/* Initialize the detector network based on the detector mappings file. */
-	detector_network_t *net = detector_network_load(arg_detector_mappings_file);
+	detector_network_t *net = Detector_Network_load(arg_detector_mappings_file);
 
 	/* For each detector, read in the PSD from file, and compute interpolated ASD for the analysis. */
 	for (i = 0; i < net->num_detectors; i++) {
@@ -186,12 +184,17 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* Generate the templates for all the detectors composing the network */
-	detector_mapping_t *dmap = detector_mapping_load( arg_detector_mappings_file );
+	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( arg_detector_mappings_file );
 	size_t num_time_samples = hdf5_get_num_time_samples( dmap->data_filenames[0] );
 
-	strain_half_fft_t **templates = inspiral_template(f_low, f_high, num_time_samples, net, &source);
+	network_strain_half_fft_t *network_strain = inspiral_template(f_low, f_high, num_time_samples, net, &source);
 	for (i = 0; i < net->num_detectors; i++) {
-		strain_half_fft_t *one_sided = templates[i];
+		strain_half_fft_t *one_sided = network_strain->strains[i];
+
+		/* multiply by the ASD before performing the IFFT */
+		for (j = 0; j < net->detector[i]->asd->len; j++) {
+			one_sided->half_fft[j] = gsl_complex_mul_real(one_sided->half_fft[j], net->detector[i]->asd->asd[j]);
+		}
 
 		/* Form the two-sided template so we can take the inverse FFT */
 		printf("Forming the two-sided template from the one-sided version.\n");
@@ -256,15 +259,11 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	/* Free the data */
-	for (i = 0; i < net->num_detectors; i++) {
-		strain_half_fft_free(templates[i]);
-	}
-	free(templates);
+	network_strain_half_fft_free(network_strain);
 
-	detector_mapping_close(dmap);
+	Detector_Network_Mapping_close(dmap);
 
-	Free_Detector_Network(net);
+	Detector_Network_free(net);
 
 	printf("program ended successfully.\n");
 

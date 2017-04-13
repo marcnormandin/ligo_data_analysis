@@ -1,10 +1,3 @@
-/*
- * random.h
- *
- *  Created on: Mar 22, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_RANDOM_H_
 #define SRC_C_RANDOM_H_
 

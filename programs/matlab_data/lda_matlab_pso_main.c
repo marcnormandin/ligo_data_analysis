@@ -129,14 +129,11 @@ int main(int argc, char* argv[]) {
 
 	settings_file_close(settings_file);
 
-
-	detector_mapping_t *dmap = detector_mapping_load( arg_detector_mapping_file );
-
-	detector_network_t *net = detector_network_load( arg_detector_mapping_file );
+	detector_network_t *net = Detector_Network_load( arg_detector_mapping_file );
+	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( arg_detector_mapping_file );
 
 	size_t num_time_samples = hdf5_get_num_time_samples( dmap->data_filenames[0] );
 	network_strain_half_fft_t *network_strain = network_strain_half_fft_alloc(dmap->num_detectors, num_time_samples );
-
 	for (i = 0; i < net->num_detectors; i++) {
 		load_shihan_inspiral_data( dmap->data_filenames[i], network_strain->strains[i] );
 	}
@@ -239,7 +236,7 @@ int main(int argc, char* argv[]) {
 	network_strain_half_fft_free(network_strain);
 	/*free(signals);*/
 
-	Free_Detector_Network(net);
+	Detector_Network_free(net);
 	random_free(rng);
 
 #ifdef HAVE_MPI

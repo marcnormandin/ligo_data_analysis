@@ -1,18 +1,13 @@
-/*
- * stationary_phase.c
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_math.h>
 
 #include "inspiral_stationary_phase.h"
 
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
 
 stationary_phase_t* SP_malloc(size_t size) {
 	size_t i;
@@ -48,7 +43,7 @@ void SP_save(char* filename, asd_t* asd, stationary_phase_t* sp) {
 }
 
 /* whitening normalization factor */
-double SP_g(double f_low, double f_high, inspiral_chirp_time_t* chirp, asd_t* asd, stationary_phase_workspace_t *lookup) {
+double SP_g(double f_low, double f_high, asd_t* asd, stationary_phase_workspace_t *lookup) {
 	size_t i;
 	double sum;
 
@@ -63,6 +58,8 @@ double SP_g(double f_low, double f_high, inspiral_chirp_time_t* chirp, asd_t* as
 
 		sum  += pow(f, -7.0 / 3.0) / gsl_pow_2(s);
 	}
+
+	fprintf(stderr, "g = %0.21e\n", sqrt(sum));
 
 	return sqrt(sum);
 }
@@ -172,13 +169,11 @@ void SP_workspace_init(double f_low, double f_high, asd_t *asd, stationary_phase
 void SP_compute(double coalesce_phase, double time_delay,
 		inspiral_chirp_time_t *chirp, asd_t *asd,
 		double f_low, double f_high,
+		double g,
 		stationary_phase_workspace_t *lookup,
 		stationary_phase_t *out_sp)
 {
 	size_t i;
-
-	/* This doesn't change unless the strain changes */
-	double g = SP_g(f_low, f_high, chirp, asd, lookup);
 
 	for (i = 0; i < lookup->len; i++) {
 		double amp_2pn = (1.0 / g) * lookup->g_coeff[i];

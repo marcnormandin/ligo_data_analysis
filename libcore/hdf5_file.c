@@ -1,19 +1,13 @@
-/*
- * lda_hdf5.c
- *
- *  Created on: Apr 10, 2017
- *      Author: marcnormandin
- */
-
-#include "hdf5_file.h"
-
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <assert.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <hdf5.h>
 #include <hdf5_hl.h>
+
+#include "hdf5_file.h"
 
 void hdf5_create_file( const char* hdf_filename ) {
 	hid_t file_id = H5Fcreate( hdf_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);

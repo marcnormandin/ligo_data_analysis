@@ -1,59 +1,51 @@
-/*
- * detector.h
- *
- *  Created on: Mar 2, 2017
- *      Author: marcnormandin
- */
-
 #ifndef SRC_C_DETECTOR_H_
 #define SRC_C_DETECTOR_H_
 
 #include <stddef.h>
+
 #include <gsl/gsl_complex.h>
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 
-#include "../libcore/spectral_density.h"
+#include "spectral_density.h"
 
+/**
+ * Detector identification.
+ *
+ * Each ID is mapped to unique detector properties such as location, and detector tensor.
+ */
 typedef enum {
-	L1,
-	H1,
-	H2,
-	V1,
-	K1,
-	G1,
-	T1
+	L1, /**< enum LIGO Livingston */
+	H1, /**< enum LIGO Hanford */
+	H2, /**< enum LIGO Hanford (dismantled) */
+	V1, /**< enum Virgo */
+	K1, /**< enum KAGRA */
+	G1, /**< enum GEO300 */
+	T1  /**< enum Dunno */
 } DETECTOR_ID;
 
-const char* detector_id_to_name(DETECTOR_ID id);
 
-DETECTOR_ID detector_name_to_id(const char* name);
-
-/* For a given source, this records the values for a given detector. */
+/**
+ *  This structure represents a GW interferometer detector.
+ */
 typedef struct detector_s {
-	DETECTOR_ID id;
+	DETECTOR_ID id; 				/**< Detector ID */
 
-	char name[255];
+	char name[255]; 				/**< Detector name */
 
-	/* position vector for location on the Earth */
-	gsl_vector *location;
+	gsl_vector *location; 			/**< Position vector of detector arm vertex */
 
-	/* arm direction vectors */
-	gsl_vector *arm_x;
-	gsl_vector *arm_y;
+	gsl_vector *arm_x; 				/**< Detector arm direction vector, x */
+	gsl_vector *arm_y; 				/**< Detector arm direction vector, y */
 
-	/* detector tensor */
-	gsl_matrix *detector_tensor;
+	gsl_matrix *detector_tensor; 	/**< Detector tensor */
 
-	/* detector PSD */
-	psd_t *psd;
+	psd_t *psd; 					/**< Detector power spectral density */
 
-	/* detector ASD */
-	asd_t *asd;
+	asd_t *asd; 					/**< Detector amplitude spectral density */
 
 } detector_t;
 
-void Print_Detector(detector_t* det);
 
 detector_t* Detector_alloc();
 void Detector_free(detector_t *d);
@@ -61,15 +53,10 @@ void Detector_free(detector_t *d);
 void Detector_init(DETECTOR_ID name, psd_t *psd, detector_t *d);
 void Detector_init_name( char *name, psd_t *psd, detector_t *d);
 
-void Detector_init_L1(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_H1(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_H2(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_V1(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_G1(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_K1(asd_t *asd, psd_t *psd, detector_t *d);
-void Detector_init_T1(asd_t *asd, psd_t *psd, detector_t *d);
+void Detector_print(detector_t* det);
 
-void Detector_tensor(detector_t *d);
+const char* Detector_id_to_name(DETECTOR_ID id);
 
+DETECTOR_ID Detector_name_to_id(const char* name);
 
 #endif /* SRC_C_DETECTOR_H_ */

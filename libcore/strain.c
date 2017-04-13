@@ -1,13 +1,7 @@
-/*
- * strain.c
- *
- *  Created on: Apr 12, 2017
- *      Author: marcnormandin
- */
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <gsl/gsl_complex.h>
 
 #include "sampling_system.h"

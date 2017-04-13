@@ -1,13 +1,5 @@
-/*
- * inspiral_chirp_time.c
- *
- *  Created on: Apr 12, 2017
- *      Author: marcnormandin
- */
-
-#include "inspiral_chirp_time.h"
-
 #include "inspiral_chirp.h"
+#include "inspiral_chirp_time.h"
 
 /* this routine was written for the PSO code. The above code should use it. TODO */
 void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct) {

@@ -1,10 +1,3 @@
-/*
- * inspiral_chirp_time.h
- *
- *  Created on: Apr 12, 2017
- *      Author: marcnormandin
- */
-
 #ifndef COMMON_INSPIRAL_CHIRP_TIME_H_
 #define COMMON_INSPIRAL_CHIRP_TIME_H_
 

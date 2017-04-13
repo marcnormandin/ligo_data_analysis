@@ -1,12 +1,5 @@
-/*
- * spectral_density.h
- *
- *  Created on: Apr 7, 2017
- *      Author: marcnormandin
- */
-
-#ifndef SRC_C_SPECTRAL_DENSITY_H_
-#define SRC_C_SPECTRAL_DENSITY_H_
+#ifndef SPECTRAL_DENSITY_H_
+#define SPECTRAL_DENSITY_H_
 
 #include <stddef.h>
 
@@ -51,4 +44,4 @@ void ASD_free( asd_t *asd);
 void ASD_init_from_psd( psd_t *psd, asd_t *asd);
 
 
-#endif /* SRC_C_SPECTRAL_DENSITY_H_ */
+#endif /* SPECTRAL_DENSITY_H_ */

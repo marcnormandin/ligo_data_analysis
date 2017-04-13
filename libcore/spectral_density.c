@@ -1,20 +1,12 @@
-/*
- * spectral_density.c
- *
- *  Created on: Apr 7, 2017
- *      Author: marcnormandin
- */
-
-#include "../libcore/spectral_density.h"
-
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "../libcore/hdf5_file.h"
+#include "hdf5_file.h"
+#include "spectral_density.h"
 
 
 asd_t* ASD_malloc( size_t len ) {

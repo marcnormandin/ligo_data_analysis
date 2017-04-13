@@ -1,12 +1,5 @@
-/*
- * settings.h
- *
- *  Created on: Mar 29, 2017
- *      Author: marcnormandin
- */
-
-#ifndef TESTS_SETTINGS_FILE_SETTINGS_H_
-#define TESTS_SETTINGS_FILE_SETTINGS_H_
+#ifndef SETTINGS_FILE_SETTINGS_H_
+#define SETTINGS_FILE_SETTINGS_H_
 
 #include <stdio.h>
 
@@ -38,4 +31,4 @@ void settings_file_print(settings_file_t *sf);
 int settings_file_num_settings(settings_file_t *sf);
 const char* settings_file_get_key_by_index(settings_file_t *sf, size_t index);
 
-#endif /* TESTS_SETTINGS_FILE_SETTINGS_H_ */
+#endif /* SETTINGS_FILE_SETTINGS_H_ */
