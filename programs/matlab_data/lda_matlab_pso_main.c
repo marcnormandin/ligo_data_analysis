@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 
 	settings_file_close(settings_file);
 
-	detector_network_t *net = Detector_Network_load( arg_detector_mapping_file );
+	detector_network_t *net = Detector_Network_load( arg_detector_mapping_file, f_low, f_high );
 	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( arg_detector_mapping_file );
 
 	size_t num_time_samples = hdf5_get_num_time_samples( dmap->data_filenames[0] );

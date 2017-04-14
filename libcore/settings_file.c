@@ -7,8 +7,13 @@
 #include "settings_file.h"
 
 setting_t* read_setting(settings_file_t* sf) {
+	assert(sf);
+
 	char key[SETTING_MAX_KEY_SIZE];
 	char val[SETTING_MAX_VAL_SIZE];
+	memset(key, '\0', SETTING_MAX_KEY_SIZE *sizeof(char));
+	memset(val, '\0', SETTING_MAX_VAL_SIZE *sizeof(char));
+
 	setting_t *s;
 	int r;
 

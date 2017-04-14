@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
 
 
 	/* Initialize the detector network based on the detector mappings file. */
-	detector_network_t *net = Detector_Network_load(arg_detector_mappings_file);
+	detector_network_t *net = Detector_Network_load(arg_detector_mappings_file, f_low, f_high);
 
 	/* For each detector, read in the PSD from file, and compute interpolated ASD for the analysis. */
 	for (i = 0; i < net->num_detectors; i++) {

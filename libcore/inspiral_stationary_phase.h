@@ -34,7 +34,7 @@ stationary_phase_t* SP_malloc(size_t size);
 
 void SP_free(stationary_phase_t *sp);
 
-double SP_g(double f_low, double f_high, asd_t *asd, stationary_phase_workspace_t *lookup);
+double SP_normalization_factor(double f_low, double f_high, asd_t *asd, stationary_phase_workspace_t *lookup);
 
 void SP_compute(double coalesce_phase, double time_delay,
 		inspiral_chirp_time_t *chirp, asd_t *asd,

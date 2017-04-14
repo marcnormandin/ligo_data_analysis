@@ -17,6 +17,6 @@ void Detector_Network_free(detector_network_t* net);
 
 void Detector_Network_print(detector_network_t* net);
 
-detector_network_t* Detector_Network_load( const char* detector_mapping_file );
+detector_network_t* Detector_Network_load( const char* detector_mapping_file, double f_low, double f_high );
 
 #endif /* SRC_C_DETECTOR_NETWORK_H_ */

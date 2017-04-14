@@ -42,8 +42,8 @@ void SP_save(char* filename, asd_t* asd, stationary_phase_t* sp) {
 	fclose(file);
 }
 
-/* whitening normalization factor */
-double SP_g(double f_low, double f_high, asd_t* asd, stationary_phase_workspace_t *lookup) {
+/* whitening normalization factor for inner product */
+double SP_normalization_factor(double f_low, double f_high, asd_t* asd, stationary_phase_workspace_t *lookup) {
 	size_t i;
 	double sum;
 
@@ -63,31 +63,6 @@ double SP_g(double f_low, double f_high, asd_t* asd, stationary_phase_workspace_
 
 	return sqrt(sum);
 }
-
-/*
-double SP_g_OLD(double f_low, double f_high, chirp_time_t* chirp, asd_t* asd, stationary_phase_lookup_t *lookup) {
-	size_t i;
-	double sum_tempval;
-
-	for (i = 0; i < asd->len; i++) {
-		double f = asd->f[i];
-		double s = asd->asd[i];
-
-		if (f > f_low && f < f_high) {
-			lookup->g_tempval[i] = pow(f, -7.0 / 3.0) / gsl_pow_2(s);
-		} else {
-			lookup->g_tempval[i] = 1.0;
-		}
-	}
-
-	sum_tempval = 0.0;
-	for (i = 0; i < asd->len; i++) {
-		sum_tempval += lookup->g_tempval[i];
-	}
-
-	return sqrt(sum_tempval);
-}
-*/
 
 stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, asd_t *asd) {
 	size_t i;

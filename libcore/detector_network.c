@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,7 +44,7 @@ void Detector_Network_print(detector_network_t* net) {
 	}
 }
 
-detector_network_t* Detector_Network_load( const char* detector_mapping_file ) {
+detector_network_t* Detector_Network_load( const char* detector_mapping_file, double f_low, double f_high ) {
 	size_t i, j;
 
 	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( detector_mapping_file );
@@ -83,8 +84,43 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file ) {
 		gsl_interp_accel_free(acc);
 		gsl_interp_free(interp);
 
+		/* Flatten the ends */
+		/* Find the f_low index */
+		size_t f_low_index = -1;
+		for (j = 0; j < psd->len; j++) {
+			if (psd->f[j] >= f_low) {
+				f_low_index = j;
+				break;
+			}
+		}
+		assert(f_low_index != -1);
+
+		size_t f_high_index = -1;
+		for (j = 0; j < psd->len; j++) {
+			if (psd->f[j] >= f_high) {
+				f_high_index = j;
+				break;
+			}
+		}
+		assert(f_high_index != -1);
+
+		for (j = 0; j < psd->len; j++) {
+			if (j <= f_low_index) {
+				psd->psd[j] = psd->psd[f_low_index];
+			} else if (j >= f_high_index) {
+				psd->psd[j] = psd->psd[f_high_index];
+			}
+		}
+
 		detector_t *det = net->detector[i];
 		Detector_init_name( dmap->detector_names[i], psd, det);
+
+		char buff[255];
+		memset(buff, '\0', 255 * sizeof(char));
+		sprintf(buff, "%s.diag", det->name);
+		hdf5_create_file(buff);
+		PSD_save(buff, det->psd);
+		ASD_save(buff, det->asd);
 	}
 
 	printf("GW Detector network created: ");

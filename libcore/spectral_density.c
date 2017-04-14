@@ -110,3 +110,10 @@ void PSD_save( const char *hdf_filename, psd_t *psd ) {
 	hdf5_save_array( hdf_filename, "/psd", "PSD", psd->len, psd->psd );
 	hdf5_save_array( hdf_filename, "/psd", "Freq", psd->len, psd->f );
 }
+
+void ASD_save( const char *hdf_filename, asd_t *asd) {
+	hdf5_create_group(hdf_filename, "/asd");
+
+	hdf5_save_array( hdf_filename, "/asd", "ASD", asd->len, asd->asd );
+	hdf5_save_array( hdf_filename, "/asd", "Freq", asd->len, asd->f );
+}

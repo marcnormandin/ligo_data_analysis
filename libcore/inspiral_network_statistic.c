@@ -87,7 +87,7 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 
 	work->normalization_factors = (double*) malloc( net->num_detectors * sizeof(double) );
 	for (i = 0; i < net->num_detectors; i++) {
-		work->normalization_factors[i] = SP_g(f_low, f_high, net->detector[i]->asd, work->sp_lookup);
+		work->normalization_factors[i] = SP_normalization_factor(f_low, f_high, net->detector[i]->asd, work->sp_lookup);
 	}
 
 	return work;

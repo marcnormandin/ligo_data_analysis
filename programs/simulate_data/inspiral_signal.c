@@ -59,7 +59,7 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 	double td;
 	Detector_time_delay(det, &source->sky, &td);
 
-	double normalization_factor = SP_g(f_low, f_high, det->asd, sp_lookup);
+	double normalization_factor = SP_normalization_factor(f_low, f_high, det->asd, sp_lookup);
 
 	SP_compute(source->coalesce_phase, td,
 			&chirp.ct, det->asd,

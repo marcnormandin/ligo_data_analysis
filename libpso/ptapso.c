@@ -107,8 +107,7 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 			particleInfoDump(psoParams->debugDumpFile,pop,popsize);
 		}		
         /* Calculate fitness values */
-		# pragma omp parallel
-		# pragma omp for
+		#pragma omp parallel for
 		for (lpParticles = 0; lpParticles < popsize; lpParticles++){
 			/* Evaluate fitness */
 			pop[lpParticles].partSnrCurr = fitfunc(pop[lpParticles].partCoord,ffParams);
@@ -126,6 +125,8 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 			/* Update pbest fitness and coordinates if needed */
 	        if (pop[lpParticles].partSnrPbest > pop[lpParticles].partSnrCurr){
 	            pop[lpParticles].partSnrPbest = pop[lpParticles].partSnrCurr;
+
+	            /* This is causing a segfault using openmp */
 	            gsl_vector_memcpy(pop[lpParticles].partPbest,pop[lpParticles].partCoord);
 	        }
 	    }
