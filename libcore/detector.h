@@ -9,13 +9,15 @@
 
 #include "spectral_density.h"
 
+#define DETECTOR_MAX_NAME_LENGTH 255
+
 /**
  * Detector identification.
  *
  * Each ID is mapped to unique detector properties such as location, and detector tensor.
  */
 typedef enum {
-	L1, /**< enum LIGO Livingston */
+	L1 = 0, /**< enum LIGO Livingston */
 	H1, /**< enum LIGO Hanford */
 	H2, /**< enum LIGO Hanford (dismantled) */
 	V1, /**< enum Virgo */
@@ -31,7 +33,7 @@ typedef enum {
 typedef struct detector_s {
 	DETECTOR_ID id; 				/**< Detector ID */
 
-	char name[255]; 				/**< Detector name */
+	char name[DETECTOR_MAX_NAME_LENGTH]; 				/**< Detector name */
 
 	gsl_vector *location; 			/**< Position vector of detector arm vertex */
 
@@ -52,8 +54,6 @@ void Detector_free(detector_t *d);
 
 void Detector_init(DETECTOR_ID name, psd_t *psd, detector_t *d);
 void Detector_init_name( char *name, psd_t *psd, detector_t *d);
-
-void Detector_print(detector_t* det);
 
 const char* Detector_id_to_name(DETECTOR_ID id);
 

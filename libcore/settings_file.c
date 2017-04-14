@@ -7,7 +7,7 @@
 #include "settings_file.h"
 
 setting_t* read_setting(settings_file_t* sf) {
-	assert(sf);
+	assert(sf != NULL);
 
 	char key[SETTING_MAX_KEY_SIZE];
 	char val[SETTING_MAX_VAL_SIZE];
@@ -29,6 +29,10 @@ setting_t* read_setting(settings_file_t* sf) {
 	}
 
 	s = (setting_t*) malloc(sizeof(setting_t));
+	if (s == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for setting in read_setting(). Exiting.\n");
+		exit(-1);
+	}
 
 	strncpy(s->key, key, SETTING_MAX_KEY_SIZE);
 	strncpy(s->val, val, SETTING_MAX_VAL_SIZE);
@@ -38,6 +42,9 @@ setting_t* read_setting(settings_file_t* sf) {
 }
 
 void add_setting(settings_file_t *sf, setting_t *s) {
+	assert(sf != NULL);
+	assert(s != NULL);
+
 	setting_t *current;
 	current = sf->first;
 	if (current == NULL) {
@@ -53,6 +60,8 @@ void add_setting(settings_file_t *sf, setting_t *s) {
 }
 
 void read_file(settings_file_t* sf) {
+	assert(sf != NULL);
+
 	setting_t *s;
 	assert(sf);
 
@@ -62,6 +71,8 @@ void read_file(settings_file_t* sf) {
 }
 
 settings_file_t* settings_file_open(const char *filename) {
+	assert(filename != NULL);
+
 	FILE *fid;
 	settings_file_t *sf;
 
@@ -69,14 +80,19 @@ settings_file_t* settings_file_open(const char *filename) {
 
 	fid = fopen(filename, "r");
 	if (fid == NULL) {
-		printf("Error: Unable to open the settings file (%s) for reading.\n", filename);
-		return NULL;
+		fprintf(stderr, "Error: Unable to open the settings file (%s) for reading. Exiting.\n", filename);
+		exit(-1);
 	}
 
 	sf = (settings_file_t*) malloc(sizeof(settings_file_t));
+	if (sf == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for settings_file_t. Exiting.\n");
+		exit(-1);
+	}
 	sf->fid = fid;
 	sf->first = NULL;
 
+	/* fixme */
 	size_t n = strnlen(filename, 254);
 	sf->fname = (char*) malloc( (n+1) * sizeof(char));
 	memset(sf->fname, '\0', (n+1) * sizeof(char));
@@ -88,7 +104,8 @@ settings_file_t* settings_file_open(const char *filename) {
 }
 
 void settings_file_close(settings_file_t* sf) {
-	assert(sf);
+	assert(sf != NULL);
+
 	setting_t *current, *next;
 
 	if (sf->fid != NULL) {
@@ -100,12 +117,18 @@ void settings_file_close(settings_file_t* sf) {
 		}
 		fclose(sf->fid);
 	}
+
+	assert(sf->fname != NULL);
 	free(sf->fname);
+	sf->fname = NULL;
+
 	free(sf);
-	sf = NULL;
 }
 
 const char* settings_file_get_value(settings_file_t *sf, const char *key) {
+	assert(sf != NULL);
+	assert(key != NULL);
+
 	setting_t *current;
 	current = sf->first;
 	while (current != NULL) {
@@ -118,8 +141,9 @@ const char* settings_file_get_value(settings_file_t *sf, const char *key) {
 }
 
 void settings_file_print(settings_file_t *sf) {
+	assert(sf != NULL);
+
 	setting_t *current;
-	assert(sf);
 	current = sf->first;
 	while (current != NULL) {
 		printf("%s: %s\n", current->key, current->val);
@@ -128,6 +152,8 @@ void settings_file_print(settings_file_t *sf) {
 }
 
 int settings_file_num_settings(settings_file_t *sf) {
+	assert(sf != NULL);
+
 	setting_t *current;
 	int count;
 
@@ -146,6 +172,8 @@ int settings_file_num_settings(settings_file_t *sf) {
 }
 
 const char* settings_file_get_key_by_index(settings_file_t *sf, size_t index) {
+	assert(sf != NULL);
+
 	setting_t *current;
 	int i;
 
@@ -161,6 +189,6 @@ const char* settings_file_get_key_by_index(settings_file_t *sf, size_t index) {
 		i++;
 	}
 
-	fprintf(stderr, "Error: Attempt to return an invalid index.\n");
-	abort();
+	fprintf(stderr, "Error: Attempt to return an invalid index. Exiting.\n");
+	exit(-1);
 }

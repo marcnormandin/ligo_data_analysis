@@ -10,8 +10,8 @@
 strain_half_fft_t* strain_half_fft_alloc(size_t num_time_samples) {
 	strain_half_fft_t *signal = (strain_half_fft_t*) malloc( sizeof(strain_half_fft_t) );
 	if (signal == NULL) {
-		fprintf(stderr, "Error. Unable to allocate memory for strain_half_fft_t. Aborting.\n");
-		abort();
+		fprintf(stderr, "Error. Unable to allocate memory for strain_half_fft_t. Exiting.\n");
+		exit(-1);
 	}
 
 	signal->full_len = num_time_samples;
@@ -19,8 +19,8 @@ strain_half_fft_t* strain_half_fft_alloc(size_t num_time_samples) {
 
 	signal->half_fft = (gsl_complex*) malloc( signal->half_fft_len * sizeof(gsl_complex) );
 	if (signal->half_fft == NULL) {
-		fprintf(stderr, "Error. Unable to allocate memory for strain_half_fft_t.half_fft. Aborting.\n");
-		abort();
+		fprintf(stderr, "Error. Unable to allocate memory for strain_half_fft_t.half_fft. Exiting.\n");
+		exit(-1);
 	}
 
 	return signal;
@@ -38,8 +38,8 @@ network_strain_half_fft_t* network_strain_half_fft_alloc(size_t num_strains, siz
 
 	network_strain_half_fft_t *network_strain = (network_strain_half_fft_t*) malloc( sizeof(network_strain_half_fft_t) );
 	if (network_strain == NULL) {
-		fprintf(stderr, "Error. Unable to allocate memory for network_strain_half_fft. Aborting.\n");
-		abort();
+		fprintf(stderr, "Error. Unable to allocate memory for network_strain_half_fft. Exiting.\n");
+		exit(-1);
 	}
 
 	network_strain->num_strains = num_strains;
@@ -47,7 +47,7 @@ network_strain_half_fft_t* network_strain_half_fft_alloc(size_t num_strains, siz
 
 	network_strain->strains = (strain_half_fft_t**) malloc( network_strain->num_strains * sizeof(strain_half_fft_t*) );
 	if (network_strain->strains == NULL) {
-		fprintf(stderr, "Error. Unable to allocate memory for the network_strain_half_fft.strains. Aborting.\n");
+		fprintf(stderr, "Error. Unable to allocate memory for the network_strain_half_fft.strains. Exiting.\n");
 	}
 
 	for (i = 0; i < network_strain->num_strains; i++) {

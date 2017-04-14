@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -32,6 +33,8 @@ const char* Detector_id_to_name(DETECTOR_ID id) {
 }
 
 DETECTOR_ID Detector_name_to_id(const char* name) {
+	assert(name != NULL);
+
 	if (strcmp(name, "L1") == 0) {
 		return L1;
 	} else if (strcmp(name, "H1") == 0) {
@@ -47,24 +50,25 @@ DETECTOR_ID Detector_name_to_id(const char* name) {
 	} else if (strcmp(name, "T1") == 0) {
 		return T1;
 	} else {
-		fprintf(stderr, "Error: Invalid detector name (%s). Can not convert to DETECTOR_ID.\n", name);
-		abort();
+		fprintf(stderr, "Error: Invalid detector name (%s). Can not convert to DETECTOR_ID. Exiting.\n", name);
+		exit(-1);
 	}
-}
-
-void Detector_print(detector_t* det) {
-	printf("DETECTOR:\n");
 }
 
 detector_t* Detector_alloc() {
 	detector_t *d = (detector_t*) malloc( sizeof(detector_t) );
+	if (d == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for the detector structure. Exiting.\n");
+		exit(-1);
+	}
+
 	d->location = gsl_vector_alloc(3);
 	d->arm_x = gsl_vector_alloc(3);
 	d->arm_y = gsl_vector_alloc(3);
 	d->detector_tensor = gsl_matrix_alloc(3,3);
 	d->asd = NULL;
 	d->psd = NULL;
-	memset(d->name, '\0', 255*sizeof(char));
+	memset(d->name, '\0', DETECTOR_MAX_NAME_LENGTH*sizeof(char));
 	return d;
 }
 
@@ -80,10 +84,13 @@ void Detector_free(detector_t *d) {
 }
 
 void Detector_init(DETECTOR_ID id, psd_t *psd, detector_t *d) {
+	assert(psd != NULL);
+	assert(d != NULL);
+
 	d->id = id;
 
 	const char* name = Detector_id_to_name(id);
-	memcpy(d->name, name, (strnlen(name, 254)+1) * sizeof(char));
+	memcpy(d->name, name, (strnlen(name, DETECTOR_MAX_NAME_LENGTH-1)+1) * sizeof(char));
 
 	asd_t *asd = ASD_malloc( psd->len );
 	ASD_init_from_psd( psd, asd );
@@ -97,8 +104,8 @@ void Detector_init(DETECTOR_ID id, psd_t *psd, detector_t *d) {
 	case K1: Detector_init_K1(asd, psd, d); break;
 	case T1: Detector_init_T1(asd, psd, d); break;
 	default:
-		printf("ERROR: Invalid detector name. Can not initialize.\n");
-		abort();
+		fprintf(stderr, "ERROR: Invalid detector name. Can not initialize detector structure. Exiting.\n");
+		exit(-1);
 	}
 }
 

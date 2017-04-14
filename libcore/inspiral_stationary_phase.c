@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,9 +14,25 @@ stationary_phase_t* SP_malloc(size_t size) {
 	size_t i;
 
 	stationary_phase_t* sp = (stationary_phase_t*) malloc( sizeof(stationary_phase_t) );
+	if (sp == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_malloc. Exiting.\n");
+		exit(-1);
+	}
+
+	/* common length of the arrays. */
 	sp->len = size;
+
 	sp->spa_0 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
+	if (sp->spa_0 == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_malloc. Exiting.\n");
+		exit(-1);
+	}
+
 	sp->spa_90 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
+	if (sp->spa_90 == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_malloc. Exiting.\n");
+		exit(-1);
+	}
 
 	for (i = 0; i < size; i++) {
 		sp->spa_0[i] = gsl_complex_rect(0.0, 0.0);
@@ -26,24 +43,45 @@ stationary_phase_t* SP_malloc(size_t size) {
 }
 
 void SP_free(stationary_phase_t* sp) {
+	assert(sp != NULL);
+
+	assert(sp->spa_0);
 	free(sp->spa_0);
+	sp->spa_0 = NULL;
+
+	assert(sp->spa_90);
 	free(sp->spa_90);
+	sp->spa_90 = NULL;
+
 	free(sp);
 }
 
 void SP_save(char* filename, asd_t* asd, stationary_phase_t* sp) {
+	assert(filename != NULL);
+	assert(asd != NULL);
+	assert(sp != NULL);
+
 	FILE* file;
 	size_t i;
 
 	file = fopen(filename, "w");
+	if (file == NULL) {
+		fprintf(stderr, "Error. Unable to open file (%s) for writing in SP_save. Exiting.\n", filename);
+		exit(-1);
+	}
+
 	for (i = 0; i < sp->len; i++) {
 		fprintf(file, "%e %e %e\n", asd->asd[i], GSL_REAL(sp->spa_0[i]), GSL_REAL(sp->spa_90[i]));
 	}
+
 	fclose(file);
 }
 
 /* whitening normalization factor for inner product */
 double SP_normalization_factor(double f_low, double f_high, asd_t* asd, stationary_phase_workspace_t *lookup) {
+	assert(asd != NULL);
+	assert(lookup != NULL);
+
 	size_t i;
 	double sum;
 
@@ -59,18 +97,29 @@ double SP_normalization_factor(double f_low, double f_high, asd_t* asd, stationa
 		sum  += pow(f, -7.0 / 3.0) / gsl_pow_2(s);
 	}
 
-	fprintf(stderr, "g = %0.21e\n", sqrt(sum));
+	//fprintf(stderr, "g = %0.21e\n", sqrt(sum));
 
 	return sqrt(sum);
 }
 
 stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, asd_t *asd) {
+	assert(asd != NULL);
+
 	size_t i;
 
 	stationary_phase_workspace_t *lookup = (stationary_phase_workspace_t*) malloc( sizeof(stationary_phase_workspace_t) );
+	if (lookup == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
 
 	lookup->f_low = f_low;
 	lookup->f_high = f_high;
+
+	if (lookup->f_low >= lookup->f_high) {
+		fprintf(stderr, "Error. f_low (%f) >= f_high(%f). Exiting.\n", lookup->f_low, lookup->f_high);
+		exit(-1);
+	}
 
 	int index_found = 0;
 	for (i = 0; i < asd->len; i++) {
@@ -98,33 +147,98 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, as
 		abort();
 	}
 
+	/* Make sure the indices make sense. */
+	if (lookup->f_low_index >= lookup->f_high_index) {
+		fprintf(stderr, "Error. f_low_index (%lu) >= f_high_index (%lu). Exiting.\n",
+				lookup->f_low_index, lookup->f_high_index);
+		exit(-1);
+	}
+
 	lookup->len = lookup->f_high_index - lookup->f_low_index + 1;
 
 	lookup->g_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->g_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->chirp_tc_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->chirp_tc_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->coalesce_phase_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->coalesce_phase_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->chirp_time_0_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->chirp_time_0_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->chirp_time_1_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->chirp_time_1_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->chirp_time1_5_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->chirp_time1_5_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	lookup->chirp_time2_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->chirp_time2_coeff == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
+		exit(-1);
+	}
 
 	return lookup;
 }
 
 void SP_workspace_free( stationary_phase_workspace_t *lookup) {
+	assert(lookup != NULL);
+
+	assert(lookup->g_coeff != NULL);
 	free(lookup->g_coeff);
+	lookup->g_coeff = NULL;
+
+	assert(lookup->chirp_tc_coeff != NULL);
 	free(lookup->chirp_tc_coeff);
+	lookup->chirp_tc_coeff = NULL;
+
+	assert(lookup->coalesce_phase_coeff != NULL);
 	free(lookup->coalesce_phase_coeff);
+	lookup->coalesce_phase_coeff = NULL;
+
+	assert(lookup->chirp_time_0_coeff != NULL);
 	free(lookup->chirp_time_0_coeff);
+	lookup->chirp_time_0_coeff = NULL;
+
+	assert(lookup->chirp_time_1_coeff != NULL);
 	free(lookup->chirp_time_1_coeff);
+	lookup->chirp_time_1_coeff = NULL;
+
+	assert(lookup->chirp_time1_5_coeff != NULL);
 	free(lookup->chirp_time1_5_coeff);
+	lookup->chirp_time1_5_coeff = NULL;
+
+	assert(lookup->chirp_time2_coeff != NULL);
 	free(lookup->chirp_time2_coeff);
+	lookup->chirp_time2_coeff = NULL;
 
 	free(lookup);
-	lookup = NULL;
 }
 
 void SP_workspace_init(double f_low, double f_high, asd_t *asd, stationary_phase_workspace_t *lookup) {
+	assert(asd != NULL);
+	assert(lookup != NULL);
+
 	size_t i, j;
 
 	for (i = lookup->f_low_index, j = 0; i <= lookup->f_high_index; i++, j++) {
@@ -148,6 +262,11 @@ void SP_compute(double coalesce_phase, double time_delay,
 		stationary_phase_workspace_t *lookup,
 		stationary_phase_t *out_sp)
 {
+	assert(chirp != NULL);
+	assert(asd != NULL);
+	assert(lookup != NULL);
+	assert(out_sp != NULL);
+
 	size_t i;
 
 	for (i = 0; i < lookup->len; i++) {

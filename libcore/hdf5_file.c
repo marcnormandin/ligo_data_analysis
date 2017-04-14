@@ -10,16 +10,21 @@
 #include "hdf5_file.h"
 
 void hdf5_create_file( const char* hdf_filename ) {
+	assert(hdf_filename != NULL);
+
 	hid_t file_id = H5Fcreate( hdf_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 	if (file_id < 0) {
 		fprintf(stderr, "Error. Unable to create the HDF5 file (%s). Aborting.\n",
 				hdf_filename);
-		abort();
+		exit(-1);
 	}
 	H5Fclose(file_id);
 }
 
 size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* dataset_name ) {
+	assert(hdf_filename != NULL);
+	assert(dataset_name != NULL);
+
 	hid_t file_id, dataset_id, dspace_id;
 	herr_t status;
 
@@ -34,7 +39,7 @@ size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* data
 	if (dataset_id < 0) {
 		fprintf(stderr, "Error opening the dataset (%s) from the file (%s). Aborting.\n",
 				dataset_name, hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	/* Get the length of the dataset */
@@ -50,6 +55,8 @@ size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* data
 
 
 size_t hdf5_get_num_strains( const char* hdf_filename ) {
+	assert(hdf_filename != NULL);
+
 	hid_t file_id, dataset_id, dspace_id;
 	herr_t status;
 
@@ -58,7 +65,7 @@ size_t hdf5_get_num_strains( const char* hdf_filename ) {
 	if (file_id < 0) {
 		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
 				hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	/* Read the attribute */
@@ -68,7 +75,7 @@ size_t hdf5_get_num_strains( const char* hdf_filename ) {
 	if (status < 0) {
 		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
 				attribute_name, hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Fclose(file_id);
@@ -78,6 +85,7 @@ size_t hdf5_get_num_strains( const char* hdf_filename ) {
 
 double hdf5_get_sampling_frequency( const char* hdf_filename )
 {
+	assert(hdf_filename != NULL);
 	hid_t file_id, dataset_id, dspace_id;
 	herr_t status;
 
@@ -86,7 +94,7 @@ double hdf5_get_sampling_frequency( const char* hdf_filename )
 	if (file_id < 0) {
 		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
 				hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	/* Read the attribute */
@@ -96,7 +104,7 @@ double hdf5_get_sampling_frequency( const char* hdf_filename )
 	if (status < 0) {
 		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
 				attribute_name, hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Fclose(file_id);
@@ -105,6 +113,8 @@ double hdf5_get_sampling_frequency( const char* hdf_filename )
 }
 
 size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
+	assert(hdf_filename != NULL);
+
 	hid_t file_id, dataset_id, dspace_id;
 	herr_t status;
 
@@ -113,7 +123,7 @@ size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 	if (file_id < 0) {
 		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
 				hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	/* Read the attribute */
@@ -123,7 +133,7 @@ size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 	if (status < 0) {
 		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
 				attribute_name, hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Fclose(file_id);
@@ -132,26 +142,33 @@ size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 }
 
 void hdf5_load_array( const char *hdf_filename, const char *dataset_name, double *data) {
+	assert(hdf_filename != NULL);
+	assert(dataset_name != NULL);
+	assert(data != NULL);
+
 	hid_t file_id;
 	herr_t status;
 
 	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT );
 	if (file_id < 0) {
 		fprintf(stderr, "Error: Unable to open the HDF5 file (%s). Aborting.\n", hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	status = H5LTread_dataset_double( file_id, dataset_name, data );
 	if (status < 0) {
 		fprintf(stderr, "Error reading the dataset (%s) from the file (%s). Aborting.\n",
 				dataset_name, hdf_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Fclose( file_id );
 }
 
 void hdf5_create_group(const char *hdf5_filename, const char* group_name) {
+	assert(hdf5_filename != NULL);
+	assert(group_name != NULL);
+
 	hid_t file_id, group_id;
 	herr_t status;
 
@@ -159,14 +176,14 @@ void hdf5_create_group(const char *hdf5_filename, const char* group_name) {
 	if (file_id < 0) {
 		fprintf(stderr, "Error opening (%s) to create the group (%s). Aborting.\n",
 				hdf5_filename, group_name);
-		abort();
+		exit(-1);
 	}
 
 	group_id = H5Gcreate( file_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 	if (group_id < 0) {
 		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
 				group_name, hdf5_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Gclose(group_id);
@@ -174,6 +191,11 @@ void hdf5_create_group(const char *hdf5_filename, const char* group_name) {
 }
 
 void hdf5_save_array(const char *hdf5_filename, const char* group_name, const char *array_name, size_t len, double *array) {
+	assert(hdf5_filename != NULL);
+	assert(group_name != NULL);
+	assert(array_name != NULL);
+	assert(array != NULL);
+
 	hid_t file_id, group_id;
 	herr_t status;
 
@@ -181,14 +203,14 @@ void hdf5_save_array(const char *hdf5_filename, const char* group_name, const ch
 	if (file_id < 0) {
 		fprintf(stderr, "Error opening (%s) to create the group (%s). Aborting.\n",
 				hdf5_filename, group_name);
-		abort();
+		exit(-1);
 	}
 
 	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT);
 	if (group_id < 0) {
 		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
 				group_name, hdf5_filename);
-		abort();
+		exit(-1);
 	}
 
 	hsize_t dims[1];
@@ -197,7 +219,7 @@ void hdf5_save_array(const char *hdf5_filename, const char* group_name, const ch
 	if (status < 0) {
 		fprintf(stderr, "Error saving the dataset (//%s//%s) to the hdf5 file (%s). Aborting.\n",
 				group_name, array_name, hdf5_filename);
-		abort();
+		exit(-1);
 	}
 
 	H5Gclose(group_id);

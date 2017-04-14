@@ -36,19 +36,24 @@ size_t SS_half_size(size_t N_full) {
 
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided) {
+	assert(one_sided != NULL);
+	assert(two_sided != NULL);
+	assert(M <= N);
+	assert(one_sided != two_sided);
+
 	size_t m, n;
 
 	/* Check that the dimensions make sense */
 	if (GSL_IS_ODD(N) && M != (N+1)/2) {
 		/* error */
-		printf("SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu).\n",
+		fprintf(stderr, "Error. SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu). Exiting.\n",
 				M, N);
-		abort();
+		exit(-1);
 	} else if (GSL_IS_EVEN(N) && M != (N/2 + 1)) {
 		/* error */
-		printf("SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu).\n",
+		fprintf(stderr, "Error. SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu). Exiting.\n",
 						M, N);
-		abort();
+		exit(-1);
 	}
 
 	/* copy the left side */
@@ -70,6 +75,8 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 
 void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies)
 {
+	assert(frequencies != NULL);
+
 	size_t i;
 	double delta_f = samplingFrequency / (1.0*num_total_samples);
 	for (i = 0; i < num_desired_freq_samples; i++) {
@@ -79,6 +86,8 @@ void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size
 
 void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, double *times)
 {
+	assert(times != NULL);
+
 	size_t i;
 	double Ts = 1.0 / samplingFrequency;
 	for (i = 0; i < num_desired_time_samples; i++) {

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include <memory.h>
 #include <stdio.h>
@@ -21,29 +22,62 @@ coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples) {
 	coherent_network_helper_t *h;
 
 	h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
-
-	/*fprintf(stderr, "c_plus and c_plus have a length of: %d\n", s);*/
+	if (h == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for coherent_network_helper_t. Exiting.\n");
+		exit(-1);
+	}
 
 	h->c_plus = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
+	if (h->c_plus == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for h->c_plus. Exiting.\n");
+		exit(-1);
+	}
+
 	h->c_minus = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
+	if (h->c_minus == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for h->c_minus. Exiting.\n");
+		exit(-1);
+	}
+
 	return h;
 }
 
 void CN_helper_free( coherent_network_helper_t* helper) {
+	assert(helper != NULL);
+
+	assert(helper->c_plus != NULL);
 	free(helper->c_plus);
+	helper->c_plus = NULL;
+
+	assert(helper->c_minus != NULL);
 	free(helper->c_minus);
+	helper->c_minus = NULL;
+
 	free(helper);
 }
 
 coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
 		double f_low, double f_high) {
+	assert(net != NULL);
+
 	coherent_network_workspace_t * work;
 	size_t i;
 
 	work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
+	if (work == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	work->num_time_samples = num_time_samples;
 	work->num_helpers = net->num_detectors;
+
 	work->helpers = (coherent_network_helper_t**) malloc( work->num_helpers * sizeof(coherent_network_helper_t*));
+	if (work->helpers == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	for (i = 0; i < work->num_helpers; i++) {
 		work->helpers[i] = CN_helper_malloc( num_time_samples );
 	}
@@ -57,35 +91,62 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 	work->sp = SP_malloc( num_half_freq );
 
 	work->temp_array = (gsl_complex*) malloc( num_half_freq * sizeof(gsl_complex) );
+	if (work->temp_array == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	for (i = 0; i < num_half_freq; i++) {
 		work->temp_array[i] = gsl_complex_rect(0.0, 0.0);
 	}
 
 	work->terms = (gsl_complex**) malloc(4 * sizeof(gsl_complex*) );
-
-	/*fprintf(stderr, "len_terms has a length of: %d\n", len_terms);*/
-
+	if (work->terms == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
 	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
 	}
 
 	work->fs = (double**) malloc( 4 * sizeof(double*) );
+	if (work->fs == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
+
 	for (i = 0; i < 4; i++) {
 		work->fs[i] = (double*) malloc( 2 * num_time_samples * sizeof(double) );
+		if (work->fs[i] == NULL) {
+			fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+			exit(-1);
+		}
 	}
 
 	work->temp_ifft = (double*) malloc( num_time_samples * sizeof(double) );
-
-	/*fprintf(stderr, "temp_ifft has a length of: %d\n", s);*/
+	if (work->temp_ifft == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
 
 	work->fft_wavetable = gsl_fft_complex_wavetable_alloc( num_time_samples );
 	work->fft_workspace = gsl_fft_complex_workspace_alloc( num_time_samples );
 
 	work->ap_workspace = Detector_Antenna_Patterns_workspace_alloc();
+
 	/* one antenna pattern structure per detector */
 	work->ap = (detector_antenna_patterns_t*) malloc (net->num_detectors * sizeof(detector_antenna_patterns_t) );
+	if (work->ap == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
 
+	/* Each detector has a normalization factor for the stationary phase inner product. */
 	work->normalization_factors = (double*) malloc( net->num_detectors * sizeof(double) );
+	if (work->normalization_factors == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory: CN_workspace_malloc(). Exiting.\n");
+		exit(-1);
+	}
 	for (i = 0; i < net->num_detectors; i++) {
 		work->normalization_factors[i] = SP_normalization_factor(f_low, f_high, net->detector[i]->asd, work->sp_lookup);
 	}
@@ -94,37 +155,69 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 }
 
 void CN_workspace_free( coherent_network_workspace_t *workspace ) {
+	assert(workspace != NULL);
+
 	size_t i;
 
 	for (i = 0; i < workspace->num_helpers; i++) {
 		CN_helper_free( workspace->helpers[i] );
+		workspace->helpers[i] = NULL;
 	}
 	free(workspace->helpers);
+	workspace->helpers = NULL;
 
 	SP_workspace_free(workspace->sp_lookup);
+	workspace->sp_lookup = NULL;
+
 	SP_free(workspace->sp);
+	workspace->sp = NULL;
 
 	for (i = 0; i < 4; i++) {
 		free(workspace->terms[i]);
+		workspace->terms[i] = NULL;
+
 		free(workspace->fs[i]);
+		workspace->fs[i] = NULL;
 	}
 
 	free(workspace->terms);
+	workspace->terms = NULL;
+
 	free(workspace->fs);
+	workspace->fs = NULL;
+
 	free(workspace->temp_ifft);
+	workspace->temp_ifft = NULL;
+
 	free(workspace->temp_array);
+	workspace->temp_array = NULL;
+
 	gsl_fft_complex_workspace_free( workspace->fft_workspace );
+	workspace->fft_workspace = NULL;
+
 	gsl_fft_complex_wavetable_free( workspace->fft_wavetable );
+	workspace->fft_wavetable = NULL;
 
 	Detector_Antenna_Patterns_workspace_free(workspace->ap_workspace);
+	workspace->ap_workspace = NULL;
+
 	free(workspace->ap);
+	workspace->ap = NULL;
 
 	free(workspace->normalization_factors);
+	workspace->normalization_factors = NULL;
 
 	free( workspace );
 }
 
 void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
+	assert(sp_lookup != NULL);
+	assert(spa != NULL);
+	assert(asd != NULL);
+	assert(half_fft_data != NULL);
+	assert(temp != NULL);
+	assert(out_c != NULL);
+
 	size_t k;
 	size_t t_index;
 	size_t c_index;
@@ -140,10 +233,18 @@ void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, g
 }
 
 void CN_save(char* filename, size_t len, double* tmp_ifft) {
+	assert(filename != NULL);
+	assert(tmp_ifft != NULL);
+
 	FILE* file;
 	size_t i;
 
 	file = fopen(filename, "w");
+	if (file == NULL) {
+		fprintf(stderr, "Error. CN_save: Unable to open the file (%s) for writing. Exiting.\n", filename);
+		exit(-1);
+	}
+
 	for (i = 0; i < len; i++) {
 		fprintf(file, "%e\n", tmp_ifft[i]);
 	}
@@ -159,8 +260,15 @@ void coherent_network_statistic(
 		double polarization_angle,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
-		double *out_val)
+		double *out_network_snr)
 {
+	assert(net);
+	assert(chirp);
+	assert(sky);
+	assert(network_strain);
+	assert(workspace);
+	assert(out_network_snr);
+
 	double UdotU_input;
 	double UdotV_input;
 	double VdotV_input;
@@ -318,14 +426,7 @@ void coherent_network_statistic(
 		}
 	}
 
-	/* divide the standard deviation to convert to SNR */
-	/*double std = gsl_stats_sd(workspace->temp_ifft, 1, s);
-
-	*out_val = sqrt(max) / std;*/
-	*out_val = sqrt(max);
 	/* check, sqrt sbould behave accordding to chi */
 	/* check, use this with just noise and see if the mean is 4, std should be sqrt(8). Chi-sqre if not sqrt(max). Check 'max' dist.*/
-
-	/* *out_val = max; */
-	/* *out_val = max / std; */
+	*out_network_snr = sqrt(max);
 }

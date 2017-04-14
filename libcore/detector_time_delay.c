@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include <string.h>
 
@@ -15,6 +16,10 @@
 
 int Detector_time_delay(detector_t *d, sky_t *sky, double *td)
 {
+	assert(d != NULL);
+	assert(sky != NULL);
+	assert(td != NULL);
+
     double xifo;
     double yifo;
     double zifo;
