@@ -19,15 +19,24 @@
 #include <omp.h>
 
 pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
-		double f_low, double f_high, detector_network_t* network, network_strain_half_fft_t *network_strain) {
+		double f_low, double f_high, detector_network_t* network, network_strain_half_fft_t *network_strain)
+{
+	assert(network != NULL);
+	assert(network_strain != NULL);
+
 	size_t i;
 	pso_fitness_function_parameters_t *params = (pso_fitness_function_parameters_t*) malloc( sizeof(pso_fitness_function_parameters_t) );
 	if (params == NULL) {
-		fprintf(stderr, "Error. Unable to allocate memory for the pso_fitness_function_parameters_t. Aborting.\n");
-		abort();
+		fprintf(stderr, "Error. Unable to allocate memory for the pso_fitness_function_parameters_t. Exiting.\n");
+		exit(-1);
 	}
 
 	params->workspace = (coherent_network_workspace_t**) malloc( omp_get_max_threads() * sizeof(coherent_network_workspace_t*) );
+	if (params->workspace == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for params->workspace. Exiting.\n");
+		exit(-1);
+	}
+
 	for (i = 0; i < omp_get_max_threads(); i++) {
 		params->workspace[i] = CN_workspace_malloc(
 				network_strain->num_time_samples, network, network->detector[0]->asd->len,
@@ -39,7 +48,6 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 	params->f_high = f_high;
 	params->network = network;
 	params->network_strain = network_strain;
-	//params->workspace = workspace;
 
 	fprintf(stderr, "Number of threads: %lu\n", omp_get_max_threads());
 
@@ -47,18 +55,24 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 }
 
 void pso_fitness_function_parameters_free(pso_fitness_function_parameters_t *params) {
+	assert(params != NULL);
+
 	size_t i;
 	assert(params != NULL);
 	for (i = 0; i < omp_get_max_threads(); i++) {
 		CN_workspace_free(params->workspace[i]);
 	}
+
+	assert(params->workspace);
 	free(params->workspace);
+	params->workspace = NULL;
 
 	free(params);
-	params = NULL;
 }
 
 double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
+	assert(xVec != NULL);
+	assert(inParamsPointer != NULL);
 
 	unsigned int validPt;
     unsigned int lpc;
@@ -130,6 +144,10 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 }
 
 int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_parameters_t *splParams, gslseed_t seed, pso_result_t* result) {
+	assert(pso_settings_filename != NULL);
+	assert(splParams != NULL);
+	assert(result != NULL);
+
 	/* Estimate right-ascension and declination */
 	unsigned int nDim = 4, lpc;
 	/* [0] = RA
@@ -212,6 +230,8 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	result->dec = gsl_vector_get(inParams->realCoord[0], 1);
 	result->chirp_t0 = gsl_vector_get(inParams->realCoord[0], 2);
 	result->chirp_t1_5 = gsl_vector_get(inParams->realCoord[0], 3);
+
+	/* PSO finds minimums but we want the largest network statistic */
 	result->snr = -1.0 * psoResults->bestFitVal;
 
 	/* Free allocated memory */
