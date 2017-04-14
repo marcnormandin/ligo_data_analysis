@@ -11,4 +11,5 @@ libpso_la_SOURCES = \
 	ptapso.c \
 	ptapso.h
 
+libpso_la_LDFLAGS = -fopenmp
 libpso_la_LIBADD = ../libcore/libcore.la -lgsl -lgslcblas -lhdf5 -lhdf5_hl -lm

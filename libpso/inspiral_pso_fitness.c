@@ -16,31 +16,44 @@
 
 #include "settings_file.h"
 
+#include <omp.h>
+
 pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 		double f_low, double f_high, detector_network_t* network, network_strain_half_fft_t *network_strain) {
+	size_t i;
 	pso_fitness_function_parameters_t *params = (pso_fitness_function_parameters_t*) malloc( sizeof(pso_fitness_function_parameters_t) );
 	if (params == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory for the pso_fitness_function_parameters_t. Aborting.\n");
 		abort();
 	}
 
-	coherent_network_workspace_t *workspace = CN_workspace_malloc(
-			network_strain->num_time_samples, network, network->detector[0]->asd->len,
-			f_low, f_high);
+	params->workspace = (coherent_network_workspace_t**) malloc( omp_get_max_threads() * sizeof(coherent_network_workspace_t*) );
+	for (i = 0; i < omp_get_max_threads(); i++) {
+		params->workspace[i] = CN_workspace_malloc(
+				network_strain->num_time_samples, network, network->detector[0]->asd->len,
+				f_low, f_high);
+	}
 
 	/* Setup the parameter structure for the pso fitness function */
 	params->f_low = f_low;
 	params->f_high = f_high;
 	params->network = network;
 	params->network_strain = network_strain;
-	params->workspace = workspace;
+	//params->workspace = workspace;
+
+	fprintf(stderr, "Number of threads: %lu\n", omp_get_max_threads());
 
 	return params;
 }
 
 void pso_fitness_function_parameters_free(pso_fitness_function_parameters_t *params) {
+	size_t i;
 	assert(params != NULL);
-	CN_workspace_free(params->workspace);
+	for (i = 0; i < omp_get_max_threads(); i++) {
+		CN_workspace_free(params->workspace[i]);
+	}
+	free(params->workspace);
+
 	free(params);
 	params = NULL;
 }
@@ -63,18 +76,20 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 
 	/* This fitness function knows what fields are given in the special parameters struct */
 
-	s2rvector(xVec,inParams->rmin,inParams->rangeVec,inParams->realCoord);
+	gsl_vector *realCoord = inParams->realCoord[omp_get_thread_num()];
+
+	s2rvector(xVec,inParams->rmin,inParams->rangeVec,realCoord);
 
 	validPt = chkstdsrchrng(xVec);
 
 	if (validPt){
-		inParams->fitEvalFlag = 1;
+		inParams->fitEvalFlag[omp_get_thread_num()] = 1;
 		fitFuncVal = 0;
 
-		double ra = gsl_vector_get(inParams->realCoord, 0);
-		double dec = gsl_vector_get(inParams->realCoord, 1);
-		double chirp_time_0 = gsl_vector_get(inParams->realCoord, 2);
-		double chirp_time_1_5 = gsl_vector_get(inParams->realCoord, 3);
+		double ra = gsl_vector_get(realCoord, 0);
+		double dec = gsl_vector_get(realCoord, 1);
+		double chirp_time_0 = gsl_vector_get(realCoord, 2);
+		double chirp_time_1_5 = gsl_vector_get(realCoord, 3);
 
 		inspiral_chirp_time_t chirp_time;
 		CF_CT_compute(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
@@ -90,6 +105,8 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 		/* DANGER */
 		double polarization_angle = 0.0;
 
+		//fprintf(stderr, "About to evaluate network statistic.\n");
+
 		coherent_network_statistic(
 				splParams->network,
 				splParams->f_low,
@@ -98,7 +115,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 				&sky,
 				polarization_angle,
 				splParams->network_strain,
-				splParams->workspace,
+				splParams->workspace[omp_get_thread_num()],
 				&fitFuncVal);
 		/* The statistic is larger for better matches, but PSO is finding
 		   minimums, so multiply by -1.0. */
@@ -106,8 +123,9 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
     }
 	else{
 		fitFuncVal=GSL_POSINF;
-		inParams->fitEvalFlag = 0;
+		inParams->fitEvalFlag[omp_get_thread_num()] = 0;
 	}
+
    return fitFuncVal;
 }
 
@@ -188,11 +206,12 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
 
 	/* convert values to function ranges, instead of pso ranges */
-	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord);
-	result->ra = gsl_vector_get(inParams->realCoord, 0);
-	result->dec = gsl_vector_get(inParams->realCoord, 1);
-	result->chirp_t0 = gsl_vector_get(inParams->realCoord, 2);
-	result->chirp_t1_5 = gsl_vector_get(inParams->realCoord, 3);
+	// use the 0 index to convert the value
+	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord[0]);
+	result->ra = gsl_vector_get(inParams->realCoord[0], 0);
+	result->dec = gsl_vector_get(inParams->realCoord[0], 1);
+	result->chirp_t0 = gsl_vector_get(inParams->realCoord[0], 2);
+	result->chirp_t1_5 = gsl_vector_get(inParams->realCoord[0], 3);
 	result->snr = -1.0 * psoResults->bestFitVal;
 
 	/* Free allocated memory */

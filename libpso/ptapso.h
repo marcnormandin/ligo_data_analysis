@@ -4,6 +4,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_rng.h>
 
+typedef double (*fitness_function_ptr)(gsl_vector *, void *);
+
 /*!\file
 \brief Header file for \ref ptapso.c
 */
@@ -68,14 +70,15 @@ struct particleInfo{
    by \ref ptapso.
 */
 struct dummyFitFuncParam{
-	double (*trufuncPr)(gsl_vector *, void *);
+	//double (*trufuncPr)(gsl_vector *, void *);
+	fitness_function_ptr trufuncPr;
 	void *trufuncParam;
 };
 
 double dummyfitfunc(const gsl_vector *, void *);
 
 void ptapso(size_t, /* Dimensionality of fitness function */
-            double (*)(gsl_vector *, void *), /* Pointer to fitness function */
+            fitness_function_ptr, /* Pointer to fitness function */
 		    void *, /* Fitness function parameter structure */
 			struct psoParamStruct *, /* PSO parameters */
 			struct returnData * /* Structure containing PSO output */

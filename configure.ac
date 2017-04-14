@@ -7,8 +7,8 @@ AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 #AC_PROG_CC([mpicc])
 #AC_PROG_CXX([mpicxx])
-AC_PROG_CC([gcc])
-AC_PROG_CXX([g++])
+AC_PROG_CC([gcc-6])
+AC_PROG_CXX([g++-6])
 
 AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()

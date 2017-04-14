@@ -8,6 +8,8 @@
 #include "detector_network.h"
 #include "inspiral_network_statistic.h"
 
+#include "omp.h"
+
 typedef struct pso_result_s {
 	double ra;
 	double dec;
@@ -22,8 +24,7 @@ typedef struct pso_fitness_function_parameters_s {
 	double f_high;
 	detector_network_t *network;
 	network_strain_half_fft_t *network_strain;
-	coherent_network_workspace_t *workspace;
-
+	coherent_network_workspace_t **workspace;
 } pso_fitness_function_parameters_t;
 
 pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(

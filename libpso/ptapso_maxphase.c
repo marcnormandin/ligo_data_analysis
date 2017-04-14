@@ -13,16 +13,24 @@
 #include <dirent.h>
 #include <fnmatch.h>
 #include <string.h>
+#include "omp.h"
 
 /*! 
 Allocate a fitness function parameter structure for a given dimensionality of the fitness function.
 */
 struct fitFuncParams * ffparam_alloc(size_t nDim /*!> Number of dimensions */){
+	size_t i;
 	struct fitFuncParams *ffp = (struct fitFuncParams *)malloc(sizeof(struct fitFuncParams));
 	ffp->nDim = nDim;
 	ffp->rmin = gsl_vector_calloc(nDim);
 	ffp->rangeVec = gsl_vector_calloc(nDim);
-	ffp->realCoord = gsl_vector_calloc(nDim);
+
+	ffp->realCoord = (gsl_vector**) malloc( omp_get_max_threads() * sizeof(gsl_vector*) );
+	for (i = 0; i < omp_get_max_threads(); i++) {
+		ffp->realCoord[i] = gsl_vector_calloc(nDim);
+	}
+
+	ffp->fitEvalFlag = (unsigned char*) malloc( omp_get_max_threads() * sizeof(unsigned char) );
 	return ffp;
 }
 
@@ -30,13 +38,21 @@ struct fitFuncParams * ffparam_alloc(size_t nDim /*!> Number of dimensions */){
 Deallocate a fitness function parameter structure.
 */
 void ffparam_free(struct fitFuncParams *ffp){
+	size_t i;
+
 	if (ffp == NULL){
 		printf("Invalid FitFuncParams supplied\n");
 		return;
 	}
 	gsl_vector_free(ffp->rmin);
 	gsl_vector_free(ffp->rangeVec);
-	gsl_vector_free(ffp->realCoord);
+
+	for (i = 0; i < omp_get_max_threads(); i++) {
+		gsl_vector_free(ffp->realCoord[i]);
+	}
+	free(ffp->realCoord);
+
+	free(ffp->fitEvalFlag);
 	free(ffp);
 }
 

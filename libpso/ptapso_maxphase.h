@@ -18,8 +18,8 @@ struct fitFuncParams{
 size_t nDim;    /*!< Dimensionality of the fitness function. */
 gsl_vector *rmin;     /*!< Minimum value of each coordinate. */
 gsl_vector *rangeVec; /*!< Range of each coordinate. */
-gsl_vector *realCoord;/*!< The unstandardized value of each coordinate is returned in this vector.*/
-unsigned char fitEvalFlag; /*!< Set to 0 if fitness is infinity, else to 1.*/
+gsl_vector **realCoord;/*!< The unstandardized value of each coordinate is returned in this vector.*/
+unsigned char *fitEvalFlag; /*!< Set to 0 if fitness is infinity, else to 1.*/
 /*! Pointer to a struct that carries additional parameters that are 
 specific to a fitness function.
 The header file of a fitness function can define this struct.

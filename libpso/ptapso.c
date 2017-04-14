@@ -8,6 +8,8 @@
 #include <gsl/gsl_math.h>
 
 #include "ptapso_maxphase.h"
+#include "omp.h"
+
 /*! \file
 \brief Particle Swarm Optimization (PSO) and support functions.
 
@@ -30,7 +32,7 @@ Notes on the PSO implementation used:
    - Velocity clamping
 */
 void ptapso(size_t nDim, /*!< Number of search dimensions */
-            double (*fitfunc)(gsl_vector *, void *), /*!< Pointer to Fitness function */
+            fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
 			void *ffParams, /*!< Fitness function parameter structure */
             struct psoParamStruct *psoParams, /*!< PSO parameter structure */
 			struct returnData *psoResults /*!< Output structure */){
@@ -98,20 +100,23 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 	   above for initialization.
 	*/
 	for (lpPsoIter = 1; lpPsoIter <= maxSteps-1; lpPsoIter++){
-		printf("Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
+		fprintf(stderr, "Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
 
 		if (psoParams->debugDumpFile != NULL){
 			fprintf(psoParams->debugDumpFile,"Loop %zu \n",lpPsoIter);
 			particleInfoDump(psoParams->debugDumpFile,pop,popsize);
 		}		
         /* Calculate fitness values */
+		# pragma omp parallel
+		# pragma omp for
 		for (lpParticles = 0; lpParticles < popsize; lpParticles++){
 			/* Evaluate fitness */
 			pop[lpParticles].partSnrCurr = fitfunc(pop[lpParticles].partCoord,ffParams);
+			//fprintf(stderr, "Done evaluating the fitness function...\n");
 			/* Separately store all fitness values -- needed to find best particle */
 			gsl_vector_set(partSnrCurrCol,lpParticles,pop[lpParticles].partSnrCurr);
 			/* Check if fitness function was actually evaluated or not */
-	        computeOK = ((struct fitFuncParams *)ffParams)->fitEvalFlag;
+	        computeOK = ((struct fitFuncParams *)ffParams)->fitEvalFlag[omp_get_thread_num()];
 	        funcCount = 0;
 	        if (computeOK){
 			    /* Increment fitness function evaluation count */
@@ -125,6 +130,8 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 	        }
 	    }
 		
+		//fprintf(stderr, "Done openmp parallel for loop.\n");
+
 		/* Find the best particle in the current iteration */
 		bestfitParticle = gsl_vector_min_index(partSnrCurrCol);
 	    currBestFitVal = pop[bestfitParticle].partSnrCurr; 
