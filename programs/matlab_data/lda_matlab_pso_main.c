@@ -150,7 +150,6 @@ int main(int argc, char* argv[]) {
 	}
 
 #ifndef HAVE_MPI
-
 	for (i = 0; i < arg_num_pso_evaluations; i++) {
 		printf("EVALUATING PSO ESTIMATE #(%lu)...\n", i+1);
 
@@ -183,7 +182,7 @@ int main(int argc, char* argv[]) {
 
 		/* Rank 0 will accept the results and write them to file. */
 		while (num_jobs_done != num_jobs) {
-			MPI_Recv(buff, 3, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
+			MPI_Recv(buff, 5, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
 
 			pso_result_t pso_result;
 			pso_result.ra = buff[0];
@@ -241,10 +240,13 @@ int main(int argc, char* argv[]) {
 
 #ifdef HAVE_MPI
 	MPI_Finalize();
-	if (rank == 0) {
-#else
-	printf("program ended successfully.\n");
 #endif
+
+#ifdef HAVE_MPI
+	if (rank == 0) {
+#endif
+
+	printf("program ended successfully.\n");
 
 #ifdef HAVE_MPI
 	}
