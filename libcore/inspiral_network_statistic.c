@@ -85,8 +85,7 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 	/* Note, the asd is only needed to get the frequency values and the number of frequency bins. This should be the
 	 * same for every ASD used for a detector network, so any detector from the network can be used.
 	 */
-	work->sp_lookup = SP_workspace_alloc(f_low, f_high, net->detector[0]->asd);
-	SP_workspace_init(f_low, f_high, net->detector[0]->asd, work->sp_lookup);
+	work->sp_lookup = SP_workspace_alloc(f_low, f_high, net->detector[0]->asd->len, net->detector[0]->asd->f);
 
 	work->sp = SP_malloc( num_half_freq );
 
@@ -148,7 +147,7 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 		exit(-1);
 	}
 	for (i = 0; i < net->num_detectors; i++) {
-		work->normalization_factors[i] = SP_normalization_factor(f_low, f_high, net->detector[i]->asd, work->sp_lookup);
+		work->normalization_factors[i] = SP_normalization_factor(net->detector[i]->asd, work->sp_lookup);
 	}
 
 	return work;
@@ -341,23 +340,21 @@ void coherent_network_statistic(
 	/* Loop over each detector to generate a template and do matched filtering */
 	for (i = 0; i < net->num_detectors; i++) {
 		detector_t* det;
-		double coalesce_phase;
+		double inspiral_coalesce_phase;
 		gsl_complex* whitened_data;
 		double U_vec_input;
 		double V_vec_input;
-		double td;
+		double detector_time_delay;
 
 		det = net->detector[i];
 
-		coalesce_phase = 0.0;
+		inspiral_coalesce_phase = 0.0;
 
 		/* Compute time delay */
-		Detector_time_delay(det, sky, &td);
+		Detector_time_delay(det, sky, &detector_time_delay);
 
-		SP_compute(coalesce_phase, td,
-						chirp, det->asd,
-						f_low, f_high,
-						workspace->normalization_factors[i],
+		SP_compute(		detector_time_delay, workspace->normalization_factors[i],
+						inspiral_coalesce_phase, chirp,
 						workspace->sp_lookup,
 						workspace->sp);
 

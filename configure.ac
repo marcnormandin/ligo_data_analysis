@@ -18,7 +18,7 @@ AC_PROG_LIBTOOL
 AC_OPENMP()
 AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
 
-AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+#AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
 
 #AX_LIB_HDF5([serial])
 #if test "$with_hdf5" = "no"; then

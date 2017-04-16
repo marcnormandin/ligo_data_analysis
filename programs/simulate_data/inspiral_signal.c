@@ -52,19 +52,16 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 
 	strain_half_fft_t *signal = strain_half_fft_alloc( num_time_samples );
 
-	sp_lookup = SP_workspace_alloc(f_low, f_high, det->asd);
-	SP_workspace_init(f_low, f_high, det->asd, sp_lookup);
+	sp_lookup = SP_workspace_alloc(f_low, f_high, det->asd->len, det->asd->f);
 
 	sp = SP_malloc(det->asd->len);
 	double td;
 	Detector_time_delay(det, &source->sky, &td);
 
-	double normalization_factor = SP_normalization_factor(f_low, f_high, det->asd, sp_lookup);
+	double normalization_factor = SP_normalization_factor(det->asd, sp_lookup);
 
-	SP_compute(source->coalesce_phase, td,
-			&chirp.ct, det->asd,
-			f_low, f_high,
-			normalization_factor,
+	SP_compute(td, normalization_factor,
+			source->coalesce_phase, &chirp.ct,
 			sp_lookup,
 			sp);
 

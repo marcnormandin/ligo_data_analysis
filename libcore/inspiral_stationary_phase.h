@@ -8,13 +8,6 @@
 #include "inspiral_chirp_time.h"
 #include "spectral_density.h"
 
-typedef struct stationary_phase_s {
-	size_t 			len;
-	gsl_complex		*spa_0;
-	gsl_complex		*spa_90;
-
-} stationary_phase_t;
-
 typedef struct stationary_phase_lookup_s {
 	double f_low, f_high;
 	size_t f_low_index, f_high_index;
@@ -30,26 +23,39 @@ typedef struct stationary_phase_lookup_s {
 
 } stationary_phase_workspace_t;
 
+typedef struct stationary_phase_s {
+	size_t 			len;
+	gsl_complex		*spa_0;
+	gsl_complex		*spa_90;
+
+} stationary_phase_t;
+
+
+
+
+/* Stationary Phase Workspace functions */
+stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, size_t len_f_array, double *f_array);
+
+void SP_workspace_free( stationary_phase_workspace_t *lookup);
+
+
+
+
+/* Stationary Phase functions */
 stationary_phase_t* SP_malloc(size_t size);
 
 void SP_free(stationary_phase_t *sp);
 
-double SP_normalization_factor(double f_low, double f_high, asd_t *asd, stationary_phase_workspace_t *lookup);
+double SP_normalization_factor(asd_t *asd, stationary_phase_workspace_t *lookup);
 
-void SP_compute(double coalesce_phase, double time_delay,
-		inspiral_chirp_time_t *chirp, asd_t *asd,
-		double f_low, double f_high,
-		double g,
+void SP_compute(
+		double detector_time_delay, double detector_normalization_factor,
+		double inspiral_coalesce_phase, inspiral_chirp_time_t *chirp,
 		stationary_phase_workspace_t *lookup,
 		stationary_phase_t *out_sp);
 
 void SP_save(char *filename, asd_t *asd, stationary_phase_t *sp);
 
 
-stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, asd_t *asd);
-
-void SP_workspace_free( stationary_phase_workspace_t *lookup);
-
-void SP_workspace_init(double f_low, double f_high, asd_t *asd, stationary_phase_workspace_t *lookup);
 
 #endif /* SRC_C_STATIONARY_PHASE_H_ */

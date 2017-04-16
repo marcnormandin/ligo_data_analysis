@@ -11975,9 +11975,7 @@ $as_echo "$ac_cv_prog_c_openmp" >&6; }
 AM_CPPFLAGS="$CFLAGS $OPENMP_CFLAGS"
 
 
-
-$as_echo "#define HAVE_MPI 1" >>confdefs.h
-
+#AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
 
 #AX_LIB_HDF5([serial])
 #if test "$with_hdf5" = "no"; then
