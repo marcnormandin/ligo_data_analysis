@@ -265,7 +265,7 @@ double SP_normalization_factor(asd_t* asd, stationary_phase_workspace_t *lookup)
 	 *
 	 * It should be checked if the 1's are even needed! But this is what the Matlab version does.
 	 */
-	sum = lookup->f_low_index + (asd->len - lookup->f_high_index + 1);
+	sum = (lookup->f_low_index) + (asd->len-1 - lookup->f_high_index);
 
 	for (i = lookup->f_low_index; i <= lookup->f_high_index; i++) {
 		double f = asd->f[i];

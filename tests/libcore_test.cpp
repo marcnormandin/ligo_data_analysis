@@ -192,7 +192,7 @@ TEST(SP_workspace, coefficients) {
 	ASD_free(asd);
 }
 */
-TEST(SP_compute, value) {
+TEST(SP_compute, valuesMatcheMatlabVersion) {
 	double detector_time_delay = 1.0;
 	double detector_normalization_factor = 2.0;
 	double inspiral_coalesce_phase = 3.0;
@@ -232,8 +232,8 @@ TEST(SP_compute, value) {
 	GSL_SET_COMPLEX(&matlab_values[9], 0.0, 0.0);
 
 	for (int i = 0; i < s->len; i++) {
-		ASSERT_NEAR( GSL_REAL(s->spa_0[i]), GSL_REAL(matlab_values[i]), 1e-9);
-		ASSERT_NEAR( GSL_IMAG(s->spa_0[i]), GSL_IMAG(matlab_values[i]), 1e-9);
+		ASSERT_NEAR( GSL_REAL(s->spa_0[i]), GSL_REAL(matlab_values[i]), 1e-13);
+		ASSERT_NEAR( GSL_IMAG(s->spa_0[i]), GSL_IMAG(matlab_values[i]), 1e-13);
 	}
 
 	SP_free(s);
@@ -241,5 +241,27 @@ TEST(SP_compute, value) {
 
 }
 
+TEST(SP_normalization, valuesMatchMatlabVersion) {
+	double f_low = 1.1;
+	double f_high = 9.0;
+
+	size_t len_f_array = 10;
+
+	asd_t *asd = ASD_alloc( len_f_array );
+	for (int i = 0; i < asd->len; i++) {
+		asd->f[i] = i;
+		asd->asd[i] = i;
+	}
+
+	stationary_phase_workspace_t *w = SP_workspace_alloc(f_low, f_high, asd->len, asd->f);
+
+	double g = SP_normalization_factor(asd, w);
+	//printf("normalization factor = %0.21e\n", g);
+
+	ASSERT_NEAR( g, 1.436106008421560, 1e-13 );
+
+	SP_workspace_free(w);
+	ASD_free(asd);
+}
 #endif
 
