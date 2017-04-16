@@ -250,6 +250,7 @@ void CN_save(char* filename, size_t len, double* tmp_ifft) {
 	fclose(file);
 }
 
+/* DANGER. This assumes that the coalece phase is 0 */
 void coherent_network_statistic(
 		detector_network_t* net,
 		double f_low,
@@ -348,6 +349,7 @@ void coherent_network_statistic(
 
 		det = net->detector[i];
 
+		/* DANGER */
 		inspiral_coalesce_phase = 0.0;
 
 		/* Compute time delay */
