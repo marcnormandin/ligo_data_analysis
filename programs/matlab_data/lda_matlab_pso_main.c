@@ -42,6 +42,7 @@
 #include "hdf5_file.h"
 #include "sampling_system.h"
 
+
 void load_shihan_inspiral_data( const char* hdf_filename, strain_half_fft_t *strain){
 	size_t i, j;
 
@@ -183,6 +184,7 @@ int main(int argc, char* argv[]) {
 		/* Rank 0 will accept the results and write them to file. */
 		while (num_jobs_done != num_jobs) {
 			MPI_Recv(buff, 5, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
+			num_jobs_done++;
 
 			pso_result_t pso_result;
 			pso_result.ra = buff[0];
@@ -191,15 +193,15 @@ int main(int argc, char* argv[]) {
 			pso_result.chirp_t1_5 = buff[3];
 			pso_result.snr = buff[4];
 
+			pso_result_print(&pso_result);
+
+			/* save to file. */
 			FILE *fid = fopen(arg_pso_results_file, "a");
 			pso_result_save(fid, &pso_result);
-			fclose(fid);
-
-			pso_result_print(&pso_result);
-			num_jobs_done++;
 			if (num_jobs_done != num_jobs) {
 				fprintf(fid, "\n");
 			}
+			fclose(fid);
 		}
 	} else {
 		/* All other ranks are workers. */
@@ -213,7 +215,7 @@ int main(int argc, char* argv[]) {
 			}
 
 			pso_result_t pso_result;
-			pso_estimate_parameters(arg_pso_settings_file, &params, seeds[r], &pso_result);
+			pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, seeds[r], &pso_result);
 			buff[0] = pso_result.ra;
 			buff[1] = pso_result.dec;
 			buff[2] = pso_result.chirp_t0;

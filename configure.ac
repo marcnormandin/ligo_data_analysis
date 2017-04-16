@@ -5,15 +5,25 @@
 AC_INIT([lda],[1.0],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
-#AC_PROG_CC([mpicc])
+AC_PROG_CC
 #AC_PROG_CXX([mpicxx])
-AC_PROG_CC([gcc-6])
-AC_PROG_CXX([g++-6])
+#AC_PROG_CC([gcc-6])
+#AC_PROG_CXX([g++-6])
 #AC_PROG_CC([icc])
 #AC_PROG_CXX([icc])
 #AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL
+
+AC_OPENMP()
+AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
+
+AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+
+#AX_LIB_HDF5([serial])
+#if test "$with_hdf5" = "no"; then
+#	AC_MSG_ERROR([Unable to find HDF5, which is required.])
+#fi
 
 # ****************************************************************************************************
 # Google test library

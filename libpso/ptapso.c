@@ -100,7 +100,7 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 	   above for initialization.
 	*/
 	for (lpPsoIter = 1; lpPsoIter <= maxSteps-1; lpPsoIter++){
-		fprintf(stderr, "Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
+		//fprintf(stderr, "Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
 
 		if (psoParams->debugDumpFile != NULL){
 			fprintf(psoParams->debugDumpFile,"Loop %zu \n",lpPsoIter);
@@ -254,7 +254,7 @@ void ptapso(size_t nDim, /*!< Number of search dimensions */
 			fprintf(psoParams->debugDumpFile,"--------\n");			      
 	    }
 
-		printf("done!\n");
+		//printf("done!\n");
 	}
 	
 	/* Prepare output */
