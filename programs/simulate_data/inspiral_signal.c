@@ -54,7 +54,7 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 
 	sp_lookup = SP_workspace_alloc(f_low, f_high, det->asd->len, det->asd->f);
 
-	sp = SP_malloc(det->asd->len);
+	sp = SP_alloc(det->asd->len);
 	double td;
 	Detector_time_delay(det, &source->sky, &td);
 

@@ -18,7 +18,7 @@
 #include "inspiral_network_statistic.h"
 #include "sampling_system.h"
 
-coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples) {
+coherent_network_helper_t* CN_helper_alloc(size_t num_time_samples) {
 	coherent_network_helper_t *h;
 
 	h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
@@ -79,7 +79,7 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 	}
 
 	for (i = 0; i < work->num_helpers; i++) {
-		work->helpers[i] = CN_helper_malloc( num_time_samples );
+		work->helpers[i] = CN_helper_alloc( num_time_samples );
 	}
 
 	/* Note, the asd is only needed to get the frequency values and the number of frequency bins. This should be the
@@ -87,7 +87,7 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 	 */
 	work->sp_lookup = SP_workspace_alloc(f_low, f_high, net->detector[0]->asd->len, net->detector[0]->asd->f);
 
-	work->sp = SP_malloc( num_half_freq );
+	work->sp = SP_alloc( num_half_freq );
 
 	work->temp_array = (gsl_complex*) malloc( num_half_freq * sizeof(gsl_complex) );
 	if (work->temp_array == NULL) {

@@ -92,7 +92,7 @@ void Detector_init(DETECTOR_ID id, psd_t *psd, detector_t *d) {
 	const char* name = Detector_id_to_name(id);
 	memcpy(d->name, name, (strnlen(name, DETECTOR_MAX_NAME_LENGTH-1)+1) * sizeof(char));
 
-	asd_t *asd = ASD_malloc( psd->len );
+	asd_t *asd = ASD_alloc( psd->len );
 	ASD_init_from_psd( psd, asd );
 
 	switch (id) {

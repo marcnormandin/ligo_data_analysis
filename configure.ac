@@ -5,13 +5,15 @@
 AC_INIT([lda],[1.0],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
-AC_PROG_CC
+#AC_PROG_CC
+#AC_PROG_CXX
+
 #AC_PROG_CXX([mpicxx])
-#AC_PROG_CC([gcc-6])
-#AC_PROG_CXX([g++-6])
+AC_PROG_CC([gcc-6])
+AC_PROG_CXX([g++-6])
 #AC_PROG_CC([icc])
 #AC_PROG_CXX([icc])
-#AM_PROG_CC_C_O
+AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL
 
@@ -31,9 +33,10 @@ AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
 # name-mangling, and we need the mangled name. Instead we check for the main()
 # in the accompanied gtest_main library. If we have gtest_main, we should also have gtest.
 # Note: AC_CHECK_LIB (library, function, [action-if-found], [action-if-not-found], [other-libraries])
-#AC_CHECK_LIB([gtest_main], [main], [HAVE_GTEST=1] [TEST_LIBS="$TEST_LIBS -lgtest_main"], AC_MSG_WARN([libgtest is not installed.]))
-#AM_CONDITIONAL([HAVE_GTEST], [test "$HAVE_GTEST" = 1])
-#AC_SUBST([HAVE_GTEST])
+AC_CHECK_LIB([gtest_main], [main], [HAVE_GTEST=yes] [TEST_LIBS="$TEST_LIBS -lgtest_main"], AC_MSG_WARN([libgtest is not installed.]))
+AM_CONDITIONAL([HAVE_GTEST], [test "x$HAVE_GTEST" = xyes])
+AC_SUBST([HAVE_GTEST])
+AC_DEFINE([HAVE_GTEST], [], [Have GoogleTest Framework])
 
 # ****************************************************************************************************
 # C/C++ math library
@@ -61,7 +64,7 @@ AC_SUBST(ac_top_srcdir)
 # List of Makefile.am's
 AC_CONFIG_SRCDIR([libcore/detector_antenna_patterns.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data/Makefile programs/simulate_data/Makefile])
+AC_CONFIG_FILES([Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data/Makefile programs/simulate_data/Makefile])
 
 # ****************************************************************************************************
 # Done!

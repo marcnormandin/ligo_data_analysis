@@ -27,7 +27,7 @@ typedef struct coherent_network_helper_s {
 
 } coherent_network_helper_t;
 
-coherent_network_helper_t* CN_helper_malloc(size_t num_time_samples);
+coherent_network_helper_t* CN_helper_alloc(size_t num_time_samples);
 
 void CN_helper_free( coherent_network_helper_t* helper);
 

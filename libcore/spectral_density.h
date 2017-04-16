@@ -32,14 +32,14 @@ typedef struct asd_s {
 
 } asd_t;
 
-psd_t* PSD_malloc( size_t len );
+psd_t* PSD_alloc( size_t len );
 void PSD_free( psd_t *psd);
 void PSD_init_from_asd( asd_t *asd, psd_t *psd);
 
 psd_t* PSD_load( const char *hdf_filename );
 void PSD_save( const char *hdf_filename, psd_t *psd );
 
-asd_t* ASD_malloc( size_t len );
+asd_t* ASD_alloc( size_t len );
 void ASD_free( asd_t *asd);
 void ASD_init_from_psd( psd_t *psd, asd_t *asd);
 

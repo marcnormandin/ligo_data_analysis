@@ -10,7 +10,7 @@
 #include "inspiral_stationary_phase.h"
 
 
-int find_f_low_index(double f_low, size_t len, double *f_array) {
+int find_index_low(double f_low, size_t len, double *f_array) {
 	size_t i;
 	for (i = 0; i < len; i++) {
 		if (f_array[i] >= f_low) {
@@ -22,10 +22,12 @@ int find_f_low_index(double f_low, size_t len, double *f_array) {
 	return -1;
 }
 
-int find_f_high_index(double f_high, size_t len, double *f_array) {
+int find_index_high(double f_high, size_t len, double *f_array) {
 	size_t i;
 	for (i = 0; i < len; i++) {
-		if (f_array[i] >= f_high) {
+		if (f_array[i] > f_high) {
+			return i-1;
+		} else if (f_array[i] == f_high) {
 			return i;
 		}
 	}
@@ -47,11 +49,11 @@ void SP_workspace_init(size_t len_f_array, double *f_array, stationary_phase_wor
 
 		lookup->g_coeff[j] = pow(f, -7.0 / 6.0);
 		lookup->chirp_tc_coeff[j] = 2.0 * M_PI * f;
-		lookup->coalesce_phase_coeff[j] = -M_PI / 4.0;
+		lookup->constant_coeff[j] = -M_PI / 4.0;
 		lookup->chirp_time_0_coeff[j] = 2.0 * M_PI * lookup->f_low * 3.0 * pow(f_fac, -5.0 / 3.0) / 5.0;
-		lookup->chirp_time_1_coeff[j] =  pow(f_fac, -5.0 / 3.0);
-		lookup->chirp_time1_5_coeff[j] = -3.0 * pow(f_fac,-2.0 / 3.0) / 2.0;
-		lookup->chirp_time2_coeff[j] = 3.0 * pow(f_fac, -1.0 / 3.0);
+		lookup->chirp_time_1_coeff[j] =  2.0 * M_PI * lookup->f_low * pow(f_fac, -5.0 / 3.0);
+		lookup->chirp_time1_5_coeff[j] = -2.0 * M_PI * lookup->f_low * 3.0 * pow(f_fac,-2.0 / 3.0) / 2.0;
+		lookup->chirp_time2_coeff[j] = 2.0 * M_PI * lookup->f_low * 3.0 * pow(f_fac, -1.0 / 3.0);
 	}
 }
 
@@ -75,7 +77,7 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 		exit(-1);
 	}
 
-	index_found = find_f_low_index(lookup->f_low, len_f_array, f_array);
+	index_found = find_index_low(lookup->f_low, len_f_array, f_array);
 	if (index_found != -1) {
 		lookup->f_low_index = index_found;
 	} else {
@@ -83,7 +85,7 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 		exit(-1);
 	}
 
-	index_found = find_f_high_index(lookup->f_high, len_f_array, f_array);
+	index_found = find_index_high(lookup->f_high, len_f_array, f_array);
 	if (index_found != -1) {
 		lookup->f_high_index = index_found;
 	} else {
@@ -112,8 +114,8 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 		exit(-1);
 	}
 
-	lookup->coalesce_phase_coeff = (double*) malloc (lookup->len * sizeof(double));
-	if (lookup->coalesce_phase_coeff == NULL) {
+	lookup->constant_coeff = (double*) malloc (lookup->len * sizeof(double));
+	if (lookup->constant_coeff == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory in SP_workspace_alloc(). Exiting.\n");
 		exit(-1);
 	}
@@ -159,9 +161,9 @@ void SP_workspace_free( stationary_phase_workspace_t *lookup) {
 	free(lookup->chirp_tc_coeff);
 	lookup->chirp_tc_coeff = NULL;
 
-	assert(lookup->coalesce_phase_coeff != NULL);
-	free(lookup->coalesce_phase_coeff);
-	lookup->coalesce_phase_coeff = NULL;
+	assert(lookup->constant_coeff != NULL);
+	free(lookup->constant_coeff);
+	lookup->constant_coeff = NULL;
 
 	assert(lookup->chirp_time_0_coeff != NULL);
 	free(lookup->chirp_time_0_coeff);
@@ -183,7 +185,7 @@ void SP_workspace_free( stationary_phase_workspace_t *lookup) {
 }
 
 
-stationary_phase_t* SP_malloc(size_t size) {
+stationary_phase_t* SP_alloc(size_t num_half_frequencies) {
 	size_t i;
 
 	stationary_phase_t* sp = (stationary_phase_t*) malloc( sizeof(stationary_phase_t) );
@@ -193,21 +195,21 @@ stationary_phase_t* SP_malloc(size_t size) {
 	}
 
 	/* common length of the arrays. */
-	sp->len = size;
+	sp->len = num_half_frequencies;
 
-	sp->spa_0 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
+	sp->spa_0 = (gsl_complex*) malloc(sp->len * sizeof(gsl_complex));
 	if (sp->spa_0 == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory in SP_malloc. Exiting.\n");
 		exit(-1);
 	}
 
-	sp->spa_90 = (gsl_complex*) malloc(size * sizeof(gsl_complex));
+	sp->spa_90 = (gsl_complex*) malloc(sp->len * sizeof(gsl_complex));
 	if (sp->spa_90 == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory in SP_malloc. Exiting.\n");
 		exit(-1);
 	}
 
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < sp->len; i++) {
 		sp->spa_0[i] = gsl_complex_rect(0.0, 0.0);
 		sp->spa_90[i] = gsl_complex_rect(0.0, 0.0);
 	}
@@ -292,13 +294,16 @@ void SP_compute(
 
 		double phase_2pn =
 				lookup->chirp_tc_coeff[i] * (chirp->tc - detector_time_delay)
-				- 2.0 * inspiral_coalesce_phase - lookup->coalesce_phase_coeff[i]
+				- 2.0 * inspiral_coalesce_phase
+				+ lookup->constant_coeff[i]
 				+ lookup->chirp_time_0_coeff[i] * chirp->chirp_time0
 				+ lookup->chirp_time_1_coeff[i] * chirp->chirp_time1
 				+ lookup->chirp_time1_5_coeff[i] * chirp->chirp_time1_5
 				+ lookup->chirp_time2_coeff[i] * chirp->chirp_time2;
 
-		gsl_complex exp_phase = gsl_complex_exp(gsl_complex_rect(0.0, -phase_2pn));
+		printf("%0.21e\n", phase_2pn);
+
+		gsl_complex exp_phase = gsl_complex_exp(gsl_complex_rect(0.0, -1.0*phase_2pn));
 		out_sp->spa_0[lookup->f_low_index + i] = gsl_complex_mul_real(exp_phase, amp_2pn);
 		out_sp->spa_90[lookup->f_low_index + i] = gsl_complex_mul_imag(out_sp->spa_0[lookup->f_low_index + i], -1.0);
 	}

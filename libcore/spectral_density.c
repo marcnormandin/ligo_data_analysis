@@ -9,7 +9,7 @@
 #include "spectral_density.h"
 
 
-asd_t* ASD_malloc( size_t len ) {
+asd_t* ASD_alloc( size_t len ) {
 	asd_t *asd;
 
 	asd = (asd_t*) malloc (sizeof(asd_t));
@@ -80,7 +80,7 @@ void ASD_init_from_psd( psd_t *psd, asd_t *asd) {
 	}
 }
 
-psd_t* PSD_malloc( size_t len ) {
+psd_t* PSD_alloc( size_t len ) {
 	psd_t *psd;
 
 	psd = (psd_t*) malloc (sizeof(psd_t));
@@ -158,7 +158,7 @@ psd_t* PSD_load( const char *hdf_filename ) {
 
 	len_psd = hdf5_get_dataset_array_length( hdf_filename, "/psd/PSD" );
 
-	psd_t* psd = PSD_malloc ( len_psd );
+	psd_t* psd = PSD_alloc ( len_psd );
 
 	hdf5_load_array( hdf_filename, "/psd/PSD", psd->psd );
 	hdf5_load_array( hdf_filename, "/psd/Freq", psd->f );

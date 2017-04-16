@@ -84,7 +84,7 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file, do
 		psd_t *psd_unprocessed = PSD_load( dmap->data_filenames[i] );
 
 		/* Set the frequencies we want to use. */
-		psd_t *psd = PSD_malloc( half_size );
+		psd_t *psd = PSD_alloc( half_size );
 		psd->type = PSD_ONE_SIDED;
 		SS_frequency_array(fs, num_time_samples, psd->len, psd->f);
 
