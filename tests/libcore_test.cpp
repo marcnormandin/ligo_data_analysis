@@ -152,7 +152,7 @@ TEST(SP_workspace, frequencies_and_indices) {
 	SP_workspace_free(sp_workspace);
 	ASD_free(asd);
 }
-
+/*
 TEST(SP_workspace, coefficients) {
 	size_t N = 10;
 	asd_t *asd = ASD_alloc( N );
@@ -166,14 +166,10 @@ TEST(SP_workspace, coefficients) {
 
 	stationary_phase_workspace_t *sp_workspace = SP_workspace_alloc(f_low, f_high, asd->len, asd->f);
 
-	/* Manually change the asd to be uniform so that we can calculate the coefficients easily
-	 * since all the powers will be 1.0.
-	 */
 	for (int i = 0; i < asd->len; i++) {
 		asd->f[i] = 1.0;
 	}
 
-	/* reinit */
 	SP_workspace_init( asd->len, asd->f, sp_workspace );
 
 	for (int i = 0; i < sp_workspace->len; i++) {
@@ -195,7 +191,7 @@ TEST(SP_workspace, coefficients) {
 	SP_workspace_free(sp_workspace);
 	ASD_free(asd);
 }
-
+*/
 TEST(SP_compute, value) {
 	double detector_time_delay = 1.0;
 	double detector_normalization_factor = 2.0;
@@ -222,8 +218,22 @@ TEST(SP_compute, value) {
 			w,
 			s);
 
+	// These values were obtained from the Matlab program
+	gsl_complex matlab_values[10];
+	GSL_SET_COMPLEX(&matlab_values[0], 0.0, 0.0);
+	GSL_SET_COMPLEX(&matlab_values[1], -0.213089577446166, -0.452319391562880);
+	GSL_SET_COMPLEX(&matlab_values[2], 0.001412558668514, -0.222720200143620);
+	GSL_SET_COMPLEX(&matlab_values[3], -0.074184098785065, -0.117289193389998);
+	GSL_SET_COMPLEX(&matlab_values[4], -0.037541561157106, -0.091835529008064);
+	GSL_SET_COMPLEX(&matlab_values[5], -0.052649099014614, 0.055462670773910);
+	GSL_SET_COMPLEX(&matlab_values[6], 0.043808040396736, -0.043618008358807);
+	GSL_SET_COMPLEX(&matlab_values[7], 0.0, 0.0);
+	GSL_SET_COMPLEX(&matlab_values[8], 0.0, 0.0);
+	GSL_SET_COMPLEX(&matlab_values[9], 0.0, 0.0);
+
 	for (int i = 0; i < s->len; i++) {
-		printf("%0.21e \t %0.21e\n", GSL_REAL(s->spa_0[i]), GSL_IMAG(s->spa_0[i]));
+		ASSERT_NEAR( GSL_REAL(s->spa_0[i]), GSL_REAL(matlab_values[i]), 1e-9);
+		ASSERT_NEAR( GSL_IMAG(s->spa_0[i]), GSL_IMAG(matlab_values[i]), 1e-9);
 	}
 
 	SP_free(s);

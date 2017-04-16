@@ -301,8 +301,6 @@ void SP_compute(
 				+ lookup->chirp_time1_5_coeff[i] * chirp->chirp_time1_5
 				+ lookup->chirp_time2_coeff[i] * chirp->chirp_time2;
 
-		printf("%0.21e\n", phase_2pn);
-
 		gsl_complex exp_phase = gsl_complex_exp(gsl_complex_rect(0.0, -1.0*phase_2pn));
 		out_sp->spa_0[lookup->f_low_index + i] = gsl_complex_mul_real(exp_phase, amp_2pn);
 		out_sp->spa_90[lookup->f_low_index + i] = gsl_complex_mul_imag(out_sp->spa_0[lookup->f_low_index + i], -1.0);
