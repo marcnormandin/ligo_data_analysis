@@ -60,7 +60,7 @@ typedef struct coherent_network_workspace_s {
 
 } coherent_network_workspace_t;
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
+coherent_network_workspace_t* CN_workspace_alloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
 		double f_low, double f_high);
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );

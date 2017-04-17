@@ -88,6 +88,10 @@ int main(int argc, char* argv[]) {
 
 	gslseed_t seed;
 
+	clock_t time_start, time_end;
+	double cpu_time_used;
+	time_start = clock();
+
 #ifdef HAVE_MPI
 	MPI_Init(&argc, &argv);
 #endif
@@ -248,7 +252,9 @@ int main(int argc, char* argv[]) {
 	if (rank == 0) {
 #endif
 
-	printf("program ended successfully.\n");
+	time_end = clock();
+	cpu_time_used = ((double) (time_end - time_start)) / CLOCKS_PER_SEC;
+	printf("Program completed successfully after %d seconds.\n", cpu_time_used);
 
 #ifdef HAVE_MPI
 	}

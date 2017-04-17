@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
 	size_t num_realizations = 100000;
 	double *results_snr = (double*) malloc( num_realizations * sizeof(double) );
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, Strain_one_sided_length(strain) );
+	coherent_network_workspace_t *workspace = CN_workspace_alloc( net.num_detectors, Strain_one_sided_length(strain) );
 	for (n = 0; n < num_realizations; n++) {
 		strain_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 

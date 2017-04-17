@@ -48,6 +48,8 @@ typedef struct detector_s {
 
 } detector_t;
 
+/* helper function */
+void init_gsl_vector(double x, double y, double z, gsl_vector *v);
 
 detector_t* Detector_alloc();
 void Detector_free(detector_t *d);

@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 	/* Simulate data for all the detectors composing the network */
 	strain_half_fft_t **signals = simulate_inspiral(rng, f_low, f_high, &net, strain, &source);
 
-	coherent_network_workspace_t *workspace = CN_workspace_malloc( net.num_detectors, Strain_one_sided_length(strain) );
+	coherent_network_workspace_t *workspace = CN_workspace_alloc( net.num_detectors, Strain_one_sided_length(strain) );
 
 	/* Setup the parameter structure for the pso fitness function */
 	pso_fitness_function_parameters_t params;

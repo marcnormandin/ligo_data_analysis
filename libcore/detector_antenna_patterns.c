@@ -66,14 +66,6 @@ static int trace(gsl_matrix* A, double* r) {
 	return 0;
 }
 
-/* Local helper function */
-static void init_gsl_vector(double x, double y, double z, gsl_vector *v) {
-	assert(v != NULL);
-	gsl_vector_set(v, 0, x);
-	gsl_vector_set(v, 1, y);
-	gsl_vector_set(v, 2, z);
-}
-
 int Detector_Antenna_Patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
 		detector_antenna_patterns_workspace_t *ws, detector_antenna_patterns_t *ant)
 {

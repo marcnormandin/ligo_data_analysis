@@ -274,6 +274,10 @@ double SP_normalization_factor(asd_t* asd, stationary_phase_workspace_t *lookup)
 		sum  += pow(f, -7.0 / 3.0) / gsl_pow_2(s);
 	}
 
+	// DEBUG
+	//double g = sqrt(sum);
+	//fprintf(stderr, "g = %0.21e\n", g);
+
 	return sqrt(sum);
 }
 

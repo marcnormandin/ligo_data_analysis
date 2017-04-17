@@ -38,7 +38,7 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 	}
 
 	for (i = 0; i < omp_get_max_threads(); i++) {
-		params->workspace[i] = CN_workspace_malloc(
+		params->workspace[i] = CN_workspace_alloc(
 				network_strain->num_time_samples, network, network->detector[0]->asd->len,
 				f_low, f_high);
 	}

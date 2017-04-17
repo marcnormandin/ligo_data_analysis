@@ -17,6 +17,13 @@ void Detector_init_K1(asd_t *asd, psd_t *psd, detector_t *d);
 void Detector_init_T1(asd_t *asd, psd_t *psd, detector_t *d);
 void Detector_tensor(detector_t *d);
 
+/* Local helper function */
+void init_gsl_vector(double x, double y, double z, gsl_vector *v) {
+	gsl_vector_set(v, 0, x);
+	gsl_vector_set(v, 1, y);
+	gsl_vector_set(v, 2, z);
+}
+
 const char* Detector_id_to_name(DETECTOR_ID id) {
 	switch (id) {
 	case L1: return "L1"; break;
@@ -130,13 +137,6 @@ void Detector_init_name( char *name, psd_t *psd, detector_t *d) {
 	}
 }
 
-/* Local helper function */
-static void init_gsl_vector(double x, double y, double z, gsl_vector *v) {
-	gsl_vector_set(v, 0, x);
-	gsl_vector_set(v, 1, y);
-	gsl_vector_set(v, 2, z);
-}
-
 void Detector_init_L1(asd_t *asd, psd_t *psd, detector_t *d) {
 	/* Generate coordinates for LLO: */
 	init_gsl_vector(-0.954574615, -0.141579994, -0.262187738, d->arm_x);
@@ -163,7 +163,7 @@ void Detector_init_H1(asd_t *asd, psd_t *psd, detector_t *d) {
 	/* Y-arm unit vector relative to earth centered frame. */
 	init_gsl_vector(-0.913978490, 0.0260953206, -0.404922650, d->arm_y);
 
-	init_gsl_vector(2.161414928e+6, -3.834695183e+6, 4.600350224e+6, d->location); /* In meters */
+	init_gsl_vector(-2.161414928e+6, -3.834695183e+6, 4.600350224e+6, d->location); /* In meters */
 
 	Detector_tensor(d);
 
@@ -179,7 +179,7 @@ void Detector_init_H2(asd_t *asd, psd_t *psd, detector_t *d) {
 	/* Y-arm unit vector relative to earth centered frame. */
 	init_gsl_vector(-0.913978490, 0.0260953206, -0.404922650, d->arm_y);
 
-	init_gsl_vector(2.161414928e+6, -3.834695183e+6, 4.600350224e+6, d->location); /* In meters */
+	init_gsl_vector(-2.161414928e+6, -3.834695183e+6, 4.600350224e+6, d->location); /* In meters */
 
 	Detector_tensor(d);
 

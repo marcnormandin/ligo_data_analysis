@@ -19,6 +19,7 @@
 #include "sampling_system.h"
 
 coherent_network_helper_t* CN_helper_alloc(size_t num_time_samples) {
+	size_t i;
 	coherent_network_helper_t *h;
 
 	h = (coherent_network_helper_t*) malloc( sizeof(coherent_network_helper_t) );
@@ -39,6 +40,11 @@ coherent_network_helper_t* CN_helper_alloc(size_t num_time_samples) {
 		exit(-1);
 	}
 
+	for (i = 0; i < num_time_samples; i++) {
+		h->c_plus[i] = gsl_complex_rect(0.0, 0.0);
+		h->c_minus[i] = gsl_complex_rect(0.0, 0.0);
+	}
+
 	return h;
 }
 
@@ -56,12 +62,12 @@ void CN_helper_free( coherent_network_helper_t* helper) {
 	free(helper);
 }
 
-coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
+coherent_network_workspace_t* CN_workspace_alloc(size_t num_time_samples, detector_network_t *net, size_t num_half_freq,
 		double f_low, double f_high) {
 	assert(net != NULL);
 
 	coherent_network_workspace_t * work;
-	size_t i;
+	size_t i, j;
 
 	work = (coherent_network_workspace_t*) malloc(sizeof(coherent_network_workspace_t));
 	if (work == NULL) {
@@ -106,6 +112,9 @@ coherent_network_workspace_t* CN_workspace_malloc(size_t num_time_samples, detec
 	}
 	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
+		for (int j = 0; j < num_time_samples; j++) {
+			work->terms[i][j] = gsl_complex_rect(0.0, 0.0);
+		}
 	}
 
 	work->fs = (double**) malloc( 4 * sizeof(double*) );
@@ -336,7 +345,11 @@ void coherent_network_statistic(
 	O11_input = Delta_factor_input * P3_input / G1_input ;
 	O12_input = Delta_factor_input * P3_input * P1_input / (2.0*B_input*G1_input) ;
 	O21_input = Delta_factor_input * P4_input / G2_input ;
-	O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input) ;
+	O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input);
+
+	// debug
+	//fprintf(stderr, "%0.21e %0.21e %0.21e %0.21e\n",
+	//		O11_input, O12_input, O21_input, O22_input);
 
 	/* Loop over each detector to generate a template and do matched filtering */
 	for (i = 0; i < net->num_detectors; i++) {
@@ -362,8 +375,10 @@ void coherent_network_statistic(
 
 		whitened_data = network_strain->strains[i]->half_fft;
 
+		/* compute c_plus */
 		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
+		/* compute c_minus */
 		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;

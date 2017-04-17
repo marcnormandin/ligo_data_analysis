@@ -113,7 +113,7 @@ network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t
 
 	/* Assume that each strain has the same length */
 	size_t len_asd = net->detector[0]->asd->len;
-	coherent_network_workspace_t *cnw = CN_workspace_malloc(num_time_samples, net, len_asd, f_low, f_high);
+	coherent_network_workspace_t *cnw = CN_workspace_alloc(num_time_samples, net, len_asd, f_low, f_high);
 	double scale = 0;
 	coherent_network_statistic(net, f_low, f_high, &chirp.ct, &source->sky, source->polarization_angle,
 			network_strain, cnw, &scale);

@@ -50,7 +50,7 @@ int Detector_time_delay(detector_t *d, sky_t *sky, double *td)
 
     /* Double check the negative sigh infront. */
     /* Shihan"s expalnation: You don't have to put minus here. Plus or minus will be decided by the sky location */
-    *td = (((xifo*xgw)+(yifo*ygw)+(zifo*zgw))/(C));
+    *td = ((xifo*xgw)+(yifo*ygw)+(zifo*zgw))/(1.0*C);
 
     return 0;
 }
