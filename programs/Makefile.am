@@ -1,1 +1,1 @@
-SUBDIRS = matlab_data_mpi matlab_data_serial simulate_data
+SUBDIRS = matlab_data_mpi matlab_data_serial simulate_data simulate_matlab_data

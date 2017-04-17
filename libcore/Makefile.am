@@ -15,7 +15,6 @@ libcore_la_SOURCES = \
 	detector.h \
 	hdf5_file.c \
 	hdf5_file.h \
-	inspiral_chirp_time.c \
 	inspiral_chirp_time.h \
 	inspiral_chirp.c \
 	inspiral_chirp.h \

@@ -107,10 +107,10 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libcore_la_DEPENDENCIES =
 am_libcore_la_OBJECTS = detector_antenna_patterns.lo \
 	detector_mapping.lo detector_network.lo detector_time_delay.lo \
-	detector.lo hdf5_file.lo inspiral_chirp_time.lo \
-	inspiral_chirp.lo inspiral_network_statistic.lo \
-	inspiral_stationary_phase.lo random.lo sampling_system.lo \
-	settings_file.lo spectral_density.lo strain.lo
+	detector.lo hdf5_file.lo inspiral_chirp.lo \
+	inspiral_network_statistic.lo inspiral_stationary_phase.lo \
+	random.lo sampling_system.lo settings_file.lo \
+	spectral_density.lo strain.lo
 libcore_la_OBJECTS = $(am_libcore_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -319,7 +319,6 @@ libcore_la_SOURCES = \
 	detector.h \
 	hdf5_file.c \
 	hdf5_file.h \
-	inspiral_chirp_time.c \
 	inspiral_chirp_time.h \
 	inspiral_chirp.c \
 	inspiral_chirp.h \
@@ -401,7 +400,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detector_time_delay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hdf5_file.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_chirp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_chirp_time.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_network_statistic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inspiral_stationary_phase.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random.Plo@am__quote@

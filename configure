@@ -16046,7 +16046,7 @@ fi
 
 ac_config_headers="$ac_config_headers config.h"
 
-ac_config_files="$ac_config_files Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile"
+ac_config_files="$ac_config_files Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile"
 
 
 # ****************************************************************************************************
@@ -17178,6 +17178,7 @@ do
     "programs/matlab_data_mpi/Makefile") CONFIG_FILES="$CONFIG_FILES programs/matlab_data_mpi/Makefile" ;;
     "programs/matlab_data_serial/Makefile") CONFIG_FILES="$CONFIG_FILES programs/matlab_data_serial/Makefile" ;;
     "programs/simulate_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_data/Makefile" ;;
+    "programs/simulate_matlab_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_matlab_data/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

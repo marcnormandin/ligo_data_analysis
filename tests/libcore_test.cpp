@@ -24,7 +24,6 @@
 #include "../libcore/detector_time_delay.c"
 #include "../libcore/detector.c"
 #include "../libcore/hdf5_file.c"
-#include "../libcore/inspiral_chirp_time.c"
 #include "../libcore/inspiral_chirp.c"
 #include "../libcore/inspiral_network_statistic.c"
 #include "../libcore/inspiral_stationary_phase.c"

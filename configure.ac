@@ -64,7 +64,7 @@ AC_SUBST(ac_top_srcdir)
 # List of Makefile.am's
 AC_CONFIG_SRCDIR([libcore/detector_antenna_patterns.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile])
+AC_CONFIG_FILES([Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile])
 
 # ****************************************************************************************************
 # Done!

@@ -11,6 +11,4 @@ typedef struct inspiral_chirp_time_s {
 
 } inspiral_chirp_time_t;
 
-void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct);
-
 #endif /* COMMON_INSPIRAL_CHIRP_TIME_H_ */
