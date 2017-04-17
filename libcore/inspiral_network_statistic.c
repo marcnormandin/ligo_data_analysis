@@ -112,7 +112,7 @@ coherent_network_workspace_t* CN_workspace_alloc(size_t num_time_samples, detect
 	}
 	for (i = 0; i < 4; i++) {
 		work->terms[i] = (gsl_complex*) malloc( num_time_samples * sizeof(gsl_complex) );
-		for (int j = 0; j < num_time_samples; j++) {
+		for (j = 0; j < num_time_samples; j++) {
 			work->terms[i][j] = gsl_complex_rect(0.0, 0.0);
 		}
 	}

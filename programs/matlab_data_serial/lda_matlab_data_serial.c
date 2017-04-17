@@ -1,12 +1,14 @@
+/*
+ * matlab_data_serial.c
+ *
+ *  Created on: Apr 17, 2017
+ *      Author: marcnormandin
+ */
+
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 
-#ifdef HAVE_MPI
-	#include <mpi.h>
-#endif
-
-/*#include "gperftools/profiler.h"*/
 
 #include "detector_antenna_patterns.h"
 #include <math.h>
@@ -73,16 +75,6 @@ void pso_result_print(pso_result_t *result) {
 			result->ra, result->dec, result->chirp_t0, result->chirp_t1_5, result->snr);
 }
 
-int i_am_master() {
-#ifdef HAVE_MPI
-	int rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	return rank == 0;
-#else
-	return 1;
-#endif
-}
-
 int main(int argc, char* argv[]) {
 	size_t i;
 
@@ -91,10 +83,6 @@ int main(int argc, char* argv[]) {
 	clock_t time_start, time_end;
 	double cpu_time_used;
 	time_start = clock();
-
-#ifdef HAVE_MPI
-	MPI_Init(&argc, &argv);
-#endif
 
 	seed = 1;
 
@@ -118,16 +106,9 @@ int main(int argc, char* argv[]) {
 		abort();
 	}
 
-#ifdef HAVE_MPI
-	int rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	if (rank == 0) {
-#endif
+
 	printf("Using the following settings:\n");
 	settings_file_print(settings_file);
-#ifdef HAVE_MPI
-	}
-#endif
 
 	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
 	const double f_high = atof(settings_file_get_value(settings_file, "f_high"));
@@ -154,7 +135,6 @@ int main(int argc, char* argv[]) {
 		seeds[i] = random_seed(rng);
 	}
 
-#ifndef HAVE_MPI
 	for (i = 0; i < arg_num_pso_evaluations; i++) {
 		printf("EVALUATING PSO ESTIMATE #(%lu)...\n", i+1);
 
@@ -172,67 +152,6 @@ int main(int argc, char* argv[]) {
 
 		printf("\nESTIMATE RECORDED.\n\n");
 	}
-
-#else
-	double buff[5];
-	int num_workers;
-	int num_jobs = arg_num_pso_evaluations;
-	MPI_Status status;
-	MPI_Comm_size(MPI_COMM_WORLD, &num_workers);
-	num_workers--; /* Rank 0 doesn't do any pso evaluations */
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	int tag = 0;
-	if (rank == 0) {
-		int num_jobs_done = 0;
-
-		/* Rank 0 will accept the results and write them to file. */
-		while (num_jobs_done != num_jobs) {
-			MPI_Recv(buff, 5, MPI_DOUBLE, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
-			num_jobs_done++;
-
-			pso_result_t pso_result;
-			pso_result.ra = buff[0];
-			pso_result.dec = buff[1];
-			pso_result.chirp_t0 = buff[2];
-			pso_result.chirp_t1_5 = buff[3];
-			pso_result.snr = buff[4];
-
-			pso_result_print(&pso_result);
-
-			/* save to file. */
-			FILE *fid = fopen(arg_pso_results_file, "a");
-			pso_result_save(fid, &pso_result);
-			if (num_jobs_done != num_jobs) {
-				fprintf(fid, "\n");
-			}
-			fclose(fid);
-		}
-	} else {
-		/* All other ranks are workers. */
-		int num_jobs_completed = 0;
-
-		while(1) {
-			/* get seed number to process */
-			int r = (rank-1) + (num_jobs_completed * num_workers);
-			if (r >= num_jobs) {
-				break;
-			}
-
-			pso_result_t pso_result;
-			pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, seeds[r], &pso_result);
-			buff[0] = pso_result.ra;
-			buff[1] = pso_result.dec;
-			buff[2] = pso_result.chirp_t0;
-			buff[3] = pso_result.chirp_t1_5;
-			buff[4] = pso_result.snr;
-
-			MPI_Send(buff, 5, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
-			num_jobs_completed++;
-		}
-	}
-	MPI_Barrier(MPI_COMM_WORLD);
-
-#endif
 	free(seeds);
 
 	pso_fitness_function_parameters_free(fitness_function_params);
@@ -244,21 +163,10 @@ int main(int argc, char* argv[]) {
 	Detector_Network_free(net);
 	random_free(rng);
 
-#ifdef HAVE_MPI
-	MPI_Finalize();
-#endif
-
-#ifdef HAVE_MPI
-	if (rank == 0) {
-#endif
 
 	time_end = clock();
 	cpu_time_used = ((double) (time_end - time_start)) / CLOCKS_PER_SEC;
-	printf("Program completed successfully after %d seconds.\n", cpu_time_used);
-
-#ifdef HAVE_MPI
-	}
-#endif
+	printf("Program completed successfully after %f seconds.\n", cpu_time_used);
 
 	return 0;
 }
