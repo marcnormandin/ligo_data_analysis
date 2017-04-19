@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 	inspiral_chirp_factors_t temp_chirp;
-	CF_compute(f_low, &source, &temp_chirp);
+	CF_compute_for_signal(f_low, &source, &temp_chirp);
 	FILE *true_parameters = fopen("true_parameters.dat", "w");
 	fprintf(true_parameters, "RA DEC CHIRP_TIME_0 CHIRP_TIME_1_5 NETWORK_SNR\n");
 	fprintf(true_parameters, "%0.21f %0.21f %0.21f %0.21f %0.21f",

@@ -218,8 +218,7 @@ void CN_workspace_free( coherent_network_workspace_t *workspace ) {
 	free( workspace );
 }
 
-void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
-	assert(sp_lookup != NULL);
+void CN_do_work(size_t num_time_samples, size_t f_low_index, size_t f_high_index, gsl_complex *spa, asd_t *asd, gsl_complex *half_fft_data, gsl_complex *temp, gsl_complex *out_c) {
 	assert(spa != NULL);
 	assert(asd != NULL);
 	assert(half_fft_data != NULL);
@@ -230,7 +229,8 @@ void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, g
 	size_t t_index;
 	size_t c_index;
 
-	for (k = sp_lookup->f_low_index; k <= sp_lookup->f_high_index; k++) {
+	// faster version for (k = f_low_index; k <= f_high_index; k++) {
+	for (k = 0; k < asd->len; k++) {
 		temp[k] = gsl_complex_conjugate(spa[k]);
 		temp[k] = gsl_complex_div_real(temp[k], asd->asd[k]);
 		temp[k] = gsl_complex_mul( temp[k], half_fft_data[k] );
@@ -347,10 +347,6 @@ void coherent_network_statistic(
 	O21_input = Delta_factor_input * P4_input / G2_input ;
 	O22_input  = Delta_factor_input * P4_input * P2_input / (2.0*B_input*G2_input);
 
-	// debug
-	//fprintf(stderr, "%0.21e %0.21e %0.21e %0.21e\n",
-	//		O11_input, O12_input, O21_input, O22_input);
-
 	/* Loop over each detector to generate a template and do matched filtering */
 	for (i = 0; i < net->num_detectors; i++) {
 		detector_t* det;
@@ -368,18 +364,31 @@ void coherent_network_statistic(
 		/* Compute time delay */
 		Detector_time_delay(det, sky, &detector_time_delay);
 
+		/*printf("g = %0.21e\n", workspace->normalization_factors[i]);*/
+
 		SP_compute(		detector_time_delay, workspace->normalization_factors[i],
 						inspiral_coalesce_phase, chirp,
 						workspace->sp_lookup,
 						workspace->sp);
 
+		/*
+		printf("Detector SPA_0: %s\n", det->name);
+		for (j = 0; j < workspace->sp->len; j++) {
+			printf("%0.21e \t %0.21e\n", GSL_REAL(workspace->sp->spa_0[j]), GSL_IMAG(workspace->sp->spa_0[j]));
+		}
+
+		printf("Detector SPA_90: %s\n", det->name);
+		for (j = 0; j < workspace->sp->len; j++) {
+			printf("%0.21e \t %0.21e\n", GSL_REAL(workspace->sp->spa_90[j]), GSL_IMAG(workspace->sp->spa_90[j]));
+		}*/
+
 		whitened_data = network_strain->strains[i]->half_fft;
 
 		/* compute c_plus */
-		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
+		CN_do_work(num_time_samples, workspace->sp_lookup->f_low_index, workspace->sp_lookup->f_high_index, workspace->sp->spa_0, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_plus);
 
 		/* compute c_minus */
-		do_work(num_time_samples, workspace->sp_lookup, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
+		CN_do_work(num_time_samples, workspace->sp_lookup->f_low_index, workspace->sp_lookup->f_high_index, workspace->sp->spa_90, det->asd, whitened_data, workspace->temp_array, workspace->helpers[i]->c_minus);
 
 		U_vec_input = workspace->ap[i].u;
 		V_vec_input = workspace->ap[i].v;

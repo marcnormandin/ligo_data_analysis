@@ -5,10 +5,12 @@
  *      Author: marcnormandin
  */
 
+#include <stdio.h>
+
 #include "inspiral_chirp.h"
 #include "inspiral_chirp_factors.h"
 
-void Print_Chirp_Factors(inspiral_chirp_factors_t* f) {
+void CF_print(inspiral_chirp_factors_t* f) {
 	printf("total mass: %f\n", f->total_mass);
 	printf("reduced mass: %f\n", f->reduced_mass);
 	printf("chirp mass: %f\n", f->chirp_mass);
@@ -27,9 +29,9 @@ void Print_Chirp_Factors(inspiral_chirp_factors_t* f) {
 	printf("tc: %f\n", f->ct.tc);
 }
 
-void CF_compute(double f_low, source_t *source, inspiral_chirp_factors_t *fac) {
-	fac->total_mass = Chirp_Calc_TotalMass(source->m1, source->m2);
-	fac->reduced_mass = Chirp_Calc_ReducedMass(source->m1, source->m2, fac->total_mass);
+void CF_compute_for_signal(double f_low, double m1, double m2, double time_of_arrival, inspiral_chirp_factors_t *fac) {
+	fac->total_mass = Chirp_Calc_TotalMass(m1, m2);
+	fac->reduced_mass = Chirp_Calc_ReducedMass(m1, m2, fac->total_mass);
 	fac->chirp_mass = Chirp_Calc_ChirpMass(fac->reduced_mass, fac->total_mass);
 
 	/* Change parameters accordingly to estimate chirp times. */
@@ -47,5 +49,5 @@ void CF_compute(double f_low, source_t *source, inspiral_chirp_factors_t *fac) {
 	fac->ct.chirp_time2 = Chirp_Calc_Time2(f_low, fac->multi_fac_cal, fac->s_mass_ratio_cal);
 	fac->t_chirp = Chirp_Calc_TChirp(fac->ct.chirp_time0, fac->ct.chirp_time1, fac->ct.chirp_time1_5, fac->ct.chirp_time2);
 
-	fac->ct.tc = Chirp_Calc_TC(source->time_of_arrival, fac->t_chirp);
+	fac->ct.tc = Chirp_Calc_TC(time_of_arrival, fac->t_chirp);
 }

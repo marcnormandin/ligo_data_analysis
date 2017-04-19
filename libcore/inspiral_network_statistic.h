@@ -65,7 +65,7 @@ coherent_network_workspace_t* CN_workspace_alloc(size_t num_time_samples, detect
 
 void CN_workspace_free( coherent_network_workspace_t *workspace );
 
-void do_work(size_t num_time_samples, stationary_phase_workspace_t *sp_lookup, gsl_complex *spa, asd_t *asd, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
+void CN_do_work(size_t num_time_samples, size_t f_low_index, size_t f_high_index, gsl_complex *spa, asd_t *asd, gsl_complex *whitened_data, gsl_complex *temp, gsl_complex *out_c);
 
 void CN_save(char* filename, size_t len, double* tmp_ifft);
 

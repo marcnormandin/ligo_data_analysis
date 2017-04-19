@@ -71,10 +71,11 @@ void pso_fitness_function_parameters_free(pso_fitness_function_parameters_t *par
 	free(params);
 }
 
-/* this routine was written for the PSO code. The above code should use it. TODO */
-void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct) {
+/* this routine was written for the PSO code. */
+void pso_template_chirp_time(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct) {
 	assert(ct != NULL);
 
+	/* f_low and these are used to compute the required chirp times. */
 	ct->chirp_time0 = chirp_time0;
 	ct->chirp_time1_5 = chirp_time1_5;
 
@@ -88,7 +89,7 @@ void CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, inspi
 
 	double calc_tchirp = Chirp_Calc_TChirp(ct->chirp_time0, ct->chirp_time1, ct->chirp_time1_5, ct->chirp_time2);
 
-	/* careful because this doesn't use time of arrival because the network statistic wants it as 0 */
+	/* careful that this doesn't use time of arrival because the network statistic wants it as 0 */
 	ct->tc = calc_tchirp;
 }
 
@@ -128,7 +129,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 		double chirp_time_1_5 = gsl_vector_get(realCoord, 3);
 
 		inspiral_chirp_time_t chirp_time;
-		CF_CT_compute(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
+		pso_template_chirp_time(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
 
 		/* The network statistic requires the time of arrival to be zero
 		   in order for the matched filtering to work correctly. */

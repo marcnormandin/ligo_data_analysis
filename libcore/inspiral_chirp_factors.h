@@ -9,13 +9,12 @@
 #define COMMON_INSPIRAL_CHIRP_FACTORS_H_
 
 #include "inspiral_chirp_time.h"
-#include "inspiral_signal.h"
 
 /* This structure holds the values that are computed using the inspiral source parameters.
  * They are stored in a structure because they are repeatedly used throughout the code.
  */
 typedef struct inspiral_chirp_factors_s {
-	/* m1, m2 are needed to compute these */
+	/* f_low, m1, m2 are needed to compute these */
 	double total_mass;
 	double reduced_mass;
 	double chirp_mass;
@@ -34,7 +33,7 @@ typedef struct inspiral_chirp_factors_s {
 
 } inspiral_chirp_factors_t;
 
-void Print_Chirp_Factors(inspiral_chirp_factors_t* f);
-void CF_compute(double f_low, source_t *source, inspiral_chirp_factors_t *out_cf);
+void CF_print(inspiral_chirp_factors_t* f);
+void CF_compute_for_signal(double f_low, double m1, double m2, double time_of_arrival, inspiral_chirp_factors_t *out_cf);
 
 #endif /* COMMON_INSPIRAL_CHIRP_FACTORS_H_ */

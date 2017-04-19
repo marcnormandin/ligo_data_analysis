@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
 		/* For the template matching, use time_of_arrival = 0, so tc = t_chirp. */
 		inspiral_chirp_factors_t chirp;
-		CF_compute(f_low, &source, &chirp);
+		CF_compute_for_signal(f_low, &source, &chirp);
 		chirp.ct.tc = chirp.t_chirp;
 
 		double out_val = -1.0;

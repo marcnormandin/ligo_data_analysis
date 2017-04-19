@@ -48,10 +48,7 @@ double Chirp_Calc_ChirpTime1_5(double f_low, double multi_fac, double s_mass_rat
 
 double Chirp_Calc_CalculatedReducedMass(double f_low, double chirp_time0, double chirp_time1_5) {
 	return (1.0 / (16.0 * gsl_pow_2(f_low)))
-			* pow(
-					5.0
-							/ (4.0 * gsl_pow_4(M_PI) * chirp_time0
-									* gsl_pow_2(chirp_time1_5)), 1.0 / 3.0)
+			* pow(5.0 / (4.0 * gsl_pow_4(M_PI) * chirp_time0 * gsl_pow_2(chirp_time1_5)), 1.0 / 3.0)
 			/ (G / gsl_pow_3(c));
 }
 
@@ -84,6 +81,7 @@ double Chirp_Calc_TChirp(double chirp_time0, double chirp_time1, double chirp_ti
 			+ chirp_time2;
 }
 
+/* For the templates, time_of_arrival = 0, and for signals it doesn't equal 0. */
 double Chirp_Calc_TC(double time_of_arrival, double t_chirp) {
 	return time_of_arrival + t_chirp;
 }

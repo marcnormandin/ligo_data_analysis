@@ -41,7 +41,7 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 	stationary_phase_t* sp;
 	size_t j;
 
-	CF_compute(f_low, source, &chirp);
+	CF_compute_for_signal(f_low, source->m1, source->m2, source->time_of_arrival, &chirp);
 	//CF_CT_compute(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct);
 
 	/* one antenna pattern structure per detector */
@@ -109,7 +109,7 @@ network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t
 
 	/* compute the network statistic so that we can determine the scale parameter */
 	inspiral_chirp_factors_t chirp;
-	CF_compute(f_low, source, &chirp);
+	CF_compute_for_signal(f_low, source->m1, source->m2, source->time_of_arrival, &chirp);
 
 	/* Assume that each strain has the same length */
 	size_t len_asd = net->detector[0]->asd->len;

@@ -48,7 +48,7 @@
 /* Compute the chirp factors so that we know the true chirp times, and save them to file. */
 void save_true_signal(double f_low, source_t *source, char *filename) {
 	inspiral_chirp_factors_t temp_chirp;
-	CF_compute(f_low, source, &temp_chirp);
+	CF_compute_for_signal(f_low, source->m1, source->m2, source->time_of_arrival, &temp_chirp);
 	FILE *true_parameters = fopen(filename, "w");
 	fprintf(true_parameters, "RA DEC CHIRP_TIME_0 CHIRP_TIME_1_5 NETWORK_SNR\n");
 	fprintf(true_parameters, "%0.21f %0.21f %0.21f %0.21f %0.21f",

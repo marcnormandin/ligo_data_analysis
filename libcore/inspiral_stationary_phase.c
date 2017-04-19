@@ -25,10 +25,10 @@ int find_index_low(double f_low, size_t len, double *f_array) {
 int find_index_high(double f_high, size_t len, double *f_array) {
 	size_t i;
 	for (i = 0; i < len; i++) {
-		if (f_array[i] > f_high) {
-			return i-1;
-		} else if (f_array[i] == f_high) {
+		if (f_array[i] == f_high) {
 			return i;
+		} else if (f_array[i] > f_high) {
+			return i-1;
 		}
 	}
 
@@ -72,7 +72,7 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 	lookup->f_low = f_low;
 	lookup->f_high = f_high;
 
-	if (lookup->f_low >= lookup->f_high) {
+	if (lookup->f_low > lookup->f_high) {
 		fprintf(stderr, "Error. f_low (%f) >= f_high(%f). Exiting.\n", lookup->f_low, lookup->f_high);
 		exit(-1);
 	}
@@ -94,8 +94,8 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 	}
 
 	/* Make sure the indices make sense. */
-	if (lookup->f_low_index >= lookup->f_high_index) {
-		fprintf(stderr, "Error. f_low_index (%lu) >= f_high_index (%lu). Exiting.\n",
+	if (lookup->f_low_index > lookup->f_high_index) {
+		fprintf(stderr, "Error. f_low_index (%lu) > f_high_index (%lu). Exiting.\n",
 				lookup->f_low_index, lookup->f_high_index);
 		exit(-1);
 	}

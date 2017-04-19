@@ -65,7 +65,7 @@ void snr_sky_map(pso_fitness_function_parameters_t *splParams, int num_ra, int n
 			splParams->source->sky.ra = ra;
 			splParams->source->sky.dec = dec;
 
-			CF_compute(splParams->f_low, splParams->source, &chirp);
+			CF_compute_for_signal(splParams->f_low, splParams->source, &chirp);
 			/* The network statistic requires the time of arrival to be zero
 			   in order for the matched filtering to work correctly. */
 			chirp.ct.tc = chirp.t_chirp;
