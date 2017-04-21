@@ -334,7 +334,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = m4 .gitignore .git Doxyfile
-SUBDIRS = tests libcore libpso programs settings notebooks
+SUBDIRS = libcore libpso programs settings
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

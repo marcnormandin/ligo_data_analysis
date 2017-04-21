@@ -112,6 +112,40 @@ double hdf5_get_sampling_frequency( const char* hdf_filename )
 	return fs;
 }
 
+/*
+void hdf5_save_attribute_long( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const long *data ) {
+	assert(hdf5_filename != NULL);
+
+	hid_t file_id, group_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf5_filename);
+		exit(-1);
+	}
+
+	group_id = H5Gopen( file_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	if (group_id < 0) {
+		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		exit(-1);
+	}
+
+
+
+	status = H5LTset_attribute_double( group_id, group_name, attribute_name, &num);
+	if (status < 0) {
+		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf5_filename);
+		exit(-1);
+	}
+
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}*/
+
 size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 	assert(hdf_filename != NULL);
 

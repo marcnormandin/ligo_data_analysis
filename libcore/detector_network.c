@@ -71,9 +71,6 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file, do
 	int num_time_samples = hdf5_get_num_time_samples( dmap->data_filenames[0] );
 	printf("Simulated data will contain %d time samples.\n", num_time_samples);
 
-	size_t half_size = SS_half_size(num_time_samples);
-	printf("The half size is: %lu\n", half_size);
-
 	fprintf(stderr, "Allocating a (%lu) detector network... ", dmap->num_detectors);
 	detector_network_t* net = Detector_Network_alloc ( dmap->num_detectors );
 	fprintf(stderr, "done.\n");
@@ -83,61 +80,20 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file, do
 		fprintf(stderr, "Loading the PSD for detector %lu from file (%s).\n", i, dmap->data_filenames[i]);
 		psd_t *psd_unprocessed = PSD_load( dmap->data_filenames[i] );
 
-		/* Set the frequencies we want to use. */
-		psd_t *psd = PSD_alloc( half_size );
-		psd->type = PSD_ONE_SIDED;
-		SS_frequency_array(fs, num_time_samples, psd->len, psd->f);
-
-		/* Interpolate the PSD to the desired frequencies. */
-		gsl_interp* interp = gsl_interp_alloc(gsl_interp_linear, psd_unprocessed->len);
-		gsl_interp_accel* acc = gsl_interp_accel_alloc();
-		gsl_interp_init(interp, psd_unprocessed->f, psd_unprocessed->psd, psd_unprocessed->len);
-		for (j = 0; j < psd->len; j++) {
-			double asd_interpolated = gsl_interp_eval(interp, psd_unprocessed->f, psd_unprocessed->psd, psd->f[j], acc);
-			psd->psd[j] = asd_interpolated;
-		}
-		gsl_interp_accel_free(acc);
-		gsl_interp_free(interp);
-
-		/* Flatten the ends */
-		/* Find the f_low index */
-		size_t f_low_index = -1;
-		for (j = 0; j < psd->len; j++) {
-			if (psd->f[j] >= f_low) {
-				f_low_index = j;
-				break;
-			}
-		}
-		assert(f_low_index != -1);
-
-		size_t f_high_index = -1;
-		for (j = 0; j < psd->len; j++) {
-			if (psd->f[j] >= f_high) {
-				f_high_index = j;
-				break;
-			}
-		}
-		assert(f_high_index != -1);
-
-		for (j = 0; j < psd->len; j++) {
-			if (j <= f_low_index) {
-				psd->psd[j] = psd->psd[f_low_index];
-			} else if (j >= f_high_index) {
-				psd->psd[j] = psd->psd[f_high_index];
-			}
-		}
+		psd_t *psd = PSD_make_suitable_for_network_analysis(psd_unprocessed, num_time_samples, fs, f_low, f_high);
 
 		detector_t *det = net->detector[i];
 		Detector_init_name( dmap->detector_names[i], psd, det);
 
 		/* This was created for diagnostics, but can not be used in parallel. */
-		/*
+#ifndef HAVE_MPI
 		char buff[DETECTOR_MAX_NAME_LENGTH+10];
 		memset(buff, '\0', DETECTOR_MAX_NAME_LENGTH+10 * sizeof(char));
 		sprintf(buff, "%s.diag", det->name);
 		hdf5_create_file(buff);
 		PSD_save(buff, det->psd);
-		ASD_save(buff, det->asd);*/
+		ASD_save(buff, det->asd);
+#endif
 	}
 
 	printf("GW Detector network created: ");

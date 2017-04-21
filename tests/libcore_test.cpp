@@ -774,7 +774,7 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 	sky.ra = 1.0;
 	sky.dec = 1.0;
 
-	double polarization_angle = 1.0;
+	//double polarization_angle = 1.0;
 
 	inspiral_chirp_time_t ct;
 	ct.chirp_time0 = 4.0;
@@ -826,7 +826,6 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 			f_high,
 			&ct,
 			&sky,
-			polarization_angle,
 			network_strain,
 			ws,
 			&network_snr);

@@ -16046,7 +16046,7 @@ fi
 
 ac_config_headers="$ac_config_headers config.h"
 
-ac_config_files="$ac_config_files Makefile tests/Makefile settings/Makefile notebooks/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile"
+ac_config_files="$ac_config_files Makefile programs/histogram/Makefile settings/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile programs/diagnostics/Makefile"
 
 
 # ****************************************************************************************************
@@ -17169,9 +17169,8 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
+    "programs/histogram/Makefile") CONFIG_FILES="$CONFIG_FILES programs/histogram/Makefile" ;;
     "settings/Makefile") CONFIG_FILES="$CONFIG_FILES settings/Makefile" ;;
-    "notebooks/Makefile") CONFIG_FILES="$CONFIG_FILES notebooks/Makefile" ;;
     "libcore/Makefile") CONFIG_FILES="$CONFIG_FILES libcore/Makefile" ;;
     "libpso/Makefile") CONFIG_FILES="$CONFIG_FILES libpso/Makefile" ;;
     "programs/Makefile") CONFIG_FILES="$CONFIG_FILES programs/Makefile" ;;
@@ -17179,6 +17178,7 @@ do
     "programs/matlab_data_serial/Makefile") CONFIG_FILES="$CONFIG_FILES programs/matlab_data_serial/Makefile" ;;
     "programs/simulate_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_data/Makefile" ;;
     "programs/simulate_matlab_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_matlab_data/Makefile" ;;
+    "programs/diagnostics/Makefile") CONFIG_FILES="$CONFIG_FILES programs/diagnostics/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

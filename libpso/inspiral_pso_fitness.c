@@ -72,14 +72,14 @@ void pso_fitness_function_parameters_free(pso_fitness_function_parameters_t *par
 }
 
 /* this routine was written for the PSO code. */
-void pso_template_chirp_time(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct) {
+void CN_template_chirp_time(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct) {
 	assert(ct != NULL);
 
 	/* f_low and these are used to compute the required chirp times. */
 	ct->chirp_time0 = chirp_time0;
 	ct->chirp_time1_5 = chirp_time1_5;
 
-	double calculated_reduced_mass = Chirp_Calc_CalculatedTotalMass(f_low, chirp_time0, chirp_time1_5);
+	double calculated_reduced_mass = Chirp_Calc_CalculatedReducedMass(f_low, chirp_time0, chirp_time1_5);
 	double calculated_total_mass = Chirp_Calc_CalculatedTotalMass(f_low, chirp_time0, chirp_time1_5);
 	double multi_fac_cal = Chirp_Calc_MultiFacCal(f_low, calculated_total_mass);
 	double s_mass_ratio_cal = Chirp_Calc_SMassRatioCal(calculated_reduced_mass, calculated_total_mass);
@@ -129,7 +129,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 		double chirp_time_1_5 = gsl_vector_get(realCoord, 3);
 
 		inspiral_chirp_time_t chirp_time;
-		pso_template_chirp_time(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
+		CN_template_chirp_time(splParams->f_low, chirp_time_0, chirp_time_1_5, &chirp_time);
 
 		/* The network statistic requires the time of arrival to be zero
 		   in order for the matched filtering to work correctly. */
@@ -139,18 +139,12 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 		sky.ra = ra;
 		sky.dec = dec;
 
-		/* DANGER */
-		double polarization_angle = 0.0;
-
-		//fprintf(stderr, "About to evaluate network statistic.\n");
-
 		coherent_network_statistic(
 				splParams->network,
 				splParams->f_low,
 				splParams->f_high,
 				&chirp_time,
 				&sky,
-				polarization_angle,
 				splParams->network_strain,
 				splParams->workspace[omp_get_thread_num()],
 				&fitFuncVal);

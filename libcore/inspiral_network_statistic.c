@@ -266,7 +266,6 @@ void coherent_network_statistic(
 		double f_high,
 		inspiral_chirp_time_t *chirp,
 		sky_t *sky,
-		double polarization_angle,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
 		double *out_network_snr)
@@ -309,6 +308,7 @@ void coherent_network_statistic(
 
 	/* Compute the antenna patterns for each detector */
 	for (i = 0; i < net->num_detectors; i++) {
+		double polarization_angle = 0.0; // Shihan said only u and v are needed for templates.
 		Detector_Antenna_Patterns_compute(net->detector[i], sky, polarization_angle,
 				workspace->ap_workspace, &workspace->ap[i]);
 	}
@@ -358,7 +358,7 @@ void coherent_network_statistic(
 
 		det = net->detector[i];
 
-		/* DANGER */
+		/* For reconstruction use the phase as 0 */
 		inspiral_coalesce_phase = 0.0;
 
 		/* Compute time delay */

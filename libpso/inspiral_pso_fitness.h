@@ -36,4 +36,6 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer);
 
 int pso_estimate_parameters(char *pso_settings_file, pso_fitness_function_parameters_t *splParams, gslseed_t seed, pso_result_t* result);
 
+void CN_template_chirp_time(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct);
+
 #endif /* SRC_C_PTAPSO_ESTIMATE_H_ */

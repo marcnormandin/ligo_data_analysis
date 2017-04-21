@@ -75,7 +75,6 @@ void coherent_network_statistic(
 		double f_high,
 		inspiral_chirp_time_t *chirp,
 		sky_t *sky,
-		double polarization_angle,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
 		double *out_val);

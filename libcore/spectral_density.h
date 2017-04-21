@@ -39,6 +39,10 @@ void PSD_init_from_asd( asd_t *asd, psd_t *psd);
 psd_t* PSD_load( const char *hdf_filename );
 void PSD_save( const char *hdf_filename, psd_t *psd );
 
+psd_t* PSD_nonuniform_to_uniform(psd_t *nonuniform, size_t num_time_samples, double sampling_frequency);
+void PSD_flatten_edges(double f_low, double f_high, psd_t *psd);
+psd_t* PSD_make_suitable_for_network_analysis(psd_t *nonuniform, size_t num_time_samples, double sampling_frequency, double f_low, double f_high);
+
 asd_t* ASD_alloc( size_t len );
 void ASD_free( asd_t *asd);
 void ASD_init_from_psd( psd_t *psd, asd_t *asd);
