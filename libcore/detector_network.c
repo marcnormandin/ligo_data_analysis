@@ -84,16 +84,6 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file, do
 
 		detector_t *det = net->detector[i];
 		Detector_init_name( dmap->detector_names[i], psd, det);
-
-		/* This was created for diagnostics, but can not be used in parallel. */
-#ifndef HAVE_MPI
-		char buff[DETECTOR_MAX_NAME_LENGTH+10];
-		memset(buff, '\0', DETECTOR_MAX_NAME_LENGTH+10 * sizeof(char));
-		sprintf(buff, "%s.diag", det->name);
-		hdf5_create_file(buff);
-		PSD_save(buff, det->psd);
-		ASD_save(buff, det->asd);
-#endif
 	}
 
 	printf("GW Detector network created: ");
