@@ -8,6 +8,10 @@
 #ifndef LIBPSO_PARALLEL_H_
 #define LIBPSO_PARALLEL_H_
 
+#ifdef HAVE_CONFIG_H
+	#include "config.h"
+#endif
+
 #include <stddef.h>
 
 size_t parallel_get_thread_num();
