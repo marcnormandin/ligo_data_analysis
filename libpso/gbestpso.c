@@ -111,7 +111,9 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 			particleInfoDump(psoParams->debugDumpFile,pop,popsize);
 		}		
         /* Calculate fitness values */
+#ifdef HAVE_OPENMP
 		#pragma omp parallel for
+#endif
 		for (lpParticles = 0; lpParticles < popsize; lpParticles++){
 			/* Evaluate fitness */
 			pop[lpParticles].partSnrCurr = fitfunc(pop[lpParticles].partCoord,ffParams);

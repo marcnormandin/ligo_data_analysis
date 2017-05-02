@@ -17,8 +17,9 @@ AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL
 
-AC_OPENMP()
+#AC_OPENMP()
 if test "$enable_openmp" = yes; then
+	AC_OPENMP()
 	if test "x$ac_cv_prog_cc_openmp" = "xunsupported"; then
 		AC_MSG_NOTICE(OpenMP requested, but is not supported. Multithreaded operation is disabled.)
 	else
@@ -37,7 +38,7 @@ AM_CONDITIONAL([HAVE_OPENMP], [test "x$ac_cv_prog_cc_openmp" != "xunsupported"])
 
 #AC_DEFINE([HAVE_OMP], [], [Have OpenMP])
 
-#AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
 
 #AX_LIB_HDF5([serial])
 #if test "$with_hdf5" = "no"; then
