@@ -77,12 +77,18 @@ struct dummyFitFuncParam{
 
 double dummyfitfunc(const gsl_vector *, void *);
 
-void ptapso(size_t, /* Dimensionality of fitness function */
+void lbestpso(size_t, /* Dimensionality of fitness function */
             fitness_function_ptr, /* Pointer to fitness function */
 		    void *, /* Fitness function parameter structure */
 			struct psoParamStruct *, /* PSO parameters */
 			struct returnData * /* Structure containing PSO output */
 		   );
+
+void gbestpso(size_t nDim, /*!< Number of search dimensions */
+            fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
+			void *ffParams, /*!< Fitness function parameter structure */
+            struct psoParamStruct *psoParams, /*!< PSO parameter structure */
+			struct returnData *psoResults /*!< Output structure */);
 
 void initPsoParticles(struct particleInfo *, size_t , gsl_rng *);
 

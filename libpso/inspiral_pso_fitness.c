@@ -6,7 +6,7 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_rng.h>
 
-#include "ptapso.h"
+#include "pso.h"
 #include "ptapso_maxphase.h"
 
 #include "inspiral_pso_fitness.h"
@@ -238,7 +238,7 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 
 	settings_file_close(settings_file);
 
-	ptapso(nDim, fitfunc, inParams, &psoParams, psoResults);
+	gbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
 
 	/* convert values to function ranges, instead of pso ranges */
 	// use the 0 index to convert the value
