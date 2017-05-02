@@ -8,10 +8,17 @@ libpso_la_SOURCES = \
 	inspiral_pso_fitness.c \
 	inspiral_pso_fitness.h \
 	lbestpso.c \
+	parallel.c \
+	parallel.h \
 	ptapso_maxphase.c \
 	ptapso_maxphase.h \
 	pso.c \
 	pso.h
 
-libpso_la_LDFLAGS = -fopenmp
+libpso_la_LDFLAGS = 
+
+if HAVE_OPENMP
+libpso_la_LDFLAGS += -fopenmp
+endif
+
 libpso_la_LIBADD = ../libcore/libcore.la -lgsl -lgslcblas -lhdf5 -lhdf5_hl -lm

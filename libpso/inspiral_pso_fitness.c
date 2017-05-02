@@ -17,7 +17,7 @@
 
 #include "settings_file.h"
 
-#include <omp.h>
+#include "parallel.h"
 
 pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 		double f_low, double f_high, detector_network_t* network, network_strain_half_fft_t *network_strain)
@@ -32,13 +32,13 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 		exit(-1);
 	}
 
-	params->workspace = (coherent_network_workspace_t**) malloc( omp_get_max_threads() * sizeof(coherent_network_workspace_t*) );
+	params->workspace = (coherent_network_workspace_t**) malloc( parallel_get_max_threads() * sizeof(coherent_network_workspace_t*) );
 	if (params->workspace == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory for params->workspace. Exiting.\n");
 		exit(-1);
 	}
 
-	for (i = 0; i < omp_get_max_threads(); i++) {
+	for (i = 0; i < parallel_get_max_threads(); i++) {
 		params->workspace[i] = CN_workspace_alloc(
 				network_strain->num_time_samples, network, network->detector[0]->asd->len,
 				f_low, f_high);
@@ -50,7 +50,7 @@ pso_fitness_function_parameters_t* pso_fitness_function_parameters_alloc(
 	params->network = network;
 	params->network_strain = network_strain;
 
-	fprintf(stderr, "Number of threads: %lu\n", omp_get_max_threads());
+	fprintf(stderr, "Number of threads: %lu\n", parallel_get_max_threads());
 
 	return params;
 }
@@ -60,7 +60,7 @@ void pso_fitness_function_parameters_free(pso_fitness_function_parameters_t *par
 
 	size_t i;
 	assert(params != NULL);
-	for (i = 0; i < omp_get_max_threads(); i++) {
+	for (i = 0; i < parallel_get_max_threads(); i++) {
 		CN_workspace_free(params->workspace[i]);
 	}
 
@@ -113,14 +113,14 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 
 	/* This fitness function knows what fields are given in the special parameters struct */
 
-	gsl_vector *realCoord = inParams->realCoord[omp_get_thread_num()];
+	gsl_vector *realCoord = inParams->realCoord[parallel_get_thread_num()];
 
 	s2rvector(xVec,inParams->rmin,inParams->rangeVec,realCoord);
 
 	validPt = chkstdsrchrng(xVec);
 
 	if (validPt){
-		inParams->fitEvalFlag[omp_get_thread_num()] = 1;
+		inParams->fitEvalFlag[parallel_get_thread_num()] = 1;
 		fitFuncVal = 0;
 
 		double ra = gsl_vector_get(realCoord, 0);
@@ -146,7 +146,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 				&chirp_time,
 				&sky,
 				splParams->network_strain,
-				splParams->workspace[omp_get_thread_num()],
+				splParams->workspace[parallel_get_thread_num()],
 				&fitFuncVal);
 		/* The statistic is larger for better matches, but PSO is finding
 		   minimums, so multiply by -1.0. */
@@ -154,7 +154,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
     }
 	else{
 		fitFuncVal=GSL_POSINF;
-		inParams->fitEvalFlag[omp_get_thread_num()] = 0;
+		inParams->fitEvalFlag[parallel_get_thread_num()] = 0;
 	}
 
    return fitFuncVal;

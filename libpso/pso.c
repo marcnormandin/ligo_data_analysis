@@ -14,7 +14,7 @@
 #include <gsl/gsl_math.h>
 
 #include "ptapso_maxphase.h"
-#include "omp.h"
+#include "parallel.h"
 
 #include "pso.h"
 

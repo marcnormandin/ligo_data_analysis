@@ -8,7 +8,7 @@
 #include "detector_network.h"
 #include "inspiral_network_statistic.h"
 
-#include "omp.h"
+#include "parallel.h"
 
 typedef struct pso_result_s {
 	double ra;

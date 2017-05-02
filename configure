@@ -643,6 +643,9 @@ TEST_LIBS
 HAVE_GTEST
 HAVE_GTEST_FALSE
 HAVE_GTEST_TRUE
+HAVE_OPENMP
+HAVE_OPENMP_FALSE
+HAVE_OPENMP_TRUE
 AM_CPPFLAGS
 OPENMP_CFLAGS
 CXXCPP
@@ -15811,8 +15814,19 @@ $as_echo "$ac_cv_prog_c_openmp" >&6; }
   fi
 
 
+#AX_OPENMP()
 AM_CPPFLAGS="$CFLAGS $OPENMP_CFLAGS"
 
+ if test "x$HAVE_OPENMP" = xyes; then
+  HAVE_OPENMP_TRUE=
+  HAVE_OPENMP_FALSE='#'
+else
+  HAVE_OPENMP_TRUE='#'
+  HAVE_OPENMP_FALSE=
+fi
+
+
+#AC_DEFINE([HAVE_OMP], [], [Have OpenMP])
 
 #AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
 
@@ -16188,6 +16202,10 @@ else
   am__EXEEXT_FALSE=
 fi
 
+if test -z "${HAVE_OPENMP_TRUE}" && test -z "${HAVE_OPENMP_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_OPENMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${HAVE_GTEST_TRUE}" && test -z "${HAVE_GTEST_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_GTEST\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5

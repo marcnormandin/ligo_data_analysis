@@ -8,7 +8,7 @@
 #include <gsl/gsl_math.h>
 
 #include "ptapso_maxphase.h"
-#include "omp.h"
+#include "parallel.h"
 
 /*! \file
 \brief Particle Swarm Optimization (PSO) and support functions.
@@ -119,7 +119,7 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 			/* Separately store all fitness values -- needed to find best particle */
 			gsl_vector_set(partSnrCurrCol,lpParticles,pop[lpParticles].partSnrCurr);
 			/* Check if fitness function was actually evaluated or not */
-	        computeOK = ((struct fitFuncParams *)ffParams)->fitEvalFlag[omp_get_thread_num()];
+	        computeOK = ((struct fitFuncParams *)ffParams)->fitEvalFlag[parallel_get_thread_num()];
 	        funcCount = 0;
 	        if (computeOK){
 			    /* Increment fitness function evaluation count */
