@@ -18,10 +18,23 @@ AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL
 
 AC_OPENMP()
+if test "$enable_openmp" = yes; then
+	if test "x$ac_cv_prog_cc_openmp" = "xunsupported"; then
+		AC_MSG_NOTICE(OpenMP requested, but is not supported. Multithreaded operation is disabled.)
+	else
+		CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+		AC_DEFINE(HAVE_OPENMP, 1, Define to 1 if you have OpenMP)
+	fi
+else
+	AC_MSG_NOTICE(OpenMP disabled.)
+fi
+
 #AX_OPENMP()
-AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
-AM_CONDITIONAL([HAVE_OPENMP], [test "x$HAVE_OPENMP" = xyes])
-AC_SUBST([HAVE_OPENMP])
+#AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
+AM_CONDITIONAL([HAVE_OPENMP], [test "x$ac_cv_prog_cc_openmp" != "xunsupported"])
+#AC_DEFINE([HAVE_OPENMP], ["$HAVE_OPENMP"], [Have OpenMP])
+#AC_SUBST([HAVE_OPENMP])
+
 #AC_DEFINE([HAVE_OMP], [], [Have OpenMP])
 
 #AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
