@@ -2,6 +2,7 @@
 #define SRC_C_LDA_HDF5_H_
 
 #include <stddef.h>
+#include <gsl/gsl_vector.h>
 
 void hdf5_create_file( const char* hdf_filename );
 
@@ -18,5 +19,10 @@ void hdf5_load_array( const char *hdf_filename, const char *dataset_name, double
 void hdf5_create_group(const char *hdf5_filename, const char* group_name);
 
 void hdf5_save_array(const char *hdf5_filename, const char* group_name, const char *array_name, size_t len, double *array);
+
+void hdf5_save_attribute_string( const char *hdf5_filename, const char *group_name, const char *attribute_name, const char *data);
+void hdf5_save_attribute_double( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const double *data );
+void hdf5_save_attribute_ulong( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const unsigned long *data );
+void hdf5_save_attribute_gsl_vector( const char *hdf5_filename, const char *group_name, const char *attribute_name, const gsl_vector *data );
 
 #endif /* SRC_C_LDA_HDF5_H_ */

@@ -25,10 +25,11 @@ typedef struct source_s {
 	sky_t	sky;
 
 	double	polarization_angle;
-	double	coalesce_phase;
+	double	coalescence_phase;
 	double	inclination_angle;
 
-	double snr;
+	double  snr;
+
 } source_t;
 
 

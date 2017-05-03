@@ -38,7 +38,12 @@ AM_CONDITIONAL([HAVE_OPENMP], [test "x$ac_cv_prog_cc_openmp" != "xunsupported"])
 
 #AC_DEFINE([HAVE_OMP], [], [Have OpenMP])
 
-AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+#AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+ # If --with-mpi=auto is used, try to find MPI, but use standard C compiler if it is not found.
+  # If --with-mpi=yes is used, try to find MPI and fail if it isn't found.
+  # If --with-mpi=no is used, use a standard C compiler instead.
+ 
+AM_CONDITIONAL([HAVE_MPI], [test x"$use_mpi" = xyes], [MPI Enabled])
 
 #AX_LIB_HDF5([serial])
 #if test "$with_hdf5" = "no"; then
@@ -82,7 +87,17 @@ AC_SUBST(ac_top_srcdir)
 # List of Makefile.am's
 AC_CONFIG_SRCDIR([libcore/detector_antenna_patterns.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile programs/histogram/Makefile settings/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile programs/diagnostics/Makefile])
+AC_CONFIG_FILES([Makefile])
+#AC_CONFIG_FILES([programs/histogram/Makefile])
+AC_CONFIG_FILES([settings/Makefile])
+AC_CONFIG_FILES([libcore/Makefile])
+AC_CONFIG_FILES([libpso/Makefile])
+AC_CONFIG_FILES([programs/Makefile])
+#AC_CONFIG_FILES([programs/matlab_data_mpi/Makefile])
+#AC_CONFIG_FILES([programs/matlab_data_serial/Makefile])
+AC_CONFIG_FILES([programs/simulate_data/Makefile])
+#AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
+#AC_CONFIG_FILES([programs/diagnostics/Makefile])
 
 # ****************************************************************************************************
 # Done!

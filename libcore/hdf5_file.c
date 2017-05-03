@@ -112,8 +112,7 @@ double hdf5_get_sampling_frequency( const char* hdf_filename )
 	return fs;
 }
 
-/*
-void hdf5_save_attribute_long( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const long *data ) {
+void hdf5_save_attribute_string( const char *hdf5_filename, const char *group_name, const char *attribute_name, const char *data) {
 	assert(hdf5_filename != NULL);
 
 	hid_t file_id, group_id;
@@ -126,25 +125,129 @@ void hdf5_save_attribute_long( const char *hdf5_filename, const char *group_name
 		exit(-1);
 	}
 
-	group_id = H5Gopen( file_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT );
 	if (group_id < 0) {
-		fprintf(stderr, "Error creating the group (%s) in the file (%s). Aborting.\n",
+		fprintf(stderr, "Error opening the group (%s) in the file (%s). Aborting.\n",
 				group_name, hdf5_filename);
 		exit(-1);
 	}
 
-
-
-	status = H5LTset_attribute_double( group_id, group_name, attribute_name, &num);
+	status = H5LTset_attribute_string( group_id, group_name, attribute_name, data);
 	if (status < 0) {
-		fprintf(stderr, "Error reading the attribute (%s) from the hdf5 file (%s). Aborting.\n",
+		fprintf(stderr, "Error writing the attribute (%s) to the hdf5 file (%s). Aborting.\n",
 				attribute_name, hdf5_filename);
 		exit(-1);
 	}
 
 	H5Gclose(group_id);
 	H5Fclose(file_id);
-}*/
+}
+
+void hdf5_save_attribute_ulong( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const unsigned long *data ) {
+	assert(hdf5_filename != NULL);
+
+	hid_t file_id, group_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf5_filename);
+		exit(-1);
+	}
+
+	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT );
+	if (group_id < 0) {
+		fprintf(stderr, "Error opening the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		exit(-1);
+	}
+
+	status = H5LTset_attribute_ulong( group_id, group_name, attribute_name, data, len_array);
+	if (status < 0) {
+		fprintf(stderr, "Error writing the attribute (%s) to the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf5_filename);
+		exit(-1);
+	}
+
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}
+
+void hdf5_save_attribute_double( const char *hdf5_filename, const char *group_name, const char *attribute_name, size_t len_array, const double *data ) {
+	assert(hdf5_filename != NULL);
+
+	hid_t file_id, group_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf5_filename);
+		exit(-1);
+	}
+
+	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT );
+	if (group_id < 0) {
+		fprintf(stderr, "Error opening the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		exit(-1);
+	}
+
+	status = H5LTset_attribute_double( group_id, group_name, attribute_name, data, len_array);
+	if (status < 0) {
+		fprintf(stderr, "Error writing the attribute (%s) to the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf5_filename);
+		exit(-1);
+	}
+
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}
+
+void hdf5_save_attribute_gsl_vector( const char *hdf5_filename, const char *group_name, const char *attribute_name, const gsl_vector *data ) {
+	assert(hdf5_filename != NULL);
+
+	size_t i;
+	hid_t file_id, group_id;
+	herr_t status;
+
+	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file_id < 0) {
+		fprintf(stderr, "Error opening the hdf5 file (%s). Aborting.\n",
+				hdf5_filename);
+		exit(-1);
+	}
+
+	group_id = H5Gopen2( file_id, group_name, H5P_DEFAULT );
+	if (group_id < 0) {
+		fprintf(stderr, "Error opening the group (%s) in the file (%s). Aborting.\n",
+				group_name, hdf5_filename);
+		exit(-1);
+	}
+
+	double *a = (double*) malloc( data->size * sizeof(double) );
+	if (a == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory to save attribute (%s) to the hdf5 file (%s). Exiting.\n",
+				attribute_name, hdf5_filename);
+		exit(-1);
+	}
+
+	for (i = 0; i < data->size; i++) {
+		a[i] = gsl_vector_get( data, i );
+	}
+
+	status = H5LTset_attribute_double( group_id, group_name, attribute_name, data->size, a);
+	if (status < 0) {
+		fprintf(stderr, "Error writing the attribute (%s) to the hdf5 file (%s). Aborting.\n",
+				attribute_name, hdf5_filename);
+		exit(-1);
+	}
+
+	free(a);
+	H5Gclose(group_id);
+	H5Fclose(file_id);
+}
 
 size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 	assert(hdf_filename != NULL);

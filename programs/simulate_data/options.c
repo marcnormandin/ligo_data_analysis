@@ -108,7 +108,7 @@ process_command_options (int argc, char **argv, source_t *s, gslseed_t *seed, in
 
             case 'c':
                 printf ("option --inspiral_coalesce_phase, -c with value `%s'\n", optarg);
-                s->coalesce_phase = atof(optarg);
+                s->coalescence_phase = atof(optarg);
                 break;
             case 'i':
                 printf ("option --inspiral_inclination, -i with value `%s'\n", optarg);

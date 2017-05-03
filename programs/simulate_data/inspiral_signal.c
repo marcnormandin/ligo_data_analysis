@@ -61,7 +61,7 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 	double normalization_factor = SP_normalization_factor(det->asd, sp_lookup);
 
 	SP_compute(td, normalization_factor,
-			source->coalesce_phase, &chirp.ct,
+			source->coalescence_phase, &chirp.ct,
 			sp_lookup,
 			sp);
 
@@ -140,7 +140,7 @@ void Source_print(source_t* source) {
 	printf("right ascension: %f\n", source->sky.ra);
 	printf("declination: %f\n", source->sky.dec);
 	printf("polarization angle: %f\n", source->polarization_angle);
-	printf("coalesce phase: %f\n", source->coalesce_phase);
+	printf("coalesce phase: %f\n", source->coalescence_phase);
 	printf("inclination: %f\n", source->inclination_angle);
 	printf("binary mass 1: %f\n", source->m1);
 	printf("binary mass 2: %f\n", source->m2);
@@ -152,7 +152,7 @@ void Source_load_testsource(source_t* source) {
 	source->sky.ra = -2.14;
 	source->sky.dec = 0.72;
 	source->polarization_angle = 0.0;
-	source->coalesce_phase = 0.0;
+	source->coalescence_phase = 0.0;
 	source->inclination_angle = 0.0;
 	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 1 */
 	source->m2 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 2 */

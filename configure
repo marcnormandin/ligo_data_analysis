@@ -638,15 +638,16 @@ LTLIBOBJS
 LIBOBJS
 ac_top_srcdir
 AM_LDFLAGS
+AM_CPPFLAGS
 AM_CXXFLAGS
 TEST_LIBS
 HAVE_GTEST
 HAVE_GTEST_FALSE
 HAVE_GTEST_TRUE
-HAVE_OPENMP
+HAVE_MPI_FALSE
+HAVE_MPI_TRUE
 HAVE_OPENMP_FALSE
 HAVE_OPENMP_TRUE
-AM_CPPFLAGS
 OPENMP_CFLAGS
 CXXCPP
 CPP
@@ -15748,6 +15749,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+#AC_OPENMP()
+if test "$enable_openmp" = yes; then
 
   OPENMP_CFLAGS=
   # Check whether --enable-openmp was given.
@@ -15814,10 +15817,23 @@ $as_echo "$ac_cv_prog_c_openmp" >&6; }
   fi
 
 
-#AX_OPENMP()
-AM_CPPFLAGS="$CFLAGS $OPENMP_CFLAGS"
+	if test "x$ac_cv_prog_cc_openmp" = "xunsupported"; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: OpenMP requested" >&5
+$as_echo "$as_me: OpenMP requested" >&but is not supported. Multithreaded operation is disabled.;}
+	else
+		CFLAGS="$CFLAGS $OPENMP_CFLAGS"
 
- if test "x$HAVE_OPENMP" = xyes; then
+$as_echo "#define HAVE_OPENMP 1" >>confdefs.h
+
+	fi
+else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: OpenMP disabled." >&5
+$as_echo "$as_me: OpenMP disabled." >&6;}
+fi
+
+#AX_OPENMP()
+#AC_SUBST([AM_CPPFLAGS], ["$CFLAGS $OPENMP_CFLAGS"])
+ if test "x$ac_cv_prog_cc_openmp" != "xunsupported"; then
   HAVE_OPENMP_TRUE=
   HAVE_OPENMP_FALSE='#'
 else
@@ -15825,10 +15841,24 @@ else
   HAVE_OPENMP_FALSE=
 fi
 
+#AC_DEFINE([HAVE_OPENMP], ["$HAVE_OPENMP"], [Have OpenMP])
+#AC_SUBST([HAVE_OPENMP])
 
 #AC_DEFINE([HAVE_OMP], [], [Have OpenMP])
 
 #AC_DEFINE([HAVE_MPI], [1], [Enable MPI usage.])
+ # If --with-mpi=auto is used, try to find MPI, but use standard C compiler if it is not found.
+  # If --with-mpi=yes is used, try to find MPI and fail if it isn't found.
+  # If --with-mpi=no is used, use a standard C compiler instead.
+
+ if test x"$use_mpi" = xyes; then
+  HAVE_MPI_TRUE=
+  HAVE_MPI_FALSE='#'
+else
+  HAVE_MPI_TRUE='#'
+  HAVE_MPI_FALSE=
+fi
+
 
 #AX_LIB_HDF5([serial])
 #if test "$with_hdf5" = "no"; then
@@ -16060,8 +16090,23 @@ fi
 
 ac_config_headers="$ac_config_headers config.h"
 
-ac_config_files="$ac_config_files Makefile programs/histogram/Makefile settings/Makefile libcore/Makefile libpso/Makefile programs/Makefile programs/matlab_data_mpi/Makefile programs/matlab_data_serial/Makefile programs/simulate_data/Makefile programs/simulate_matlab_data/Makefile programs/diagnostics/Makefile"
+ac_config_files="$ac_config_files Makefile"
 
+#AC_CONFIG_FILES([programs/histogram/Makefile])
+ac_config_files="$ac_config_files settings/Makefile"
+
+ac_config_files="$ac_config_files libcore/Makefile"
+
+ac_config_files="$ac_config_files libpso/Makefile"
+
+ac_config_files="$ac_config_files programs/Makefile"
+
+#AC_CONFIG_FILES([programs/matlab_data_mpi/Makefile])
+#AC_CONFIG_FILES([programs/matlab_data_serial/Makefile])
+ac_config_files="$ac_config_files programs/simulate_data/Makefile"
+
+#AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
+#AC_CONFIG_FILES([programs/diagnostics/Makefile])
 
 # ****************************************************************************************************
 # Done!
@@ -16204,6 +16249,10 @@ fi
 
 if test -z "${HAVE_OPENMP_TRUE}" && test -z "${HAVE_OPENMP_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_OPENMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_MPI_TRUE}" && test -z "${HAVE_MPI_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_GTEST_TRUE}" && test -z "${HAVE_GTEST_FALSE}"; then
@@ -17187,16 +17236,11 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "programs/histogram/Makefile") CONFIG_FILES="$CONFIG_FILES programs/histogram/Makefile" ;;
     "settings/Makefile") CONFIG_FILES="$CONFIG_FILES settings/Makefile" ;;
     "libcore/Makefile") CONFIG_FILES="$CONFIG_FILES libcore/Makefile" ;;
     "libpso/Makefile") CONFIG_FILES="$CONFIG_FILES libpso/Makefile" ;;
     "programs/Makefile") CONFIG_FILES="$CONFIG_FILES programs/Makefile" ;;
-    "programs/matlab_data_mpi/Makefile") CONFIG_FILES="$CONFIG_FILES programs/matlab_data_mpi/Makefile" ;;
-    "programs/matlab_data_serial/Makefile") CONFIG_FILES="$CONFIG_FILES programs/matlab_data_serial/Makefile" ;;
     "programs/simulate_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_data/Makefile" ;;
-    "programs/simulate_matlab_data/Makefile") CONFIG_FILES="$CONFIG_FILES programs/simulate_matlab_data/Makefile" ;;
-    "programs/diagnostics/Makefile") CONFIG_FILES="$CONFIG_FILES programs/diagnostics/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
