@@ -48,7 +48,7 @@
 //#include <hdf5/hdf5.h>
 //#include <hdf5/hdf5_hl.h>
 
-#define DETECTOR_MAPPING_FILENAME_MAX_SIZE 255
+#define FILENAME_MAX_SIZE 255
 
 typedef struct program_settings_s {
 	source_t source;
@@ -56,7 +56,8 @@ typedef struct program_settings_s {
 	double f_low, f_high;
 	double sampling_frequency;
 	size_t num_time_samples;
-	char detector_mapping_filename[DETECTOR_MAPPING_FILENAME_MAX_SIZE];
+	char detector_mapping_filename[FILENAME_MAX_SIZE];
+	char output_filename[FILENAME_MAX_SIZE];
 
 } program_settings_t;
 
@@ -115,8 +116,15 @@ void simulated_strain_file_save_detector( const char *output_filename, const det
 	hdf5_save_attribute_gsl_vector( output_filename, group_name, "arm_x", detector->arm_x );
 	hdf5_save_attribute_gsl_vector( output_filename, group_name, "arm_y", detector->arm_y );
 
+	// save the PSD
+	char psd_group[255];
+	memset(psd_group, '\0', 255 *sizeof(char));
+	sprintf(psd_group, "%s%s", group_name, "/psd");
+	hdf5_create_group( output_filename, psd_group);
+	hdf5_save_array( output_filename, psd_group, "PSD", detector->psd->len, detector->psd->psd );
+	hdf5_save_array( output_filename, psd_group, "Freq", detector->psd->len, detector->psd->f );
 
-/*
+/* Todo
 	gsl_matrix *detector_tensor;
 
 	psd_t *psd;
@@ -130,6 +138,16 @@ void simulated_strain_file_save_detector_network( const char *output_filename, c
 	for (i = 0; i < dnet->num_detectors; i++) {
 		simulated_strain_file_save_detector( output_filename, dnet->detector[i], i+1 );
 	}
+	hdf5_save_attribute_ulong( output_filename, "/", "num_detectors", 1, &dnet->num_detectors );
+}
+
+void simulated_strain_file_save_detector_signal( const char *output_filename, strain_t *signal, size_t detector_num ) {
+	char buff[255];
+	memset(buff, '\0', 255 * sizeof(char));
+
+	sprintf(buff, "detector_%d/signal", detector_num);
+	hdf5_create_group( output_filename, buff );
+	hdf5_save_array( output_filename, buff, "Strain", signal->num_time_samples, signal->samples );
 }
 
 void hdf5_save_simulated_data( size_t len_template, double *signal, const char *hdf5_noise_filename, const char *hdf5_output_filename ) {
@@ -202,14 +220,15 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 	}
 
 	/* somehow these need to be set */
-	if ((argc - last_index) < 2) {
+	if ((argc - last_index) < 3) {
 		printf("last_index = %d\n", last_index);
 		printf("argc = %d\n", argc);
-		printf("Error: Must supply [input settings file] [detector mapping file]\n");
+		printf("Error: Must supply [settings file] [detector mapping file] [output filename]\n");
 		exit(-1);
 	}
 	char* arg_settings_file = argv[last_index++];
 	char* arg_detector_mappings_file = argv[last_index++];
+	char* arg_output_filename = argv[last_index++];
 
 	/* Load the general Settings */
 	settings_file_t *settings_file = settings_file_open(arg_settings_file);
@@ -222,10 +241,58 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 	ps->num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
 	ps->sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
 
-	memset( ps->detector_mapping_filename, '\0', DETECTOR_MAPPING_FILENAME_MAX_SIZE * sizeof(char) );
-	strncpy( ps->detector_mapping_filename, arg_detector_mappings_file, DETECTOR_MAPPING_FILENAME_MAX_SIZE );
+	memset( ps->detector_mapping_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
+	strncpy( ps->detector_mapping_filename, arg_detector_mappings_file, FILENAME_MAX_SIZE );
+
+	memset( ps->output_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
+	strncpy( ps->output_filename, arg_output_filename, FILENAME_MAX_SIZE );
 
 	settings_file_close(settings_file);
+}
+
+void simulate( program_settings_t *ps, detector_network_t *net) {
+	size_t i;
+	size_t j;
+
+	/* Simulate the signals */
+	network_strain_half_fft_t *network_strain_half_fft = inspiral_template(ps->f_low, ps->f_high, ps->num_time_samples, net, &ps->source);
+
+	strain_t **strains = (strain_t**) malloc ( net->num_detectors * sizeof(strain_t*) );
+	if (strains == NULL) {
+		fprintf(stderr, "Error. Unable to allocate memory for detector strains. Exiting.\n");
+		exit(-1);
+	}
+
+	for (i = 0; i < net->num_detectors; i++) {
+		strain_half_fft_t *one_sided = network_strain_half_fft->strains[i];
+
+		/* colour the template. multiply by the ASD before performing the IFFT */
+		for (j = 0; j < net->detector[i]->asd->len; j++) {
+			one_sided->half_fft[j] = gsl_complex_mul_real(one_sided->half_fft[j], net->detector[i]->asd->asd[j]);
+		}
+
+		/* Make the two-sided fft template */
+		strain_full_fft_t *two_sided = strain_half_to_full( one_sided );
+
+		/* Compute the strain */
+		strains[i] = strain_full_fft_to_strain( two_sided );
+
+		strain_full_fft_free(two_sided);
+	}
+
+	/* Save the signals */
+	for (i = 0; i < net->num_detectors; i++) {
+		simulated_strain_file_save_detector_signal( ps->output_filename, strains[i], i+1);
+	}
+
+
+	/* Free memory */
+	for (i = 0; i < net->num_detectors; i++) {
+		strain_free(strains[i]);
+	}
+	free(strains);
+
+	network_strain_half_fft_free(network_strain_half_fft);
 }
 
 int main(int argc, char* argv[])
@@ -234,14 +301,14 @@ int main(int argc, char* argv[])
 	program_settings_t ps;
 	program_settings_init( argc, argv, &ps );
 
-	const char* output_filename = "simulated.hdf5";
-	simulated_strain_file_create( output_filename );
-	simulated_strain_file_save_settings( output_filename, &ps );
+	simulated_strain_file_create( ps.output_filename );
+	simulated_strain_file_save_settings( ps.output_filename, &ps );
 
 	detector_network_t *net = Detector_Network_load( ps.detector_mapping_filename,
 			ps.num_time_samples, ps.sampling_frequency, ps.f_low, ps.f_high );
+	simulated_strain_file_save_detector_network( ps.output_filename, net );
 
-	simulated_strain_file_save_detector_network( output_filename, net );
+	simulate( &ps, net );
 
 	Detector_Network_free( net );
 
