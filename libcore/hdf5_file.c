@@ -237,7 +237,7 @@ void hdf5_save_attribute_gsl_vector( const char *hdf5_filename, const char *grou
 		a[i] = gsl_vector_get( data, i );
 	}
 
-	status = H5LTset_attribute_double( group_id, group_name, attribute_name, data->size, a);
+	status = H5LTset_attribute_double( group_id, group_name, attribute_name, a, data->size);
 	if (status < 0) {
 		fprintf(stderr, "Error writing the attribute (%s) to the hdf5 file (%s). Aborting.\n",
 				attribute_name, hdf5_filename);

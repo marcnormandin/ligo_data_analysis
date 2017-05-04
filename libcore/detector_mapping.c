@@ -24,7 +24,7 @@ detector_network_mapping_t* Detector_Network_Mapping_load( const char* filename 
 		abort();
 	}
 
-	/* This assumes that the number of settings is the number of detectors */
+	/* Careful: This assumes that the number of settings is the number of detectors */
 	int num_detectors = settings_file_num_settings(settings_file);
 	dm->num_detectors = num_detectors;
 

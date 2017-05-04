@@ -48,11 +48,15 @@
 //#include <hdf5/hdf5.h>
 //#include <hdf5/hdf5_hl.h>
 
+#define DETECTOR_MAPPING_FILENAME_MAX_SIZE 255
+
 typedef struct program_settings_s {
 	source_t source;
 	gslseed_t alpha_seed;
 	double f_low, f_high;
+	double sampling_frequency;
 	size_t num_time_samples;
+	char detector_mapping_filename[DETECTOR_MAPPING_FILENAME_MAX_SIZE];
 
 } program_settings_t;
 
@@ -69,7 +73,7 @@ void save_true_signal(double f_low, source_t *source, char *filename) {
 
 void append_index_to_prefix(char* buff, size_t buff_len, const char *prefix, size_t index) {
 	memset(buff, '\0', buff_len * sizeof(char));
-	sprintf(buff, "%s%lu", prefix, index+1);
+	sprintf(buff, "%s%lu", prefix, index);
 }
 
 void simulated_strain_file_create( const char *filename ) {
@@ -93,16 +97,19 @@ void simulated_strain_file_save_source( const char *output_filename, const sourc
 void simulated_strain_file_save_settings( const char *output_filename, const program_settings_t *ps) {
 	hdf5_save_attribute_ulong( output_filename, "/", "alpha_seed", 1, &ps->alpha_seed );
 	hdf5_save_attribute_ulong( output_filename, "/", "num_time_samples", 1, &ps->num_time_samples);
+	hdf5_save_attribute_double( output_filename, "/", "sampling_frequency", 1, &ps->sampling_frequency );
 	hdf5_save_attribute_double( output_filename, "/", "f_low", 1, &ps->f_low );
 	hdf5_save_attribute_double( output_filename, "/", "f_high", 1, &ps->f_high );
+	hdf5_save_attribute_string( output_filename, "/", "detector_mapping_filename", ps->detector_mapping_filename);
 
 	simulated_strain_file_save_source( output_filename, &ps->source );
 }
 
 void simulated_strain_file_save_detector( const char *output_filename, const detector_t* detector, size_t detector_num ) {
-	const char *group_name = "detector_1";
+	char group_name[255];
+	append_index_to_prefix(group_name, 255, "/detector_", detector_num );
 	hdf5_create_group( output_filename, group_name );
-	hdf5_save_attribute_ulong( output_filename, group_name, "id", detector->id );
+	//hdf5_save_attribute_ulong( output_filename, group_name, "id", 1, &detector->id );
 	hdf5_save_attribute_string( output_filename, group_name, "name", detector->name );
 	hdf5_save_attribute_gsl_vector( output_filename, group_name, "location", detector->location );
 	hdf5_save_attribute_gsl_vector( output_filename, group_name, "arm_x", detector->arm_x );
@@ -116,6 +123,13 @@ void simulated_strain_file_save_detector( const char *output_filename, const det
 
 	asd_t *asd; */
 
+}
+
+void simulated_strain_file_save_detector_network( const char *output_filename, const detector_network_t *dnet ) {
+	size_t i;
+	for (i = 0; i < dnet->num_detectors; i++) {
+		simulated_strain_file_save_detector( output_filename, dnet->detector[i], i+1 );
+	}
 }
 
 void hdf5_save_simulated_data( size_t len_template, double *signal, const char *hdf5_noise_filename, const char *hdf5_output_filename ) {
@@ -191,7 +205,7 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 	if ((argc - last_index) < 2) {
 		printf("last_index = %d\n", last_index);
 		printf("argc = %d\n", argc);
-		printf("Error: Must supply [input settings file] [detector realizations mapping file]\n");
+		printf("Error: Must supply [input settings file] [detector mapping file]\n");
 		exit(-1);
 	}
 	char* arg_settings_file = argv[last_index++];
@@ -206,6 +220,11 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 	ps->f_low = atof(settings_file_get_value(settings_file, "f_low"));
 	ps->f_high = atof(settings_file_get_value(settings_file, "f_high"));
 	ps->num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
+	ps->sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
+
+	memset( ps->detector_mapping_filename, '\0', DETECTOR_MAPPING_FILENAME_MAX_SIZE * sizeof(char) );
+	strncpy( ps->detector_mapping_filename, arg_detector_mappings_file, DETECTOR_MAPPING_FILENAME_MAX_SIZE );
+
 	settings_file_close(settings_file);
 }
 
@@ -219,7 +238,12 @@ int main(int argc, char* argv[])
 	simulated_strain_file_create( output_filename );
 	simulated_strain_file_save_settings( output_filename, &ps );
 
-	//detector_t *detector =
-	//simulated_strain_file_save_detector( output_filename, detector, 1 );
+	detector_network_t *net = Detector_Network_load( ps.detector_mapping_filename,
+			ps.num_time_samples, ps.sampling_frequency, ps.f_low, ps.f_high );
+
+	simulated_strain_file_save_detector_network( output_filename, net );
+
+	Detector_Network_free( net );
+
 	return 0;
 }
