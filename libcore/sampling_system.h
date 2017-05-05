@@ -20,6 +20,9 @@ size_t SS_half_size(size_t N_full);
 /* Takes a one_sided complex array and adds the corresponding mirrored side. */
 void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex *two_sided);
 
+/* Takes a one_sided real array and adds the corresponding mirrored side. */
+void SS_make_two_sided_real (size_t M, double *one_sided, size_t N, double *two_sided);
+
 /* Write the fft frequencies */
 void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies);
 

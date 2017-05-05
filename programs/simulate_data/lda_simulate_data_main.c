@@ -2,6 +2,7 @@
 	#include "config.h"
 #endif
 
+#include <assert.h>
 #include <stddef.h>
 #include <math.h>
 #include <string.h>
@@ -20,6 +21,8 @@
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_fft_real.h>
+#include <gsl/gsl_fft_halfcomplex.h>
 
 
 #include "detector_antenna_patterns.h"
@@ -58,6 +61,7 @@ typedef struct program_settings_s {
 	size_t num_time_samples;
 	char detector_mapping_filename[FILENAME_MAX_SIZE];
 	char output_filename[FILENAME_MAX_SIZE];
+	size_t num_realizations;
 
 } program_settings_t;
 
@@ -97,11 +101,12 @@ void simulated_strain_file_save_source( const char *output_filename, const sourc
 
 void simulated_strain_file_save_settings( const char *output_filename, const program_settings_t *ps) {
 	hdf5_save_attribute_ulong( output_filename, "/", "alpha_seed", 1, &ps->alpha_seed );
-	hdf5_save_attribute_ulong( output_filename, "/", "num_time_samples", 1, &ps->num_time_samples);
+	hdf5_save_attribute_ulong( output_filename, "/", "num_time_samples", 1, &ps->num_time_samples );
 	hdf5_save_attribute_double( output_filename, "/", "sampling_frequency", 1, &ps->sampling_frequency );
 	hdf5_save_attribute_double( output_filename, "/", "f_low", 1, &ps->f_low );
 	hdf5_save_attribute_double( output_filename, "/", "f_high", 1, &ps->f_high );
-	hdf5_save_attribute_string( output_filename, "/", "detector_mapping_filename", ps->detector_mapping_filename);
+	hdf5_save_attribute_string( output_filename, "/", "detector_mapping_filename", ps->detector_mapping_filename );
+	hdf5_save_attribute_ulong( output_filename, "/", "num_realizations", 1, &ps->num_realizations );
 
 	simulated_strain_file_save_source( output_filename, &ps->source );
 }
@@ -147,7 +152,7 @@ void simulated_strain_file_save_detector_signal( const char *output_filename, st
 
 	sprintf(buff, "detector_%d/signal", detector_num);
 	hdf5_create_group( output_filename, buff );
-	hdf5_save_array( output_filename, buff, "Strain", signal->num_time_samples, signal->samples );
+	hdf5_save_array( output_filename, buff, "Signal", signal->num_time_samples, signal->samples );
 }
 
 void hdf5_save_simulated_data( size_t len_template, double *signal, const char *hdf5_noise_filename, const char *hdf5_output_filename ) {
@@ -240,6 +245,7 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 	ps->f_high = atof(settings_file_get_value(settings_file, "f_high"));
 	ps->num_time_samples = atoi(settings_file_get_value(settings_file, "num_time_samples"));
 	ps->sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
+	ps->num_realizations = atoi(settings_file_get_value(settings_file, "num_realizations"));
 
 	memset( ps->detector_mapping_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
 	strncpy( ps->detector_mapping_filename, arg_detector_mappings_file, FILENAME_MAX_SIZE );
@@ -253,20 +259,23 @@ void program_settings_init(int argc, char *argv[], program_settings_t *ps) {
 void simulate( program_settings_t *ps, detector_network_t *net) {
 	size_t i;
 	size_t j;
+	size_t k;
+	size_t l;
 
 	/* Simulate the signals */
 	network_strain_half_fft_t *network_strain_half_fft = inspiral_template(ps->f_low, ps->f_high, ps->num_time_samples, net, &ps->source);
 
-	strain_t **strains = (strain_t**) malloc ( net->num_detectors * sizeof(strain_t*) );
-	if (strains == NULL) {
+	strain_t **signals = (strain_t**) malloc ( net->num_detectors * sizeof(strain_t*) );
+	if (signals == NULL) {
 		fprintf(stderr, "Error. Unable to allocate memory for detector strains. Exiting.\n");
 		exit(-1);
 	}
 
+	/* Compute the coloured signal strain series */
 	for (i = 0; i < net->num_detectors; i++) {
 		strain_half_fft_t *one_sided = network_strain_half_fft->strains[i];
 
-		/* colour the template. multiply by the ASD before performing the IFFT */
+		/* Colour the template. multiply by the ASD before performing the IFFT */
 		for (j = 0; j < net->detector[i]->asd->len; j++) {
 			one_sided->half_fft[j] = gsl_complex_mul_real(one_sided->half_fft[j], net->detector[i]->asd->asd[j]);
 		}
@@ -275,22 +284,104 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 		strain_full_fft_t *two_sided = strain_half_to_full( one_sided );
 
 		/* Compute the strain */
-		strains[i] = strain_full_fft_to_strain( two_sided );
+		signals[i] = strain_full_fft_to_strain( two_sided );
+
+		/* Normalize by the number of samples */
+		for (j = 0; j < ps->num_time_samples; j++) {
+			signals[i]->samples[j] *= ps->num_time_samples;
+		}
 
 		strain_full_fft_free(two_sided);
 	}
 
+	/* random number generator */
+	gsl_rng *rng = random_alloc( ps->alpha_seed );
+
+	/* Compute the coloured noise strain series */
+	gsl_fft_real_wavetable *fft_real_wavetable = gsl_fft_real_wavetable_alloc( ps->num_time_samples );
+	gsl_fft_halfcomplex_wavetable *fft_complex_wavetable = gsl_fft_halfcomplex_wavetable_alloc( ps->num_time_samples );
+	gsl_fft_real_workspace *fft_workspace = gsl_fft_real_workspace_alloc( ps->num_time_samples );
+	double *noise = (double*) malloc( ps->num_time_samples * sizeof(double) );
+	double *strain = (double*) malloc( ps->num_time_samples * sizeof(double) );
+	for (i = 0; i < net->num_detectors; i++) {
+		asd_t *asd_one_sided = net->detector[i]->asd;
+		//double *asd_two_sided = (double*) malloc( ps->num_time_samples * sizeof(double) );
+		//SS_make_two_sided_real( asd_one_sided->len, asd_one_sided->asd, ps->num_time_samples, asd_two_sided);
+
+		char buff[255];
+		memset(buff, '\0', 255 * sizeof(char));
+		sprintf(buff, "detector_%d/noise", i+1);
+		hdf5_create_group( ps->output_filename, buff );
+
+		char buff3[255];
+		memset(buff3, '\0', 255 * sizeof(char));
+		sprintf(buff3, "detector_%d/strain", i+1);
+		hdf5_create_group( ps->output_filename, buff3 );
+
+		for (j = 0; j < ps->num_realizations; j++) {
+			for (k = 0; k < ps->num_time_samples; k++) {
+				noise[k] = gsl_ran_gaussian( rng, 1.0 );
+			}
+
+			gsl_fft_real_transform(noise, 1, ps->num_time_samples, fft_real_wavetable, fft_workspace);
+
+			// DC term doesn't have an imaginary component
+			noise[0] *= asd_one_sided->asd[0];
+
+			size_t lu = SS_last_unique_index( ps->num_time_samples );
+			if (SS_has_nyquist_term(ps->num_time_samples)) {
+				lu--;
+			}
+
+			//fprintf(stderr, "last unique index = %d\n", lu);
+			for (k = 1, l = 1; l <= lu; k+=2, l++) {
+				double s = asd_one_sided->asd[l];
+				noise[k+0] *= s;
+				noise[k+1] *= s;
+			}
+
+			// If nyquist term is present, it doesn't have an imaginary component
+			if (SS_has_nyquist_term(ps->num_time_samples)) {
+				noise[ps->num_time_samples-1] *= asd_one_sided->asd[asd_one_sided->len-1];
+			}
+
+			gsl_fft_halfcomplex_inverse( noise, 1, ps->num_time_samples, fft_complex_wavetable, fft_workspace );
+
+			char buff2[255];
+			memset(buff2, '\0', 255 * sizeof(char));
+			sprintf(buff2, "Noise_%d", j+1);
+			hdf5_save_array( ps->output_filename, buff, buff2, ps->num_time_samples, noise );
+
+			for (k = 0; k < ps->num_time_samples; k++) {
+				strain[k] = signals[i]->samples[k] + noise[k];
+			}
+
+			char buff4[255];
+			memset(buff4, '\0', 255 * sizeof(char));
+			sprintf(buff4, "Strain_%d", j+1);
+			hdf5_save_array( ps->output_filename, buff3, buff4, ps->num_time_samples, strain );
+		}
+	}
+	gsl_fft_real_workspace_free( fft_workspace );
+	gsl_fft_halfcomplex_wavetable_free( fft_complex_wavetable );
+	gsl_fft_real_wavetable_free( fft_real_wavetable );
+	free(strain);
+	free(noise);
+
+	random_free( rng );
+
 	/* Save the signals */
 	for (i = 0; i < net->num_detectors; i++) {
-		simulated_strain_file_save_detector_signal( ps->output_filename, strains[i], i+1);
+		simulated_strain_file_save_detector_signal( ps->output_filename, signals[i], i+1);
 	}
+
 
 
 	/* Free memory */
 	for (i = 0; i < net->num_detectors; i++) {
-		strain_free(strains[i]);
+		strain_free(signals[i]);
 	}
-	free(strains);
+	free(signals);
 
 	network_strain_half_fft_free(network_strain_half_fft);
 }

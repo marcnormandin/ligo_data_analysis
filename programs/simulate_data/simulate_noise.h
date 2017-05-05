@@ -12,6 +12,6 @@
 #include <gsl/gsl_rng.h>
 
 /* Simulate white gaussian noise in the complex domain */
-gsl_complex SN_wn_fd (gsl_rng *rng);
+gsl_complex SN_whitenoise_frequency_domain (gsl_rng *rng);
 
 #endif /* SRC_C_SIMULATE_NOISE_H_ */

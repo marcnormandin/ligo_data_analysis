@@ -73,6 +73,45 @@ void SS_make_two_sided (size_t M, gsl_complex *one_sided, size_t N, gsl_complex 
 	}
 }
 
+/* Takes a one_sided double array and adds the corresponding mirrored side. */
+void SS_make_two_sided_real (size_t M, double *one_sided, size_t N, double *two_sided) {
+	assert(one_sided != NULL);
+	assert(two_sided != NULL);
+	assert(M <= N);
+	assert(one_sided != two_sided);
+
+	size_t m, n;
+
+	/* Check that the dimensions make sense */
+	if (GSL_IS_ODD(N) && M != (N+1)/2) {
+		/* error */
+		fprintf(stderr, "Error. SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu). Exiting.\n",
+				M, N);
+		exit(-1);
+	} else if (GSL_IS_EVEN(N) && M != (N/2 + 1)) {
+		/* error */
+		fprintf(stderr, "Error. SS_make_two_sided failed. One-sided length is (%lu) and two-sided length is (%lu). Exiting.\n",
+						M, N);
+		exit(-1);
+	}
+
+	/* copy the left side */
+	for (m = 0; m < M; m++) {
+		two_sided[m] = one_sided[m];
+	}
+
+	/* if a Nyquist term is present, then don't mirror it. */
+	size_t c = M - 1;
+	if (SS_has_nyquist_term(N)) {
+		c--;
+	}
+
+	/* make the mirror of the left side */
+	for (n = M, m = c; n < N; n++, m--) {
+		two_sided[n] = one_sided[m];
+	}
+}
+
 void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies)
 {
 	assert(frequencies != NULL);

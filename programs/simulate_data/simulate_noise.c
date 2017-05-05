@@ -12,7 +12,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-gsl_complex SN_wn_fd (gsl_rng *rng) {
+gsl_complex SN_whitenoise_frequency_domain (gsl_rng *rng) {
 	double noise_f_real = 0.5 * gsl_ran_gaussian(rng, 1.0);
 	double noise_f_imag = 0.5 * gsl_ran_gaussian(rng, 1.0);
 
