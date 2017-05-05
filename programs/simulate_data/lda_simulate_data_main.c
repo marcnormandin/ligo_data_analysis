@@ -335,7 +335,7 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 
 			//fprintf(stderr, "last unique index = %d\n", lu);
 			for (k = 1, l = 1; l <= lu; k+=2, l++) {
-				double s = asd_one_sided->asd[l];
+				double s = asd_one_sided->asd[l] / sqrt(2.0);
 				noise[k+0] *= s;
 				noise[k+1] *= s;
 			}
@@ -344,6 +344,11 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 			if (SS_has_nyquist_term(ps->num_time_samples)) {
 				noise[ps->num_time_samples-1] *= asd_one_sided->asd[asd_one_sided->len-1];
 			}
+
+			// HACK to check what is going on
+			//for (k = 0; k < ps->num_time_samples; k++) {
+			//	noise[k] /= sqrt(2.0);
+			//}
 
 			gsl_fft_halfcomplex_inverse( noise, 1, ps->num_time_samples, fft_complex_wavetable, fft_workspace );
 
