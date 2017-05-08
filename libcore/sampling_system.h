@@ -5,6 +5,8 @@
 
 #include <gsl/gsl_complex.h>
 
+#include "spectral_density.h"
+
 int SS_has_nyquist_term(size_t N);
 
 /* Returns the Nyquist array index for a C indexed-array */
@@ -27,5 +29,8 @@ void SS_make_two_sided_real (size_t M, double *one_sided, size_t N, double *two_
 void SS_frequency_array(double samplingFrequency, size_t num_total_samples, size_t num_desired_freq_samples, double *frequencies);
 
 void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, double *times);
+
+/* This function colours a time series by multiplying by the ASD in the frequency domain */
+void SS_colour_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double *timeseries);
 
 #endif /* SRC_C_SAMPLING_SYSTEM_H_ */

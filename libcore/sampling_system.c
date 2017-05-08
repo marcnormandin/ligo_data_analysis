@@ -6,6 +6,8 @@
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_fft_real.h>
+#include <gsl/gsl_fft_halfcomplex.h>
 
 #include "sampling_system.h"
 
@@ -132,4 +134,59 @@ void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, do
 	for (i = 0; i < num_desired_time_samples; i++) {
 		times[i] = i * Ts;
 	}
+}
+
+/* This function colours a time series by multiplying by the ASD in the frequency domain */
+void SS_colour_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double *timeseries) {
+	 {
+		assert(psd_one_sided != NULL);
+		assert(timeseries != NULL);
+
+		size_t k, l;
+
+		if (psd_one_sided->type != PSD_ONE_SIDED) {
+			fprintf(stderr, "SS_colour_timeseries: Error. Algorithm only works with one_sided PSD. Exiting.\n");
+			exit(-1);
+		}
+
+		if (SS_half_size(num_time_samples) != psd_one_sided->len) {
+			fprintf(stderr, "SS_colour_timeseries: Error. The PSD length doesn't match the half-size of the timeseries. Exiting.");
+			exit(-1);
+		}
+
+		asd_t * asd_one_sided = ASD_alloc( psd_one_sided->len );
+		ASD_init_from_psd( psd_one_sided, asd_one_sided );
+
+		gsl_fft_real_wavetable *fft_real_wavetable = gsl_fft_real_wavetable_alloc( num_time_samples );
+		gsl_fft_halfcomplex_wavetable *fft_complex_wavetable = gsl_fft_halfcomplex_wavetable_alloc( num_time_samples );
+		gsl_fft_real_workspace *fft_workspace = gsl_fft_real_workspace_alloc( num_time_samples );
+
+		gsl_fft_real_transform(timeseries, 1, num_time_samples, fft_real_wavetable, fft_workspace);
+
+		// DC term doesn't have an imaginary component
+		timeseries[0] *= asd_one_sided->asd[0];
+
+		size_t lu = SS_last_unique_index( num_time_samples );
+		if (SS_has_nyquist_term(num_time_samples)) {
+			lu--;
+		}
+
+		for (k = 1, l = 1; l <= lu; k+=2, l++) {
+			double s = asd_one_sided->asd[l] / sqrt(2.0);
+			timeseries[k+0] *= s;
+			timeseries[k+1] *= s;
+		}
+
+		// If nyquist term is present, it doesn't have an imaginary component
+		if (SS_has_nyquist_term(num_time_samples)) {
+			timeseries[num_time_samples-1] *= asd_one_sided->asd[asd_one_sided->len-1];
+		}
+
+		gsl_fft_halfcomplex_inverse( timeseries, 1, num_time_samples, fft_complex_wavetable, fft_workspace );
+
+		gsl_fft_real_workspace_free( fft_workspace );
+		gsl_fft_halfcomplex_wavetable_free( fft_complex_wavetable );
+		gsl_fft_real_wavetable_free( fft_real_wavetable );
+	}
+
 }

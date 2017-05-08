@@ -49,5 +49,4 @@ void ASD_init_from_psd( psd_t *psd, asd_t *asd);
 
 void ASD_save( const char *hdf_filename, asd_t *asd);
 
-
 #endif /* SPECTRAL_DENSITY_H_ */

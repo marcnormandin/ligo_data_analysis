@@ -18,12 +18,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
-
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-#include <gsl/gsl_fft_real.h>
-#include <gsl/gsl_fft_halfcomplex.h>
-
 
 #include "detector_antenna_patterns.h"
 #include "inspiral_chirp.h"
@@ -298,11 +294,10 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 	gsl_rng *rng = random_alloc( ps->alpha_seed );
 
 	/* Compute the coloured noise strain series */
-	gsl_fft_real_wavetable *fft_real_wavetable = gsl_fft_real_wavetable_alloc( ps->num_time_samples );
-	gsl_fft_halfcomplex_wavetable *fft_complex_wavetable = gsl_fft_halfcomplex_wavetable_alloc( ps->num_time_samples );
-	gsl_fft_real_workspace *fft_workspace = gsl_fft_real_workspace_alloc( ps->num_time_samples );
+
 	double *noise = (double*) malloc( ps->num_time_samples * sizeof(double) );
 	double *strain = (double*) malloc( ps->num_time_samples * sizeof(double) );
+
 	for (i = 0; i < net->num_detectors; i++) {
 		asd_t *asd_one_sided = net->detector[i]->asd;
 		//double *asd_two_sided = (double*) malloc( ps->num_time_samples * sizeof(double) );
@@ -323,34 +318,7 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 				noise[k] = gsl_ran_gaussian( rng, 1.0 );
 			}
 
-			gsl_fft_real_transform(noise, 1, ps->num_time_samples, fft_real_wavetable, fft_workspace);
-
-			// DC term doesn't have an imaginary component
-			noise[0] *= asd_one_sided->asd[0];
-
-			size_t lu = SS_last_unique_index( ps->num_time_samples );
-			if (SS_has_nyquist_term(ps->num_time_samples)) {
-				lu--;
-			}
-
-			//fprintf(stderr, "last unique index = %d\n", lu);
-			for (k = 1, l = 1; l <= lu; k+=2, l++) {
-				double s = asd_one_sided->asd[l] / sqrt(2.0);
-				noise[k+0] *= s;
-				noise[k+1] *= s;
-			}
-
-			// If nyquist term is present, it doesn't have an imaginary component
-			if (SS_has_nyquist_term(ps->num_time_samples)) {
-				noise[ps->num_time_samples-1] *= asd_one_sided->asd[asd_one_sided->len-1];
-			}
-
-			// HACK to check what is going on
-			//for (k = 0; k < ps->num_time_samples; k++) {
-			//	noise[k] /= sqrt(2.0);
-			//}
-
-			gsl_fft_halfcomplex_inverse( noise, 1, ps->num_time_samples, fft_complex_wavetable, fft_workspace );
+			SS_colour_timeseries( net->detector[i]->psd, ps->num_time_samples, noise);
 
 			char buff2[255];
 			memset(buff2, '\0', 255 * sizeof(char));
@@ -367,9 +335,7 @@ void simulate( program_settings_t *ps, detector_network_t *net) {
 			hdf5_save_array( ps->output_filename, buff3, buff4, ps->num_time_samples, strain );
 		}
 	}
-	gsl_fft_real_workspace_free( fft_workspace );
-	gsl_fft_halfcomplex_wavetable_free( fft_complex_wavetable );
-	gsl_fft_real_wavetable_free( fft_real_wavetable );
+
 	free(strain);
 	free(noise);
 
