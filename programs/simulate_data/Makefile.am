@@ -8,7 +8,11 @@ lda_simulate_data_SOURCES = \
 	inspiral_signal.c \
 	inspiral_signal.h \
 	lda_simulate_data_main.c \
-	options.c \
-	options.h \
+	simulation_options.c \
+	simulation_options.h \
 	simulate_noise.c \
-	simulate_noise.h
+	simulate_noise.h \
+	simulation_file.c \
+	simulation_file.h \
+	simulation_settings.c \
+	simulation_settings.h 

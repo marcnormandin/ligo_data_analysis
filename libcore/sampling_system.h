@@ -33,4 +33,7 @@ void SS_time_array(double samplingFrequency, size_t num_desired_time_samples, do
 /* This function colours a time series by multiplying by the ASD in the frequency domain */
 void SS_colour_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double *timeseries);
 
+/* This function whitens a time series by dividing by the ASD in the frequency domain */
+void SS_whiten_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double *timeseries);
+
 #endif /* SRC_C_SAMPLING_SYSTEM_H_ */

@@ -13,6 +13,7 @@
 
 #include "random.h"
 #include "inspiral_signal.h"
+#include "simulation_options.h"
 
 /* Flag set by ‘--verbose’. */
 static int verbose_flag = 0;
