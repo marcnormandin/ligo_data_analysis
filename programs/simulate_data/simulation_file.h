@@ -18,6 +18,8 @@
 
 void append_index_to_prefix(char* buff, size_t buff_len, const char *prefix, size_t index);
 
+void simulated_strain_file_save_chirp_factors(const char *output_filename, const double f_low, const source_t *source );
+
 void simulated_strain_file_create( const char *filename );
 
 void simulated_strain_file_save_source( const char *output_filename, const source_t *source );

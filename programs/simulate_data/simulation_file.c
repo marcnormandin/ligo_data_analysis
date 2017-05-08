@@ -28,20 +28,35 @@
 #include "random.h"
 #include "inspiral_chirp_factors.h"
 
-/* Compute the chirp factors so that we know the true chirp times, and save them to file. */
-void save_true_signal(double f_low, source_t *source, char *filename) {
-	inspiral_chirp_factors_t temp_chirp;
-	CF_compute_for_signal(f_low, source->m1, source->m2, source->time_of_arrival, &temp_chirp);
-	FILE *true_parameters = fopen(filename, "w");
-	fprintf(true_parameters, "RA DEC CHIRP_TIME_0 CHIRP_TIME_1_5 NETWORK_SNR\n");
-	fprintf(true_parameters, "%0.21f %0.21f %0.21f %0.21f %0.21f",
-			source->sky.ra, source->sky.dec, temp_chirp.ct.chirp_time0, temp_chirp.ct.chirp_time1_5, source->snr);
-	fclose(true_parameters);
-}
-
 void append_index_to_prefix(char* buff, size_t buff_len, const char *prefix, size_t index) {
 	memset(buff, '\0', buff_len * sizeof(char));
 	sprintf(buff, "%s%lu", prefix, index);
+}
+
+
+/* Compute the chirp factors so that we know the true chirp times, and save them to file. */
+void simulated_strain_file_save_chirp_factors(const char *output_filename, const double f_low, const source_t *source ) {
+	inspiral_chirp_factors_t temp_chirp;
+	CF_compute_for_signal(f_low, source->m1, source->m2, source->time_of_arrival, &temp_chirp);
+
+	hdf5_create_group( output_filename, "/chirp_factors" );
+
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "total_mass", 1, &temp_chirp.total_mass );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "reduced_mass", 1, &temp_chirp.reduced_mass );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "chirp_mass", 1, &temp_chirp.chirp_mass );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "s_mass_ratio", 1, &temp_chirp.s_mass_ratio );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "multi_fac", 1, &temp_chirp.multi_fac );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "calculated_reduced_mass", 1, &temp_chirp.calculated_reduced_mass );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "calculated_total_mass", 1, &temp_chirp.calculated_total_mass );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "t_chirp", 1, &temp_chirp.t_chirp );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "s_mass_ratio_cal", 1, &temp_chirp.s_mass_ratio_cal );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "multi_fac_call", 1, &temp_chirp.multi_fac_cal );
+
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "chirp_time_0", 1, &temp_chirp.ct.chirp_time0 );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "chirp_time_1", 1, &temp_chirp.ct.chirp_time1 );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "chirp_time_1_5", 1, &temp_chirp.ct.chirp_time1_5 );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "chirp_time_2", 1, &temp_chirp.ct.chirp_time2 );
+	hdf5_save_attribute_double( output_filename, "/chirp_factors", "time_of_coalescence", 1, &temp_chirp.ct.tc );
 }
 
 void simulated_strain_file_create( const char *filename ) {
@@ -72,6 +87,7 @@ void simulated_strain_file_save_settings( const char *output_filename, const sim
 	hdf5_save_attribute_ulong( output_filename, "/", "num_realizations", 1, &ps->num_realizations );
 
 	simulated_strain_file_save_source( output_filename, &ps->source );
+	simulated_strain_file_save_chirp_factors( output_filename, ps->f_low, &ps->source );
 }
 
 void simulated_strain_file_save_detector( const char *output_filename, const detector_t* detector, size_t detector_num ) {

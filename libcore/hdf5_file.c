@@ -12,6 +12,11 @@
 void hdf5_create_file( const char* hdf_filename ) {
 	assert(hdf_filename != NULL);
 
+	/* First delete the file if it already exists. */
+	char buff[255];
+	snprintf(buff, 255, "rm -f %s", hdf_filename);
+	system(buff);
+
 	hid_t file_id = H5Fcreate( hdf_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 	if (file_id < 0) {
 		fprintf(stderr, "Error. Unable to create the HDF5 file (%s). Aborting.\n",
