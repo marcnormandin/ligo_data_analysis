@@ -147,7 +147,8 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 				&sky,
 				splParams->network_strain,
 				splParams->workspace[parallel_get_thread_num()],
-				&fitFuncVal);
+				&fitFuncVal,
+				NULL);
 		/* The statistic is larger for better matches, but PSO is finding
 		   minimums, so multiply by -1.0. */
 		fitFuncVal *= -1.0;

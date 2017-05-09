@@ -49,6 +49,9 @@ void simulation_settings_init(int argc, char *argv[], simulation_settings_t *ps)
 	memset( ps->detector_mapping_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
 	strncpy( ps->detector_mapping_filename, arg_detector_mappings_file, FILENAME_MAX_SIZE );
 
+	memset( ps->ns_timeseries_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
+	strncpy( ps->ns_timeseries_filename, "network_timeseries.hdf5", FILENAME_MAX_SIZE);
+
 	memset( ps->output_filename, '\0', FILENAME_MAX_SIZE * sizeof(char) );
 	strncpy( ps->output_filename, arg_output_filename, FILENAME_MAX_SIZE );
 

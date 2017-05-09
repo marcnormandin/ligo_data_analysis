@@ -8,6 +8,7 @@
 #ifndef SRC_C_DATAGEN_H_
 #define SRC_C_DATAGEN_H_
 
+#include <stdio.h>
 #include <gsl/gsl_rng.h>
 
 #include "inspiral_signal.h"
@@ -38,7 +39,7 @@ strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_
 network_strain_half_fft_t* inspiral_template_unscaled(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
 
 /* This is the main routine that generates the inspiral template. The memory must be freed. */
-network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source);
+network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source, char *filename);
 
 void Source_print(source_t* source);
 

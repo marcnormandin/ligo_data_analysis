@@ -10,6 +10,10 @@
 
 #include "inspiral_chirp_time.h"
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 /* This structure holds the values that are computed using the inspiral source parameters.
  * They are stored in a structure because they are repeatedly used throughout the code.
  */
@@ -35,5 +39,9 @@ typedef struct inspiral_chirp_factors_s {
 
 void CF_print(inspiral_chirp_factors_t* f);
 void CF_compute_for_signal(double f_low, double m1, double m2, double time_of_arrival, inspiral_chirp_factors_t *out_cf);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* COMMON_INSPIRAL_CHIRP_FACTORS_H_ */

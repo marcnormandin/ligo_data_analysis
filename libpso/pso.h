@@ -4,6 +4,10 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_rng.h>
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 typedef double (*fitness_function_ptr)(gsl_vector *, void *);
 
 /*!\file
@@ -103,5 +107,9 @@ void returnData_free(struct returnData *);
 void particleinfo_fwrite(FILE *, struct particleInfo *);
 
 void particleInfoDump(FILE *, struct particleInfo *, size_t );
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif

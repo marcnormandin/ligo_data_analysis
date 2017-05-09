@@ -1,6 +1,9 @@
 #ifndef SRC_C_CHIRP_H_
 #define SRC_C_CHIRP_H_
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
 
 double Chirp_Calc_TotalMass(double m1, double m2);
 
@@ -32,5 +35,8 @@ double Chirp_Calc_TChirp(double chirp_time0, double chirp_time1, double chirp_ti
 
 double Chirp_Calc_TC(double time_of_arrival, double t_chirp);
 
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_CHIRP_H_ */

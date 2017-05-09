@@ -9,11 +9,11 @@ AC_PROG_CC
 AC_PROG_CXX
 
 #AC_PROG_CXX([mpicxx])
-#AC_PROG_CC([gcc-6])
-#AC_PROG_CXX([g++-6])
+AC_PROG_CC([gcc-6])
+AC_PROG_CXX([g++-6])
 #AC_PROG_CC([icc])
 #AC_PROG_CXX([icc])
-AM_PROG_CC_C_O
+#AM_PROG_CC_C_O
 AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL
 
@@ -98,6 +98,7 @@ AC_CONFIG_FILES([programs/Makefile])
 AC_CONFIG_FILES([programs/simulate_data/Makefile])
 #AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
 #AC_CONFIG_FILES([programs/diagnostics/Makefile])
+AC_CONFIG_FILES([tests/Makefile])
 
 # ****************************************************************************************************
 # Done!

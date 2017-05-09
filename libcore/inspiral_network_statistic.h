@@ -17,6 +17,9 @@
 #include "spectral_density.h"
 #include "strain.h"
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
 
 /* There is one helper per detector */
 typedef struct coherent_network_helper_s {
@@ -77,6 +80,11 @@ void coherent_network_statistic(
 		sky_t *sky,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
-		double *out_val);
+		double *out_val,
+		char *filename);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_NETWORK_ANALYSIS_H_ */

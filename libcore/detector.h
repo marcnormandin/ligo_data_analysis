@@ -11,6 +11,10 @@
 
 #define DETECTOR_MAX_NAME_LENGTH 255
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 /**
  * Detector identification.
  *
@@ -60,5 +64,9 @@ void Detector_init_name( char *name, psd_t *psd, detector_t *d);
 const char* Detector_id_to_name(DETECTOR_ID id);
 
 DETECTOR_ID Detector_name_to_id(const char* name);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_DETECTOR_H_ */

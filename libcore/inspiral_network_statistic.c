@@ -18,6 +18,8 @@
 #include "inspiral_network_statistic.h"
 #include "sampling_system.h"
 
+#include "hdf5_file.h"
+
 coherent_network_helper_t* CN_helper_alloc(size_t num_time_samples) {
 	size_t i;
 	coherent_network_helper_t *h;
@@ -268,7 +270,8 @@ void coherent_network_statistic(
 		sky_t *sky,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
-		double *out_network_snr)
+		double *out_network_snr,
+		char *hdf5_filename)
 {
 	assert(net);
 	assert(chirp);
@@ -301,7 +304,8 @@ void coherent_network_statistic(
 	size_t did;
 	size_t fid;
 	size_t j;
-	double max;
+	double max_value;
+	size_t max_index;
 
 	/* WARNING: This assumes that all of the signals have the same lengths. */
 	size_t num_time_samples = network_strain->num_time_samples;
@@ -440,16 +444,31 @@ void coherent_network_statistic(
 
 	/*CN_save("tmp_ifft.dat", s, workspace->temp_ifft);*/
 
-	max = workspace->temp_ifft[0];
+	max_index = 0;
+	max_value = workspace->temp_ifft[0];
+
 	/* check statistical behavior of this time series */
 	for (i = 1; i < num_time_samples; i++) {
 		double m = workspace->temp_ifft[i];
-		if (m > max) {
-			max = m;
+		if (m > max_value) {
+			max_value = m;
+			max_index = i;
 		}
 	}
 
-	/* check, sqrt sbould behave accordding to chi */
+	/* check, sqrt sbould behave according to chi */
 	/* check, use this with just noise and see if the mean is 4, std should be sqrt(8). Chi-sqre if not sqrt(max). Check 'max' dist.*/
-	*out_network_snr = sqrt(max);
+	double old_snr_definition = sqrt(max_value);
+
+	// temp hack to do this quickly
+	//workspace->temp_ifft[max_index] = 0.0;
+	//double std = gsl_stats_sd (workspace->temp_ifft, 1, workspace->num_time_samples);
+	//workspace->temp_ifft[max_index] = max_value;
+
+	//double new_snr_definition = max_value / std;
+	*out_network_snr = old_snr_definition;
+
+	if (hdf5_filename != NULL) {
+		hdf5_save_array( hdf5_filename, "/", "temp_ifft", workspace->num_time_samples, workspace->temp_ifft);
+	}
 }

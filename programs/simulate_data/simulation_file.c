@@ -141,7 +141,7 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 	size_t l;
 
 	/* Simulate the signals */
-	network_strain_half_fft_t *network_strain_half_fft = inspiral_template(ps->f_low, ps->f_high, ps->num_time_samples, net, &ps->source);
+	network_strain_half_fft_t *network_strain_half_fft = inspiral_template(ps->f_low, ps->f_high, ps->num_time_samples, net, &ps->source, ps->output_filename);
 
 	strain_t **signals = (strain_t**) malloc ( net->num_detectors * sizeof(strain_t*) );
 	if (signals == NULL) {

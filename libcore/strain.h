@@ -5,6 +5,10 @@
 
 #include <gsl/gsl_complex.h>
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 typedef struct strain_half_fft_s {
 	/* length of the full fft = num_time_samples */
 	size_t full_len;
@@ -52,5 +56,9 @@ strain_t* strain_full_fft_to_strain( strain_full_fft_t* fft);
 
 network_strain_half_fft_t* network_strain_half_fft_alloc(size_t num_strains, size_t num_time_samples);
 void network_strain_half_fft_free(network_strain_half_fft_t *strains);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* STRAIN_H_ */

@@ -7,6 +7,10 @@
 #define MAXPHASEHDR
 #include <gsl/gsl_vector.h>
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 /*! 
 A fitness function must use this
 struct to ferry in parameter values needed to compute the fitness value, and
@@ -37,5 +41,9 @@ void s2rvector(const gsl_vector *, const gsl_vector *, const gsl_vector *, gsl_v
 void limitVecComponent(gsl_vector *, double, double);
 
 char ** listfileswext (const char *, const char *, size_t *, size_t *);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif

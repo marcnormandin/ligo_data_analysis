@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 typedef enum {
 	PSD_ONE_SIDED,
 	PSD_TWO_SIDED
@@ -48,5 +52,9 @@ void ASD_free( asd_t *asd);
 void ASD_init_from_psd( psd_t *psd, asd_t *asd);
 
 void ASD_save( const char *hdf_filename, asd_t *asd);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SPECTRAL_DENSITY_H_ */

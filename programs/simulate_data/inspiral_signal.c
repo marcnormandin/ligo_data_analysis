@@ -101,7 +101,7 @@ network_strain_half_fft_t* inspiral_template_unscaled(double f_low, double f_hig
 	return network_strain;
 }
 
-network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source) {
+network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t num_time_samples, detector_network_t *net, source_t *source, char *filename) {
 	size_t i, j;
 
 	/* generate the unscaled signals */
@@ -116,7 +116,7 @@ network_strain_half_fft_t* inspiral_template(double f_low, double f_high, size_t
 	coherent_network_workspace_t *cnw = CN_workspace_alloc(num_time_samples, net, len_asd, f_low, f_high);
 	double scale = 0;
 	coherent_network_statistic(net, f_low, f_high, &chirp.ct, &source->sky,
-			network_strain, cnw, &scale);
+			network_strain, cnw, &scale, filename);
 	CN_workspace_free(cnw);
 
 	/* now determine the scale factor we need to use in order to get the desired network snr */

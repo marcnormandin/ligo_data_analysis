@@ -7,6 +7,10 @@
 #include "detector.h"
 #include "sky.h"
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 /* GW Interferometer Antenna Patterns */
 typedef struct detector_antenna_patterns_s {
 	/* polarization-independent antenna patterns */
@@ -33,5 +37,9 @@ void Detector_Antenna_Patterns_workspace_free( detector_antenna_patterns_workspa
 
 int Detector_Antenna_Patterns_compute(detector_t *d, sky_t *sky, double polarization_angle,
 		detector_antenna_patterns_workspace_t *workspace, detector_antenna_patterns_t *ant);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_ANTENNA_PATTERNS_H_ */

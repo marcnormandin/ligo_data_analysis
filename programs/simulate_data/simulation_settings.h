@@ -24,6 +24,7 @@ typedef struct simulation_settings_s {
 	char detector_mapping_filename[FILENAME_MAX_SIZE];
 	char output_filename[FILENAME_MAX_SIZE];
 	size_t num_realizations;
+	char ns_timeseries_filename[FILENAME_MAX_SIZE];
 
 } simulation_settings_t;
 

@@ -17,22 +17,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_const_mksa.h>
+
 #include "../libcore/sky.h"
-#include "../libcore/detector_antenna_patterns.c"
-#include "../libcore/detector_mapping.c"
-#include "../libcore/detector_network.c"
-#include "../libcore/detector_time_delay.c"
-#include "../libcore/detector.c"
-#include "../libcore/hdf5_file.c"
-#include "../libcore/inspiral_chirp_factors.c"
-#include "../libcore/inspiral_chirp.c"
-#include "../libcore/inspiral_network_statistic.c"
-#include "../libcore/inspiral_stationary_phase.c"
-#include "../libcore/random.c"
-#include "../libcore/sampling_system.c"
-#include "../libcore/settings_file.c"
-#include "../libcore/spectral_density.c"
-#include "../libcore/strain.c"
+#include "../libcore/detector_antenna_patterns.h"
+#include "../libcore/detector_mapping.h"
+#include "../libcore/detector_network.h"
+#include "../libcore/detector_time_delay.h"
+#include "../libcore/detector.h"
+#include "../libcore/hdf5_file.h"
+#include "../libcore/inspiral_chirp_factors.h"
+#include "../libcore/inspiral_chirp.h"
+#include "../libcore/inspiral_network_statistic.h"
+#include "../libcore/inspiral_stationary_phase.h"
+#include "../libcore/random.h"
+#include "../libcore/sampling_system.h"
+#include "../libcore/settings_file.h"
+#include "../libcore/spectral_density.h"
+#include "../libcore/strain.h"
 
 #ifdef HAVE_GTEST
 
@@ -828,7 +832,8 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 			&sky,
 			network_strain,
 			ws,
-			&network_snr);
+			&network_snr,
+			NULL);
 
 	/*
 	for (int i = 0; i < num_detectors; i++) {
@@ -862,7 +867,6 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 	network_strain_half_fft_free(network_strain);
 
 }
-
 
 #endif
 

@@ -8,6 +8,10 @@
 #include "inspiral_chirp_time.h"
 #include "spectral_density.h"
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 typedef struct stationary_phase_workspace_s {
 	double f_low, f_high;
 	size_t f_low_index, f_high_index;
@@ -42,6 +46,8 @@ stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, si
 
 void SP_workspace_free( stationary_phase_workspace_t *lookup);
 
+/* This is called by SP_workspace_alloc and shouldn't be called otherwise. */
+void SP_workspace_init(size_t len_f_array, double *f_array, stationary_phase_workspace_t *lookup);
 
 
 
@@ -60,6 +66,8 @@ void SP_compute(
 
 void SP_save(char *filename, asd_t *asd, stationary_phase_t *sp);
 
-
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_STATIONARY_PHASE_H_ */

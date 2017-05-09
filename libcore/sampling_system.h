@@ -7,6 +7,10 @@
 
 #include "spectral_density.h"
 
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
 int SS_has_nyquist_term(size_t N);
 
 /* Returns the Nyquist array index for a C indexed-array */
@@ -35,5 +39,9 @@ void SS_colour_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double
 
 /* This function whitens a time series by dividing by the ASD in the frequency domain */
 void SS_whiten_timeseries( psd_t *psd_one_sided, size_t num_time_samples, double *timeseries);
+
+#if defined (__cplusplus)
+}
+#endif
 
 #endif /* SRC_C_SAMPLING_SYSTEM_H_ */
