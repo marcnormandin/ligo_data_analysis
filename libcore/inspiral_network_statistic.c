@@ -470,5 +470,9 @@ void coherent_network_statistic(
 
 	if (hdf5_filename != NULL) {
 		hdf5_save_array( hdf5_filename, "/", "temp_ifft", workspace->num_time_samples, workspace->temp_ifft);
+
+		for (i = 0; i < workspace->num_time_samples; i++) {
+			printf("%f ", workspace->temp_ifft[i]);
+		}
 	}
 }

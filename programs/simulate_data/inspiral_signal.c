@@ -151,12 +151,12 @@ void Source_print(source_t* source) {
 void Source_load_testsource(source_t* source) {
 	source->sky.ra = -2.14;
 	source->sky.dec = 0.72;
-	source->polarization_angle = 0.0;
-	source->coalescence_phase = 0.0;
+	source->polarization_angle = M_PI / 6.0;
+	source->coalescence_phase = M_PI / 3.0;
 	source->inclination_angle = 0.0;
 	source->m1 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 1 */
-	source->m2 = 1.4 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 2 */
-	source->time_of_arrival = 16.0;
+	source->m2 = 4.6 * GSL_CONST_MKSA_SOLAR_MASS; /* binary mass 2 */
+	source->time_of_arrival = 8.0;
 	source->snr = 9.0;
 }
 
