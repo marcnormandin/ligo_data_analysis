@@ -50,7 +50,7 @@ void Detector_Network_print(detector_network_t* net) {
 
 	size_t i;
 
-	printf("DETECTOR NEWTORK: %d detectors\n", net->num_detectors);
+	printf("DETECTOR NEWTORK: %zu detectors\n", net->num_detectors);
 	for (i = 0; i < net->num_detectors; i++) {
 		printf("%s ", net->detector[i]->name);
 		printf("\n");

@@ -18,7 +18,7 @@ libpso_la_SOURCES = \
 libpso_la_LDFLAGS = 
 
 if HAVE_OPENMP
-libpso_la_LDFLAGS += -fopenmp
+libpso_la_LDFLAGS += $OPENMP_CFLAGS
 endif
 
 libpso_la_LIBADD = ../libcore/libcore.la -lgsl -lgslcblas -lhdf5 -lhdf5_hl -lm

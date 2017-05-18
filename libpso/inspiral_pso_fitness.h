@@ -14,12 +14,24 @@
 extern "C" {
 #endif
 
+/*
+typedef enum {
+	PSO_LBEST = 0,
+	PSO_GBEST
+} PSO_VERSION;
+*/
+
 typedef struct pso_result_s {
 	double ra;
 	double dec;
 	double chirp_t0;
 	double chirp_t1_5;
 	double snr;
+
+	/* diagnostics */
+	size_t total_iterations;
+	size_t total_func_evals;
+	double computation_time_secs;
 
 } pso_result_t;
 

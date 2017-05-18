@@ -1,6 +1,6 @@
 #SUBDIRS = matlab_data_serial simulate_data simulate_matlab_data diagnostics histogram
-SUBDIRS = simulate_data
+SUBDIRS = simulate_data matlab_data_serial matlab_data_mpi
 
-if HAVE_MPI
-	SUBDIRS += matlab_data_mpi 
-endif
+#if HAVE_MPI
+#SUBDIRS += matlab_data_mpi 
+#endif

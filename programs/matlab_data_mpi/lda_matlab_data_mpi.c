@@ -64,13 +64,15 @@ void load_shihan_inspiral_data( const char* hdf_filename, strain_half_fft_t *str
 }
 
 void pso_result_save(FILE *fid, pso_result_t *result) {
-	fprintf(fid, "%20.17g %20.17g %20.17g %20.17g %20.17g",
-			result->ra, result->dec, result->chirp_t0, result->chirp_t1_5, result->snr);
+	fprintf(fid, "%20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20.17g",
+			result->ra, result->dec, result->chirp_t0, result->chirp_t1_5, result->snr,
+			result->total_iterations, result->total_func_evals, result->computation_time_secs);
 }
 
 void pso_result_print(pso_result_t *result) {
-	printf("%20.17g %20.17g %20.17g %20.17g %20.17g",
-			result->ra, result->dec, result->chirp_t0, result->chirp_t1_5, result->snr);
+	printf("%20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20.17g",
+			result->ra, result->dec, result->chirp_t0, result->chirp_t1_5, result->snr,
+			result->total_iterations, result->total_func_evals, result->computation_time_secs);
 }
 
 int i_am_master() {
@@ -86,8 +88,6 @@ int i_am_master() {
 int main(int argc, char* argv[]) {
 	size_t i;
 
-	gslseed_t seed;
-
 	clock_t time_start, time_end;
 	double cpu_time_used;
 	time_start = clock();
@@ -95,8 +95,6 @@ int main(int argc, char* argv[]) {
 #ifdef HAVE_MPI
 	MPI_Init(&argc, &argv);
 #endif
-
-	seed = 1;
 
 	/* somehow these need to be set */
 	if (argc != 6) {
@@ -118,6 +116,8 @@ int main(int argc, char* argv[]) {
 		abort();
 	}
 
+	gslseed_t seed = atoi(settings_file_get_value(settings_file, "pso_alpha_seed"));
+
 #ifdef HAVE_MPI
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -131,13 +131,17 @@ int main(int argc, char* argv[]) {
 
 	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
 	const double f_high = atof(settings_file_get_value(settings_file, "f_high"));
+	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
 
 	settings_file_close(settings_file);
 
-	detector_network_t *net = Detector_Network_load( arg_detector_mapping_file, f_low, f_high );
 	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( arg_detector_mapping_file );
 
 	size_t num_time_samples = hdf5_get_num_time_samples( dmap->data_filenames[0] );
+
+	detector_network_t *net = Detector_Network_load(
+			arg_detector_mapping_file, num_time_samples, sampling_frequency, f_low, f_high );
+
 	network_strain_half_fft_t *network_strain = network_strain_half_fft_alloc(dmap->num_detectors, num_time_samples );
 	for (i = 0; i < net->num_detectors; i++) {
 		load_shihan_inspiral_data( dmap->data_filenames[i], network_strain->strains[i] );

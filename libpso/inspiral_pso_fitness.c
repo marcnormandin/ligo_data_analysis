@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector.h>
@@ -166,7 +168,9 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	assert(splParams != NULL);
 	assert(result != NULL);
 
-	/* Estimate right-ascension and declination */
+	clock_t time_start = clock();
+
+	/* Estimate right-ascension, declination, and chirp times. */
 	unsigned int nDim = 4, lpc;
 	/* [0] = RA
 	   [1] = Declination
@@ -237,9 +241,18 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	psoParams.rngGen = rngGen;
 	psoParams.debugDumpFile = NULL; /*fopen("ptapso_dump.txt","w"); */
 
+	const char *pso_version = settings_file_get_value(settings_file, "pso_version");
+	if (strcmp(pso_version, "lbest")==0) {
+		lbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
+	} else if (strcmp(pso_version, "gbest")==0) {
+		gbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
+	} else {
+		fprintf(stderr, "Error. pso_version in the pso settings file must be 'lbest' or 'gbest'. Exiting.\n");
+		exit(-1);
+	}
+
 	settings_file_close(settings_file);
 
-	gbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
 
 	/* convert values to function ranges, instead of pso ranges */
 	// use the 0 index to convert the value
@@ -251,6 +264,10 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 
 	/* PSO finds minimums but we want the largest network statistic */
 	result->snr = -1.0 * psoResults->bestFitVal;
+
+	result->total_iterations = psoResults->totalIterations;
+	result->total_func_evals = psoResults->totalFuncEvals;
+	result->computation_time_secs = ((double) (clock() - time_start)) / CLOCKS_PER_SEC;
 
 	/* Free allocated memory */
 	ffparam_free(inParams);

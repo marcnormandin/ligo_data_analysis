@@ -129,7 +129,7 @@ void simulated_strain_file_save_detector_signal( const char *output_filename, st
 	char buff[255];
 	memset(buff, '\0', 255 * sizeof(char));
 
-	sprintf(buff, "detector_%d/signal", detector_num);
+	sprintf(buff, "detector_%zu/signal", detector_num);
 	hdf5_create_group( output_filename, buff );
 	hdf5_save_array( output_filename, buff, "Signal", signal->num_time_samples, signal->samples );
 }
@@ -185,12 +185,12 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 
 		char buff[255];
 		memset(buff, '\0', 255 * sizeof(char));
-		sprintf(buff, "detector_%d/noise", i+1);
+		sprintf(buff, "detector_%zu/noise", i+1);
 		hdf5_create_group( ps->output_filename, buff );
 
 		char buff3[255];
 		memset(buff3, '\0', 255 * sizeof(char));
-		sprintf(buff3, "detector_%d/strain", i+1);
+		sprintf(buff3, "detector_%zu/strain", i+1);
 		hdf5_create_group( ps->output_filename, buff3 );
 
 		for (j = 0; j < ps->num_realizations; j++) {
@@ -203,7 +203,7 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 
 			char buff2[255];
 			memset(buff2, '\0', 255 * sizeof(char));
-			sprintf(buff2, "Noise_%d", j+1);
+			sprintf(buff2, "Noise_%zu", j+1);
 			hdf5_save_array( ps->output_filename, buff, buff2, ps->num_time_samples, noise );
 
 			for (k = 0; k < ps->num_time_samples; k++) {
@@ -212,7 +212,7 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 
 			char buff4[255];
 			memset(buff4, '\0', 255 * sizeof(char));
-			sprintf(buff4, "Strain_%d", j+1);
+			sprintf(buff4, "Strain_%zu", j+1);
 			hdf5_save_array( ps->output_filename, buff3, buff4, ps->num_time_samples, strain );
 		}
 	}
