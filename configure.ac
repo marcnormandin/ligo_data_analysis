@@ -2,7 +2,7 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[2.1],[normandin.utb@gmail.com])
+AC_INIT([lda],[2.2],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 AC_PROG_CC
@@ -43,6 +43,8 @@ AM_CONDITIONAL([HAVE_OPENMP], [test "x$ac_cv_prog_cc_openmp" != "xunsupported"])
  # If --with-mpi=auto is used, try to find MPI, but use standard C compiler if it is not found.
   # If --with-mpi=yes is used, try to find MPI and fail if it isn't found.
   # If --with-mpi=no is used, use a standard C compiler instead.
+
+AC_DEFINE([HAVE_MPI], [1], [Enable MPI])
 
 #AC_SUBST([HAVE_MPI])
 #AM_CONDITIONAL([HAVE_MPI], [test x"$use_mpi" = xyes], [MPI Enabled])

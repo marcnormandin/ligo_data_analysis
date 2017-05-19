@@ -458,7 +458,7 @@ void coherent_network_statistic(
 
 	/* check, sqrt sbould behave according to chi */
 	/* check, use this with just noise and see if the mean is 4, std should be sqrt(8). Chi-sqre if not sqrt(max). Check 'max' dist.*/
-	double old_snr_definition = sqrt(max_value);
+	double old_snr_definition = sqrt(max_value) / sqrt(2.0);
 
 	// temp hack to do this quickly
 	//workspace->temp_ifft[max_index] = 0.0;
