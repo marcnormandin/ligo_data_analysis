@@ -80,21 +80,17 @@ void pso_result_print(pso_result_t *result) {
 int main(int argc, char* argv[]) {
 	size_t i;
 
-	clock_t time_start, time_end;
-	double cpu_time_used;
-	time_start = clock();
-
 	/* somehow these need to be set */
 	if (argc != 6) {
 		printf("argc = %d\n", argc);
-		printf("Error: Must supply [settings file] [detector mapping file] [input pso settings file] [num pso trials] [pso results file]!\n");
+		printf("Error: Usage -> [settings file] [detector mapping file] [rng seed] [input pso settings file] [pso results file]!\n");
 		exit(-1);
 	}
 
 	char* arg_settings_file = argv[1];
 	char* arg_detector_mapping_file = argv[2];
-	char* arg_pso_settings_file = argv[3];
-	int arg_num_pso_evaluations = atoi(argv[4]);
+	const gslseed_t seed = atoi(argv[3]);
+	char* arg_pso_settings_file = argv[4];
 	char* arg_pso_results_file = argv[5];
 
 	/* Load the general Settings */
@@ -110,7 +106,6 @@ int main(int argc, char* argv[]) {
 	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
 	const double f_high = atof(settings_file_get_value(settings_file, "f_high"));
 	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
-	const gslseed_t seed = atoi(settings_file_get_value(settings_file, "pso_alpha_seed"));
 
 	settings_file_close(settings_file);
 
@@ -124,48 +119,26 @@ int main(int argc, char* argv[]) {
 		load_shihan_inspiral_data( dmap->data_filenames[i], network_strain->strains[i] );
 	}
 
-	/* Random number generator */
-	gsl_rng *rng = random_alloc(seed);
-	gslseed_t *seeds = (gslseed_t*) malloc ( arg_num_pso_evaluations * sizeof(gslseed_t) );
-	for (i = 0; i < arg_num_pso_evaluations; i++) {
-		seeds[i] = random_seed(rng);
-	}
-
 	pso_fitness_function_parameters_t *fitness_function_params =
 				pso_fitness_function_parameters_alloc(f_low, f_high, net, network_strain);
 
-	for (i = 0; i < arg_num_pso_evaluations; i++) {
-		printf("EVALUATING PSO ESTIMATE #(%lu)...\n", i+1);
+	pso_result_t pso_result;
+	pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, seed, &pso_result);
 
-		pso_result_t pso_result;
-		pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, seeds[i], &pso_result);
+	FILE *fid = fopen(arg_pso_results_file, "a");
+	pso_result_save(fid, &pso_result);
+	fprintf(fid, "\n");
+	fclose(fid);
 
-		FILE *fid = fopen(arg_pso_results_file, "a");
-		pso_result_save(fid, &pso_result);
-		if (i < arg_num_pso_evaluations) {
-			fprintf(fid, "\n");
-		}
-		fclose(fid);
+	pso_result_print(&pso_result);
 
-		pso_result_print(&pso_result);
-
-		printf("\nESTIMATE RECORDED.\n\n");
-	}
-	free(seeds);
 
 	pso_fitness_function_parameters_free(fitness_function_params);
 
 	/* Free the data */
 	network_strain_half_fft_free(network_strain);
-	/*free(signals);*/
 
 	Detector_Network_free(net);
-	random_free(rng);
-
-
-	time_end = clock();
-	cpu_time_used = ((double) (time_end - time_start)) / CLOCKS_PER_SEC;
-	printf("Program completed successfully after %f seconds.\n", cpu_time_used);
 
 	return 0;
 }

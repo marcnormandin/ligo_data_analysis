@@ -2,7 +2,7 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[2.2],[normandin.utb@gmail.com])
+AC_INIT([lda],[2.3],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 AC_PROG_CC
@@ -44,7 +44,7 @@ AM_CONDITIONAL([HAVE_OPENMP], [test "x$ac_cv_prog_cc_openmp" != "xunsupported"])
   # If --with-mpi=yes is used, try to find MPI and fail if it isn't found.
   # If --with-mpi=no is used, use a standard C compiler instead.
 
-AC_DEFINE([HAVE_MPI], [1], [Enable MPI])
+#AC_DEFINE([HAVE_MPI], [1], [Enable MPI])
 
 #AC_SUBST([HAVE_MPI])
 #AM_CONDITIONAL([HAVE_MPI], [test x"$use_mpi" = xyes], [MPI Enabled])
@@ -98,7 +98,7 @@ AC_CONFIG_FILES([settings/Makefile])
 AC_CONFIG_FILES([libcore/Makefile])
 AC_CONFIG_FILES([libpso/Makefile])
 AC_CONFIG_FILES([programs/Makefile])
-AC_CONFIG_FILES([programs/matlab_data_mpi/Makefile])
+#AC_CONFIG_FILES([programs/matlab_data_mpi/Makefile])
 AC_CONFIG_FILES([programs/matlab_data_serial/Makefile])
 AC_CONFIG_FILES([programs/simulate_data/Makefile])
 #AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
