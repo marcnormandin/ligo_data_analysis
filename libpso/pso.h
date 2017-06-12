@@ -88,11 +88,11 @@ void lbestpso(size_t, /* Dimensionality of fitness function */
 			struct returnData * /* Structure containing PSO output */
 		   );
 
-void gbestpso(size_t nDim, /*!< Number of search dimensions */
-            fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
-			void *ffParams, /*!< Fitness function parameter structure */
-            struct psoParamStruct *psoParams, /*!< PSO parameter structure */
-			struct returnData *psoResults /*!< Output structure */);
+void gbestpso(size_t, /*!< Number of search dimensions */
+            fitness_function_ptr, /*!< Pointer to Fitness function */
+			void *, /*!< Fitness function parameter structure */
+            struct psoParamStruct *, /*!< PSO parameter structure */
+			struct returnData * /*!< Output structure */);
 
 void initPsoParticles(struct particleInfo *, size_t , gsl_rng *);
 
