@@ -178,9 +178,31 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	   [3] = Chirp time 1.5
 	 */
 	/* Shihan said his PSO went from 0 to PI for dec */
-	double rmin[4] = {-M_PI, 	-0.5*M_PI, 	0.0, 		0.0};
-	double rmax[4] = {M_PI, 	0.5*M_PI, 	43.4673, 	1.0840};
+	//double rmin[4] = {-M_PI, 	-0.5*M_PI, 	0.0, 		0.0};
+	//double rmax[4] = {M_PI, 	0.5*M_PI, 	43.4673, 	1.0840};
+	double rmin[4];
+	double rmax[4];
 	double rangeVec[4];
+	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
+	if (settings_file == NULL) {
+		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
+		abort();
+	}
+	rmin[0] = atof(settings_file_get_value(settings_file, "search_ra_min"));
+	rmax[0] = atof(settings_file_get_value(settings_file, "search_ra_max"));
+
+	rmin[1] = atof(settings_file_get_value(settings_file, "search_dec_min"));
+	rmax[1] = atof(settings_file_get_value(settings_file, "search_dec_max"));
+
+	rmin[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_min"));
+	rmax[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_max"));
+
+	rmin[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_min"));
+	rmax[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_max"));
+
+	settings_file_close(settings_file);
+
+
 
 	/* Error handling off */
 	gsl_error_handler_t *old_handler = gsl_set_error_handler_off ();
@@ -220,20 +242,20 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	/* Set up the pso parameter structure.*/
 
 	/* Load the pso settings */
-	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
+	settings_file = settings_file_open(pso_settings_filename);
 	if (settings_file == NULL) {
 		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
 		abort();
 	}
 
 	struct psoParamStruct psoParams;
-	psoParams.popsize = atoi(settings_file_get_value(settings_file, "popsize"));;
-	psoParams.maxSteps= atoi(settings_file_get_value(settings_file, "maxSteps"));;
-	psoParams.c1 = atof(settings_file_get_value(settings_file, "c1"));;
-	psoParams.c2 = atof(settings_file_get_value(settings_file, "c2"));;
-	psoParams.max_velocity = atof(settings_file_get_value(settings_file, "max_velocity"));;
-	psoParams.dcLaw_a = atof(settings_file_get_value(settings_file, "dcLaw_a"));;
-	psoParams.dcLaw_b = atof(settings_file_get_value(settings_file, "dcLaw_b"));;
+	psoParams.popsize = atoi(settings_file_get_value(settings_file, "popsize"));
+	psoParams.maxSteps= atoi(settings_file_get_value(settings_file, "maxSteps"));
+	psoParams.c1 = atof(settings_file_get_value(settings_file, "c1"));
+	psoParams.c2 = atof(settings_file_get_value(settings_file, "c2"));
+	psoParams.max_velocity = atof(settings_file_get_value(settings_file, "max_velocity"));
+	psoParams.dcLaw_a = atof(settings_file_get_value(settings_file, "dcLaw_a"));
+	psoParams.dcLaw_b = atof(settings_file_get_value(settings_file, "dcLaw_b"));
 	psoParams.dcLaw_c = psoParams.maxSteps;
 	psoParams.dcLaw_d = atof(settings_file_get_value(settings_file, "dcLaw_d"));;
 	psoParams.locMinIter = atof(settings_file_get_value(settings_file, "locMinIter"));
