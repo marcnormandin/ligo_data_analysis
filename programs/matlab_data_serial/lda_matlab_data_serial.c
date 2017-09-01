@@ -77,13 +77,41 @@ void pso_result_print(pso_result_t *result) {
 			result->total_iterations, result->total_func_evals, result->computation_time_secs);
 }
 
+typedef struct callback_function_params_s {
+	FILE *fid;
+	pso_result_t result;
+	pso_ranges_t *ranges;
+
+} callback_function_params_t;
+
+callback_function_params_t* callback_function_params_alloc( const char* pso_settings_filename, const char* callback_save_filename ) {
+	callback_function_params_t* p = (callback_function_params_t*) malloc( sizeof(callback_function_params_t) );
+	p->ranges = pso_ranges_alloc( pso_settings_filename );
+	pso_ranges_init( pso_settings_filename, p->ranges );
+	p->fid = fopen( callback_save_filename, "a");
+	return p;
+}
+
+void callback_function_params_free( callback_function_params_t* p ) {
+	fclose(p->fid);
+	pso_ranges_free(p->ranges);
+	free(p);
+}
+
+void callback(void* params, returnData_t *pso_domain_result) {
+	callback_function_params_t* p = (callback_function_params_t*) params;
+	return_data_to_pso_results( p->ranges, pso_domain_result, &p->result );
+	pso_result_save( p->fid, &p->result );
+	fprintf(p->fid, "\n");
+}
+
 int main(int argc, char* argv[]) {
 	size_t i;
 
 	/* somehow these need to be set */
-	if (argc != 6) {
+	if (argc != 8) {
 		printf("argc = %d\n", argc);
-		printf("Error: Usage -> [settings file] [detector mapping file] [rng seed] [input pso settings file] [pso results file]!\n");
+		printf("Error: Usage -> [settings file] [detector mapping file] [rng seed] [input pso settings file] [output final pso results file] [output intermediate results file] [intermediate record interval, eg. 100]!\n");
 		exit(-1);
 	}
 
@@ -92,6 +120,8 @@ int main(int argc, char* argv[]) {
 	const gslseed_t seed = atoi(argv[3]);
 	char* arg_pso_settings_file = argv[4];
 	char* arg_pso_results_file = argv[5];
+	char* arg_pso_record_file = argv[6];
+	int arg_pso_record_interval = atoi(argv[7]);
 
 	/* Load the general Settings */
 	settings_file_t *settings_file = settings_file_open(arg_settings_file);
@@ -101,6 +131,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	printf("Using the following settings:\n");
+
 	settings_file_print(settings_file);
 
 	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
@@ -122,8 +153,17 @@ int main(int argc, char* argv[]) {
 	pso_fitness_function_parameters_t *fitness_function_params =
 				pso_fitness_function_parameters_alloc(f_low, f_high, net, network_strain);
 
+	callback_function_params_t* cbp = callback_function_params_alloc(arg_pso_settings_file, arg_pso_record_file);
+
+	current_result_callback_params_t callback_params;
+	callback_params.interval = arg_pso_record_interval;
+	callback_params.callback = callback;
+	callback_params.callback_params = cbp;
+
 	pso_result_t pso_result;
-	pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, seed, &pso_result);
+	pso_estimate_parameters(arg_pso_settings_file, fitness_function_params, &callback_params, seed, &pso_result);
+
+	callback_function_params_free( cbp );
 
 	FILE *fid = fopen(arg_pso_results_file, "a");
 	pso_result_save(fid, &pso_result);

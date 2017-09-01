@@ -163,7 +163,113 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
    return fitFuncVal;
 }
 
-int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_parameters_t *splParams, gslseed_t seed, pso_result_t* result) {
+pso_ranges_t* pso_ranges_alloc(const char *pso_settings_filename) {
+	pso_ranges_t *r = (pso_ranges_t*) malloc( sizeof(pso_ranges_t) );
+	if (r == 0) {
+		printf("Unable to allocate memory for pso_ranges_t structure. Aborting.\n");
+		abort();
+	}
+
+	/* Read the settings since we need them from file. */
+	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
+	if (settings_file == NULL) {
+		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
+		abort();
+	}
+
+	/* First we need the number of dimensions */
+	r->nDim = atoi(settings_file_get_value(settings_file, "search_num_dim"));
+	if (r->nDim <= 0) {
+		printf("search_num_dim (%d) in file (%s) must be >= 1. Aborting.\n", r->nDim, pso_settings_filename );
+		abort();
+	}
+
+	r->min = (double*) malloc( r->nDim * sizeof(double) );
+	if (r->min == 0) {
+		printf("Unable to allocate memory for pso_ranges_t structure. Aborting.\n");
+		abort();
+	}
+
+	r->max = (double*) malloc( r->nDim * sizeof(double) );
+	if (r->max == 0) {
+		printf("Unable to allocate memory for pso_ranges_t structure. Aborting.\n");
+		abort();
+	}
+
+	r->rangeVec = (double*) malloc( r->nDim * sizeof(double) );
+	if (r->rangeVec == 0) {
+		printf("Unable to allocate memory for pso_ranges_t structure. Aborting.\n");
+		abort();
+	}
+
+	settings_file_close(settings_file);
+
+	return r;
+}
+
+void pso_ranges_free( pso_ranges_t* r) {
+	assert( r != NULL );
+	assert( r->min != NULL);
+	assert( r->max != NULL);
+
+	free( r->min );
+	free( r->max );
+	free( r->rangeVec );
+	free( r );
+}
+
+void pso_ranges_init(const char *pso_settings_filename, pso_ranges_t* r) {
+	assert( pso_settings_filename );
+	assert( r );
+
+	/* Read the settings since we need them from file. */
+	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
+	if (settings_file == NULL) {
+		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
+		abort();
+	}
+
+	r->min[0] = atof(settings_file_get_value(settings_file, "search_ra_min"));
+	r->max[0] = atof(settings_file_get_value(settings_file, "search_ra_max"));
+
+	r->min[1] = atof(settings_file_get_value(settings_file, "search_dec_min"));
+	r->max[1] = atof(settings_file_get_value(settings_file, "search_dec_max"));
+
+	r->min[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_min"));
+	r->max[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_max"));
+
+	r->min[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_min"));
+	r->max[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_max"));
+
+	int i;
+	for (i = 0; i < r->nDim; i++) {
+		r->rangeVec[i] = r->max[i] - r->min[i];
+	}
+
+	settings_file_close(settings_file);
+}
+
+double convert_domain_pso_to_ff( pso_ranges_t *ranges, returnData_t *res, int index ) {
+	double x = gsl_vector_get( res->bestLocation, index );
+	return ( x*ranges->rangeVec[index] + ranges->min[index] );
+}
+
+/* Convert from PSO doman to the FF domain. */
+void return_data_to_pso_results( pso_ranges_t *ranges, returnData_t *from, pso_result_t *to) {
+	to->ra = convert_domain_pso_to_ff( ranges, from, 0 );
+	to->dec = convert_domain_pso_to_ff( ranges, from, 1 );
+	to->chirp_t0 = convert_domain_pso_to_ff( ranges, from, 2 );
+	to->chirp_t1_5 = convert_domain_pso_to_ff( ranges, from, 3 );
+
+	/* PSO finds minimums but we want the largest network statistic */
+	to->snr = -1.0 * from->bestFitVal;
+
+	to->total_iterations = from->totalIterations;
+	to->total_func_evals = from->totalFuncEvals;
+	to->computation_time_secs = from->computationTimeSecs;
+}
+
+int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_function_parameters_t *splParams, current_result_callback_params_t *callback_params, gslseed_t seed, pso_result_t* result) {
 	assert(pso_settings_filename != NULL);
 	assert(splParams != NULL);
 	assert(result != NULL);
@@ -180,29 +286,8 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	/* Shihan said his PSO went from 0 to PI for dec */
 	//double rmin[4] = {-M_PI, 	-0.5*M_PI, 	0.0, 		0.0};
 	//double rmax[4] = {M_PI, 	0.5*M_PI, 	43.4673, 	1.0840};
-	double rmin[4];
-	double rmax[4];
-	double rangeVec[4];
-	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
-	if (settings_file == NULL) {
-		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
-		abort();
-	}
-	rmin[0] = atof(settings_file_get_value(settings_file, "search_ra_min"));
-	rmax[0] = atof(settings_file_get_value(settings_file, "search_ra_max"));
-
-	rmin[1] = atof(settings_file_get_value(settings_file, "search_dec_min"));
-	rmax[1] = atof(settings_file_get_value(settings_file, "search_dec_max"));
-
-	rmin[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_min"));
-	rmax[2] = atof(settings_file_get_value(settings_file, "search_chirp_t_0_max"));
-
-	rmin[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_min"));
-	rmax[3] = atof(settings_file_get_value(settings_file, "search_chirp_t_1_5_max"));
-
-	settings_file_close(settings_file);
-
-
+	pso_ranges_t *pso_ranges = pso_ranges_alloc( pso_settings_filename );
+	pso_ranges_init( pso_settings_filename, pso_ranges );
 
 	/* Error handling off */
 	gsl_error_handler_t *old_handler = gsl_set_error_handler_off ();
@@ -218,9 +303,8 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 
 	/* Load fitness function parameter struct */
 	for (lpc = 0; lpc < nDim; lpc++){
-		rangeVec[lpc]=rmax[lpc]-rmin[lpc];
-		gsl_vector_set(inParams->rmin,lpc,rmin[lpc]);
-		gsl_vector_set(inParams->rangeVec,lpc,rangeVec[lpc]);
+		gsl_vector_set(inParams->rmin,lpc,pso_ranges->min[lpc]);
+		gsl_vector_set(inParams->rangeVec,lpc,pso_ranges->rangeVec[lpc]);
 	}
 	/* Set up pointer to fitness function. Use the prototype
 	declaration given in the header file for the fitness function. */
@@ -242,7 +326,7 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	/* Set up the pso parameter structure.*/
 
 	/* Load the pso settings */
-	settings_file = settings_file_open(pso_settings_filename);
+	settings_file_t *settings_file = settings_file_open(pso_settings_filename);
 	if (settings_file == NULL) {
 		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
 		abort();
@@ -264,34 +348,23 @@ int pso_estimate_parameters(char *pso_settings_filename, pso_fitness_function_pa
 	psoParams.debugDumpFile = NULL; /*fopen("ptapso_dump.txt","w"); */
 
 	const char *pso_version = settings_file_get_value(settings_file, "pso_version");
+
+	settings_file_close(settings_file);
+
+	/* Now call the desired PSO implementation */
 	if (strcmp(pso_version, "lbest")==0) {
-		lbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
+		lbestpso(nDim, fitfunc, inParams, callback_params, &psoParams, psoResults);
 	} else if (strcmp(pso_version, "gbest")==0) {
-		gbestpso(nDim, fitfunc, inParams, &psoParams, psoResults);
+		gbestpso(nDim, fitfunc, inParams, callback_params, &psoParams, psoResults);
 	} else {
 		fprintf(stderr, "Error. pso_version in the pso settings file must be 'lbest' or 'gbest'. Exiting.\n");
 		exit(-1);
 	}
 
-	settings_file_close(settings_file);
-
-
-	/* convert values to function ranges, instead of pso ranges */
-	// use the 0 index to convert the value
-	s2rvector(psoResults->bestLocation,inParams->rmin,inParams->rangeVec,inParams->realCoord[0]);
-	result->ra = gsl_vector_get(inParams->realCoord[0], 0);
-	result->dec = gsl_vector_get(inParams->realCoord[0], 1);
-	result->chirp_t0 = gsl_vector_get(inParams->realCoord[0], 2);
-	result->chirp_t1_5 = gsl_vector_get(inParams->realCoord[0], 3);
-
-	/* PSO finds minimums but we want the largest network statistic */
-	result->snr = -1.0 * psoResults->bestFitVal;
-
-	result->total_iterations = psoResults->totalIterations;
-	result->total_func_evals = psoResults->totalFuncEvals;
-	result->computation_time_secs = ((double) (clock() - time_start)) / CLOCKS_PER_SEC;
+	return_data_to_pso_results( pso_ranges, psoResults, result );
 
 	/* Free allocated memory */
+	pso_ranges_free( pso_ranges );
 	ffparam_free(inParams);
 	returnData_free(psoResults);
 	gsl_rng_free(rngGen);

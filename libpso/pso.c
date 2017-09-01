@@ -144,3 +144,36 @@ void particleInfoDump(FILE *outF, struct particleInfo *p, size_t popsize){
 	}
 }
 
+/*! Write the current global best information to file.
+*/
+void particleGBestWriteToFile(FILE *outF, struct particleInfo *p, size_t popsize){
+	if (outF == NULL) {
+		return;
+	}
+
+	size_t nDim = p[0].partCoord->size;
+	size_t lpParticles, lpCoord;
+
+	for (lpParticles = 0; lpParticles < popsize; lpParticles++){
+		for(lpCoord = 0; lpCoord < nDim; lpCoord++){
+			fprintf(outF,"%lf ",gsl_vector_get(p[lpParticles].partCoord,lpCoord));
+		}
+		for(lpCoord = 0; lpCoord < nDim; lpCoord++){
+			fprintf(outF,"%lf ",gsl_vector_get(p[lpParticles].partVel,lpCoord));
+		}
+		for(lpCoord = 0; lpCoord < nDim; lpCoord++){
+			fprintf(outF,"%lf ",gsl_vector_get(p[lpParticles].partPbest,lpCoord));
+		}
+		fprintf(outF,"%lf ",p[lpParticles].partSnrPbest);
+		fprintf(outF,"%lf ",p[lpParticles].partSnrCurr);
+		fprintf(outF,"%lf ",p[lpParticles].partSnrLbest);
+		fprintf(outF,"%lf ",p[lpParticles].partInertia);
+		for(lpCoord = 0; lpCoord < nDim; lpCoord++){
+			fprintf(outF,"%lf ",gsl_vector_get(p[lpParticles].partLocalBest,lpCoord));
+		}
+		fprintf(outF,"X ");
+		fprintf(outF,"%zu ",p[lpParticles].partFitEvals);
+		fprintf(outF,"\n");
+	}
+}
+

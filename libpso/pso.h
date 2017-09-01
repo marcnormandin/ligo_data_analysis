@@ -8,7 +8,20 @@
 extern "C" {
 #endif
 
+/*! Structure containing output results from \ref ptapso. */
+typedef struct returnData {
+	size_t totalIterations; /*!< total number of iterations */
+    size_t totalFuncEvals; /*!< total number of fitness evaluations */
+    gsl_vector *bestLocation; /*!< Final global best location */
+    double bestFitVal; /*!< Best fitness values found */
+    double computationTimeSecs;
+} returnData_t;
+
 typedef double (*fitness_function_ptr)(gsl_vector *, void *);
+
+/* This called every N iterations with the current best results. */
+typedef void (*current_result_function_ptr)(void* callback_params, returnData_t *);
+
 
 /*!\file
 \brief Header file for \ref ptapso.c
@@ -48,13 +61,7 @@ struct psoParamStruct {
 	FILE *debugDumpFile;
 };
 
-/*! Structure containing output results from \ref ptapso. */
-struct returnData {
-	size_t totalIterations; /*!< total number of iterations */
-    size_t totalFuncEvals; /*!< total number of fitness evaluations */
-    gsl_vector *bestLocation; /*!< Final global best location */
-    double bestFitVal; /*!< Best fitness values found */
-};
+
 
 /*! Struct to contain particle information (instead of the plain matrix used in the Matlab code). */
 struct particleInfo{
@@ -79,11 +86,18 @@ struct dummyFitFuncParam{
 	void *trufuncParam;
 };
 
+typedef struct current_result_callback_params_s {
+	current_result_function_ptr callback;
+	void* callback_params;
+	int interval;
+} current_result_callback_params_t;
+
 double dummyfitfunc(const gsl_vector *, void *);
 
 void lbestpso(size_t, /* Dimensionality of fitness function */
             fitness_function_ptr, /* Pointer to fitness function */
 		    void *, /* Fitness function parameter structure */
+			current_result_callback_params_t*, /* Pointer to callback function parameter structure */
 			struct psoParamStruct *, /* PSO parameters */
 			struct returnData * /* Structure containing PSO output */
 		   );
@@ -91,6 +105,7 @@ void lbestpso(size_t, /* Dimensionality of fitness function */
 void gbestpso(size_t nDim, /*!< Number of search dimensions */
             fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
 			void *ffParams, /*!< Fitness function parameter structure */
+			current_result_callback_params_t *, /* Pointer to callback function parameter structure */
             struct psoParamStruct *psoParams, /*!< PSO parameter structure */
 			struct returnData *psoResults /*!< Output structure */);
 

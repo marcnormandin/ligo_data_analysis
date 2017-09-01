@@ -1,6 +1,7 @@
 #include "pso.h"
 #include <stdio.h>
 #include <stddef.h>
+#include <time.h>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -34,8 +35,12 @@ Notes on the PSO implementation used:
 void gbestpso(size_t nDim, /*!< Number of search dimensions */
             fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
 			void *ffParams, /*!< Fitness function parameter structure */
+			current_result_callback_params_t *callback_params, /* Pointer to callback function parameter structure */
             struct psoParamStruct *psoParams, /*!< PSO parameter structure */
 			struct returnData *psoResults /*!< Output structure */){
+
+	clock_t time_start = clock();
+
 				
 	/* 
 	  Random numbers can be generated on the fly or read from a file. If a
@@ -103,7 +108,7 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 	   Start PSO iterations from the second iteration since the first is used
 	   above for initialization.
 	*/
-	for (lpPsoIter = 1; lpPsoIter <= maxSteps-1; lpPsoIter++){
+	for (lpPsoIter = 1; lpPsoIter <= maxSteps; lpPsoIter++){
 		//fprintf(stderr, "Computing PSO iteration %zu of %zu... ", lpPsoIter, maxSteps);
 
 		if (psoParams->debugDumpFile != NULL){
@@ -263,6 +268,24 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 			fprintf(psoParams->debugDumpFile,"--------\n");			      
 	    }
 
+		if (callback_params != NULL) {
+			if ( lpPsoIter % callback_params->interval == 0 ) {
+				/* Update the current results */
+				psoResults->totalIterations = lpPsoIter;
+				/* 	actualEvaluations = sum(pop(:,partFitEvalsCols)); */
+				psoResults->totalFuncEvals = 0;
+				for (lpParticles = 0; lpParticles < popsize; lpParticles ++){
+					psoResults->totalFuncEvals += pop[lpParticles].partFitEvals;
+				}
+				gsl_vector_memcpy(psoResults->bestLocation, gbestCoord);
+				psoResults->bestFitVal = gbestFitVal;
+				psoResults->computationTimeSecs = ((double) (clock() - time_start)) / CLOCKS_PER_SEC;
+
+				/* Call the callback function */
+				callback_params->callback( callback_params->callback_params, psoResults );
+			}
+		}
+
 		//printf("done!\n");
 	}
 	
@@ -276,6 +299,8 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 	gsl_vector_memcpy(psoResults->bestLocation, gbestCoord);
 	psoResults->bestFitVal = gbestFitVal;
 	
+	psoResults->computationTimeSecs = ((double) (clock() - time_start)) / CLOCKS_PER_SEC;
+
 	/* Free function minimizer state */
 	//gsl_multimin_fminimizer_free(minimzrState);
 	/* Deallocate vectors */
