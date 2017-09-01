@@ -109,9 +109,9 @@ int main(int argc, char* argv[]) {
 	size_t i;
 
 	/* somehow these need to be set */
-	if (argc != 8) {
+	if (argc != 7) {
 		printf("argc = %d\n", argc);
-		printf("Error: Usage -> [settings file] [detector mapping file] [rng seed] [input pso settings file] [output final pso results file] [output intermediate results file] [intermediate record interval, eg. 100]!\n");
+		printf("Error: Usage -> [settings file] [detector mapping file] [rng seed] [input pso settings file] [output final pso results file] [output intermediate results file]\n");
 		exit(-1);
 	}
 
@@ -121,7 +121,6 @@ int main(int argc, char* argv[]) {
 	char* arg_pso_settings_file = argv[4];
 	char* arg_pso_results_file = argv[5];
 	char* arg_pso_record_file = argv[6];
-	int arg_pso_record_interval = atoi(argv[7]);
 
 	/* Load the general Settings */
 	settings_file_t *settings_file = settings_file_open(arg_settings_file);
@@ -137,6 +136,7 @@ int main(int argc, char* argv[]) {
 	const double f_low = atof(settings_file_get_value(settings_file, "f_low"));
 	const double f_high = atof(settings_file_get_value(settings_file, "f_high"));
 	const double sampling_frequency = atof(settings_file_get_value(settings_file, "sampling_frequency"));
+	const int arg_pso_record_interval = atoi(settings_file_get_value(settings_file, "pso_callback_interval"));
 
 	settings_file_close(settings_file);
 
