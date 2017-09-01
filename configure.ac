@@ -2,7 +2,7 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[2.5-test],[normandin.utb@gmail.com])
+AC_INIT([lda],[2.5-production],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 AC_PROG_CC
