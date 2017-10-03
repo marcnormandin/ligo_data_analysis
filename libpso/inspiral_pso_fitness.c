@@ -349,7 +349,7 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 
 	const char *pso_version_p = settings_file_get_value(settings_file, "pso_version");
 	char *pso_version;
-	pso_version = malloc( sizeof(char) * strlen(pso_version_p) );
+	pso_version = malloc( sizeof(char) * (strlen(pso_version_p)+1) );
 	strcpy(pso_version, pso_version_p);
 
 	settings_file_close(settings_file);
