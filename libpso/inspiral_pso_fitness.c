@@ -347,7 +347,10 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 	psoParams.rngGen = rngGen;
 	psoParams.debugDumpFile = NULL; /*fopen("ptapso_dump.txt","w"); */
 
-	const char *pso_version = settings_file_get_value(settings_file, "pso_version");
+	const char *pso_version_p = settings_file_get_value(settings_file, "pso_version");
+	char *pso_version;
+	pso_version = malloc( sizeof(char) * strlen(pso_version_p) );
+	strcpy(pso_version, pso_version_p);
 
 	settings_file_close(settings_file);
 
@@ -360,6 +363,8 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 		fprintf(stderr, "Error. pso_version in the pso settings file must be 'lbest' or 'gbest'. Exiting.\n");
 		exit(-1);
 	}
+
+	free(pso_version);
 
 	return_data_to_pso_results( pso_ranges, psoResults, result );
 
