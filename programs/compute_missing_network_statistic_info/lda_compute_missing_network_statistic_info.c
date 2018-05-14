@@ -142,34 +142,67 @@ void compute_missing(compute_workspace_t* workspace, est_params_t* params) {
 			params->out_network_css_filename);
 }
 
+void parse_pso_filename(char *pso_run_filename, char *dataset_and_rn, int *pso_rn) {
+	int i = 0; // index into string we are parsing
+	int j = 0; // flag for which token we are writing to
+	int k = 0; // index into the token we are writing to
+
+	char pso_rn_str[255];
+
+	for (i = 0; i < strlen(pso_run_filename); i++) {
+		char c = pso_run_filename[i];
+		if (c == '.') {
+			// finish the string we were writing
+			if (j == 0) {
+				dataset_and_rn[k] = '\n';
+			} else if (j == 1) {
+				pso_rn_str[k] = '\n';
+			}
+
+			j += 1;
+			k = 0;
+		}
+
+		if (j == 0) {
+			dataset_and_rn[k] = c;
+			k++;
+		} else if (j == 1) {
+			pso_rn_str[k] = c;
+			k++;
+		} else if (j==2) {
+			// We don't care about the extension
+			break;
+		}
+	}
+
+	*pso_rn = atoi( pso_rn_str );
+}
+
 void get_dmap_filename(char *pso_run_filename, char *dmap_filename) {
-	char dataset_name[255];
-	int pso_run_number;
-	char run_ext[255];
+	char dataset_and_rn[255];
+	int pso_rn;
 
-	sscanf(pso_run_filename, "%s.%d.%s", dataset_name, &pso_run_number, run_ext);
+	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
-	sprintf(dmap_filename, "%s.map", dataset_name);
+	sprintf(dmap_filename, "%s.%d.map", dataset_and_rn, pso_rn);
 }
 
 void get_network_statistic_series_filename(char *pso_run_filename, char *series_filename) {
-	char dataset_name[255];
-	int pso_run_number;
-	char run_ext[255];
+	char dataset_and_rn[255];
+	int pso_rn;
 
-	sscanf(pso_run_filename, "%s.%d.%s", dataset_name, &pso_run_number, run_ext);
+	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
-	sprintf(series_filename, "%s.%d.series", dataset_name, pso_run_number);
+	sprintf(series_filename, "%s.%d.series", dataset_and_rn, pso_rn);
 }
 
 void get_rerun_filename(char *pso_run_filename, char *rerun_filename) {
-	char dataset_name[255];
-	int pso_run_number;
-	char run_ext[255];
+	char dataset_and_rn[255];
+	int pso_rn;
 
-	sscanf(pso_run_filename, "%s.%d.%s", dataset_name, &pso_run_number, run_ext);
+	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
-	sprintf(rerun_filename, "%s.%d.rerun", dataset_name, pso_run_number);
+	sprintf(rerun_filename, "%s.%d.rerun", dataset_and_rn, pso_rn);
 }
 
 void init_est_params(char *pso_run_file, est_params_t* est_params) {
