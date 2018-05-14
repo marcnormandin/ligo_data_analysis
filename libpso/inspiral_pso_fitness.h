@@ -59,8 +59,6 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer);
 
 int pso_estimate_parameters(const char *pso_settings_file, pso_fitness_function_parameters_t *splParams, current_result_callback_params_t *callback_params, gslseed_t seed, pso_result_t* result);
 
-void CN_template_chirp_time(double f_low, double chirp_time0, double chirp_time1_5, inspiral_chirp_time_t *ct);
-
 pso_ranges_t* pso_ranges_alloc(const char *pso_settings_filename);
 void pso_ranges_free( pso_ranges_t* r);
 void pso_ranges_init(const char *pso_settings_filename, pso_ranges_t* r);
