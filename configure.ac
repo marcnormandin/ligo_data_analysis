@@ -5,8 +5,8 @@
 AC_INIT([lda],[2.5-production],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
-AC_PROG_CC
-AC_PROG_CXX
+#AC_PROG_CC
+#AC_PROG_CXX
 
 #AC_PROG_CXX([mpicxx])
 AC_PROG_CC([gcc-6])
@@ -100,6 +100,7 @@ AC_CONFIG_FILES([libpso/Makefile])
 AC_CONFIG_FILES([programs/Makefile])
 #AC_CONFIG_FILES([programs/matlab_data_mpi/Makefile])
 AC_CONFIG_FILES([programs/matlab_data_serial/Makefile])
+AC_CONFIG_FILES([programs/condition_number/Makefile])
 AC_CONFIG_FILES([programs/simulate_data/Makefile])
 #AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
 #AC_CONFIG_FILES([programs/diagnostics/Makefile])

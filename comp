@@ -1,0 +1,6 @@
+#!/bin/bash
+autoreconf --force --install
+./configure --prefix=$HOME/build_lda
+make clean
+make install
+
