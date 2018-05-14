@@ -17,7 +17,8 @@
 #include "detector_time_delay.h"
 #include "inspiral_network_statistic.h"
 #include "sampling_system.h"
-
+#include "inspiral_chirp.h"
+#include "inspiral_chirp_time.h"
 #include "hdf5_file.h"
 
 /* this routine was written for the PSO code. */
@@ -273,7 +274,7 @@ void CN_save(char* filename, size_t len, double* tmp_ifft) {
 
 	file = fopen(filename, "w");
 	if (file == NULL) {
-		fprintf(stderr, "Error. CN_save: Unable to open the file (%s) for writing. Exiting.\n", filename);
+		fprintf(stderr, "Error. CN_save: Unable to open the file (%s) for writing the network statistic series. Exiting.\n", filename);
 		exit(-1);
 	}
 
@@ -292,15 +293,17 @@ void coherent_network_statistic(
 		sky_t *sky,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
-		double *out_network_snr,
-		char *hdf5_filename)
+		double *out_network_css_value,
+		int *out_network_css_index,
+		char *out_network_css_filename)
 {
 	assert(net);
 	assert(chirp);
 	assert(sky);
 	assert(network_strain);
 	assert(workspace);
-	assert(out_network_snr);
+	assert(out_network_css_value);
+	assert(out_network_css_index);
 
 	double UdotU_input;
 	double UdotV_input;
@@ -488,13 +491,19 @@ void coherent_network_statistic(
 	//workspace->temp_ifft[max_index] = max_value;
 
 	//double new_snr_definition = max_value / std;
-	*out_network_snr = old_snr_definition;
+	*out_network_css_value = old_snr_definition;
+	*out_network_css_index = max_index;
 
-	if (hdf5_filename != NULL) {
-		hdf5_save_array( hdf5_filename, "/", "temp_ifft", workspace->num_time_samples, workspace->temp_ifft);
+	/*
+	if (hdf5_filename != NULL && hdf5_dataset_name != NULL) {
+		hdf5_save_array( hdf5_filename, "/", hdf5_dataset_name, workspace->num_time_samples, workspace->temp_ifft);
 
 		for (i = 0; i < workspace->num_time_samples; i++) {
 			printf("%f ", workspace->temp_ifft[i]);
 		}
+	}
+	*/
+	if (out_network_css_filename != NULL) {
+		CN_save( out_network_css_filename, num_time_samples, workspace->temp_ifft);
 	}
 }

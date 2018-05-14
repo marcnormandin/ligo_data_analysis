@@ -119,6 +119,9 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 		sky.ra = ra;
 		sky.dec = dec;
 
+		// unused, but should be
+		int network_statistic_index;
+
 		coherent_network_statistic(
 				splParams->network,
 				splParams->f_low,
@@ -128,6 +131,7 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 				splParams->network_strain,
 				splParams->workspace[parallel_get_thread_num()],
 				&fitFuncVal,
+				&network_statistic_index,
 				NULL);
 		/* The statistic is larger for better matches, but PSO is finding
 		   minimums, so multiply by -1.0. */

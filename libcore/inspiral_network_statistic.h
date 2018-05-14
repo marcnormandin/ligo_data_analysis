@@ -82,8 +82,9 @@ void coherent_network_statistic(
 		sky_t *sky,
 		network_strain_half_fft_t *network_strain,
 		coherent_network_workspace_t *workspace,
-		double *out_val,
-		char *filename);
+		double *out_network_css_value,
+		int *out_network_css_index,
+		char *out_network_css_filename);
 
 #if defined (__cplusplus)
 }

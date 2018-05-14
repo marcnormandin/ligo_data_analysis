@@ -824,6 +824,8 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 	coherent_network_workspace_t *ws = CN_workspace_alloc(
 			num_time_samples, net, len_f_array, f_low, f_high);
 
+	int network_snr_index;
+
 	coherent_network_statistic(
 			net,
 			f_low,
@@ -833,6 +835,7 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 			network_strain,
 			ws,
 			&network_snr,
+			&network_snr_index,
 			NULL);
 
 	/*
