@@ -296,6 +296,7 @@ void SP_compute(
 	for (i = 0; i < lookup->len; i++) {
 		double amp_2pn = (1.0 / detector_normalization_factor) * lookup->g_coeff[i];
 
+		// This can be done as a matrix calculation
 		double phase_2pn =
 				lookup->chirp_tc_coeff[i] * (chirp->tc - detector_time_delay)
 				- 2.0 * inspiral_coalesce_phase

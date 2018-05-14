@@ -7,11 +7,11 @@ extern "C" {
 
 /* Sky location */
 typedef struct sky_s {
-	/* declination */
-	double dec;
-
 	/* right-ascension */
 	double ra;
+
+	/* declination */
+	double dec;
 
 } sky_t;
 
