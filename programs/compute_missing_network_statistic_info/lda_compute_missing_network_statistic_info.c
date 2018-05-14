@@ -206,9 +206,9 @@ int main(int argc, char* argv[]) {
 	size_t i;
 
 	/* somehow these need to be set */
-	if (argc != 7) {
+	if (argc != 3) {
 		printf("argc = %d\n", argc);
-		printf("Error: Usage -> [settings file] [input final pso est_paramss file]\n");
+		printf("Error: Usage -> [settings file] [input final pso est_params file]\n");
 		exit(-1);
 	}
 
