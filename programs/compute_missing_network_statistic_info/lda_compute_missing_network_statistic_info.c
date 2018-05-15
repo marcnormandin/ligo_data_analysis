@@ -49,7 +49,8 @@ typedef struct est_params_s {
 	// The values that were calculated
 	double ra, dec, chirp_time_0, chirp_time_1_5;
 	double css;
-	double total_iterations, total_func_evals, computation_time_secs;
+	size_t total_iterations, total_func_evals;
+	double computation_time_secs;
 
 	// Init this
 	char out_network_css_filename[MAX_FILENAME_LEN];
@@ -147,105 +148,132 @@ void parse_pso_filename(char *pso_run_filename, char *dataset_and_rn, int *pso_r
 	int j = 0; // flag for which token we are writing to
 	int k = 0; // index into the token we are writing to
 
-	char pso_rn_str[255];
+	char pso_rn_str[MAX_FILENAME_LEN];
+	memset(pso_rn_str, '\0', sizeof(char)*MAX_FILENAME_LEN);
 
 	for (i = 0; i < strlen(pso_run_filename); i++) {
 		char c = pso_run_filename[i];
+		//printf("%c ", c);
+
 		if (c == '.') {
 			// finish the string we were writing
 			if (j == 0) {
-				dataset_and_rn[k+1] = '\n';
+				dataset_and_rn[k] = '\0';
 			} else if (j == 1) {
-				pso_rn_str[k+1] = '\n';
+				pso_rn_str[k] = '\0';
 			}
 
 			j += 1;
 			k = 0;
-
-			continue;
+			//printf("\n");
 		}
-
-		if (j == 0) {
-			dataset_and_rn[k] = c;
-			k++;
-		} else if (j == 1) {
-			pso_rn_str[k] = c;
-			k++;
-		} else if (j==2) {
-			// We don't care about the extension
-			break;
+		else {
+			if (j == 0) {
+				dataset_and_rn[k] = c;
+				k++;
+			} else if (j == 1) {
+				pso_rn_str[k] = c;
+				k++;
+			} else if (j==2) {
+				// We don't care about the extension
+				break;
+			}
 		}
 	}
 
 	*pso_rn = atoi( pso_rn_str );
+
+	//printf("done!\n");
 }
 
 void get_dmap_filename(char *pso_run_filename, char *dmap_filename) {
-	char dataset_and_rn[255];
+	char dataset_and_rn[MAX_FILENAME_LEN];
+	memset(dataset_and_rn, 0, sizeof(char)*MAX_FILENAME_LEN);
+
 	int pso_rn;
 
 	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
-	sprintf(dmap_filename, "%s.map", dataset_and_rn);
+	sprintf(dmap_filename, "%s.map\0", dataset_and_rn);
+	//printf("dmap: %s\n", dmap_filename);
 }
 
 void get_network_statistic_series_filename(char *pso_run_filename, char *series_filename) {
-	char dataset_and_rn[255];
+	char dataset_and_rn[MAX_FILENAME_LEN];
+	memset(dataset_and_rn, 0, sizeof(char)*MAX_FILENAME_LEN);
+
 	int pso_rn;
 
 	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
 	sprintf(series_filename, "%s.%d.series", dataset_and_rn, pso_rn);
+	//printf("network statistic inside get_network_statistic: %s\n", series_filename);
 }
 
 void get_rerun_filename(char *pso_run_filename, char *rerun_filename) {
-	char dataset_and_rn[255];
+	char dataset_and_rn[MAX_FILENAME_LEN];
+	memset(dataset_and_rn, 0, sizeof(char)*MAX_FILENAME_LEN);
+
 	int pso_rn;
 
 	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
-
-	sprintf(rerun_filename, "%s.%d.rerun", dataset_and_rn, pso_rn);
+	sprintf(rerun_filename, "%s.%d.rerun\0", dataset_and_rn, pso_rn);
+	//printf("%s\n", rerun_filename);
 }
 
 void init_est_params(char *pso_run_file, est_params_t* est_params) {
+
+	memset(est_params->out_network_css_filename, '\0', MAX_FILENAME_LEN);
+
 	FILE *fid = fopen(pso_run_file, "r");
 	if (fid == NULL) {
 		fprintf(stderr, "Error. Unable to open the run file (%s) for reading. Exiting.\n", pso_run_file);
 		exit(-1);
 	}
 
-	fscanf(fid, "%f %f %f %f %f %d %d %f",
+	//memset(est_params, 0, sizeof(est_params_t));
+
+	int ret = fscanf(fid, "%lf %lf %lf %lf %lf %zu %zu %lf",
 			&est_params->ra, &est_params->dec, &est_params->chirp_time_0, &est_params->chirp_time_1_5, &est_params->css,
 			&est_params->total_iterations, &est_params->total_func_evals, &est_params->computation_time_secs);
 
 	fclose(fid);
 
+	if (ret != 8) {
+            fprintf(stderr, "Error. Only (%d) values read from (%s), but expected 8. Exiting.\n", ret, pso_run_file);
+            exit(-1);
+    }
+
 	get_network_statistic_series_filename(pso_run_file, est_params->out_network_css_filename);
+	//printf("network statistic inside init_est_params: %s\n", est_params->out_network_css_filename);
 }
 
 
 
 void est_params_save_to_file(est_params_t *est_params, char *rerun_filename) {
 	FILE *fid = fopen(rerun_filename, "w");
-	fprintf(fid, "%20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20zu %20.17g %s ",
+	fprintf(fid, "%20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20.17g %20zu %20zu %20.17g %s",
 			est_params->ra, est_params->dec, 
 			est_params->chirp_time_0, est_params->chirp_time.chirp_time1, est_params->chirp_time_1_5, est_params->chirp_time.chirp_time2, 
 			est_params->chirp_time.tc, est_params->css, est_params->new_css_value, est_params->new_css_index, est_params->new_tc_value,
 			est_params->total_iterations, est_params->total_func_evals, est_params->computation_time_secs,
 			est_params->out_network_css_filename
 	);
+	//fprintf(fid, "%s", est_params->out_network_css_filename);
 	fclose(fid);
 }
 
 
 void est_params_print(est_params_t *est_params) {
-	printf("%20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20zu %20.17g %s\n",
+	printf("%20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %d %20.17g %20zu %20zu %20.17g %s\n",
 			est_params->ra, est_params->dec, 
 			est_params->chirp_time_0, est_params->chirp_time.chirp_time1, est_params->chirp_time_1_5, est_params->chirp_time.chirp_time2, 
 			est_params->chirp_time.tc, est_params->css, est_params->new_css_value, est_params->new_css_index, est_params->new_tc_value,
 			est_params->total_iterations, est_params->total_func_evals, est_params->computation_time_secs,
 			est_params->out_network_css_filename
 	);
+	//printf("%s\n", est_params->out_network_css_filename);
+	//printf("filename length = %d\n", strlen(est_params->out_network_css_filename));
 }
 
 int main(int argc, char* argv[]) {
@@ -298,7 +326,10 @@ int main(int argc, char* argv[]) {
 
 	est_params_t est_params;
 	init_est_params(arg_pso_run_file, &est_params);
-	est_params_print(&est_params);
+	//printf("TEST: %s\n", est_params.out_network_css_filename);
+	//est_params.out_network_css_filename[0] = 'M';
+	//est_params.out_network_css_filename[1] = '\0';
+	//est_params_print(&est_params);
 
 	compute_workspace_t *workspace = compute_workspace_alloc(f_low, f_high, net, network_strain);
 	compute_missing(workspace, &est_params);	
