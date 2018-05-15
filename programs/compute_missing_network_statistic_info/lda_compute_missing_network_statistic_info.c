@@ -154,9 +154,9 @@ void parse_pso_filename(char *pso_run_filename, char *dataset_and_rn, int *pso_r
 		if (c == '.') {
 			// finish the string we were writing
 			if (j == 0) {
-				dataset_and_rn[k] = '\n';
+				dataset_and_rn[k+1] = '\n';
 			} else if (j == 1) {
-				pso_rn_str[k] = '\n';
+				pso_rn_str[k+1] = '\n';
 			}
 
 			j += 1;
@@ -214,7 +214,7 @@ void init_est_params(char *pso_run_file, est_params_t* est_params) {
 		exit(-1);
 	}
 
-	fscanf(fid, "%20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20.17g",
+	fscanf(fid, "%f %f %f %f %f %d %d %f",
 			&est_params->ra, &est_params->dec, &est_params->chirp_time_0, &est_params->chirp_time_1_5, &est_params->css,
 			&est_params->total_iterations, &est_params->total_func_evals, &est_params->computation_time_secs);
 
@@ -235,6 +235,17 @@ void est_params_save_to_file(est_params_t *est_params, char *rerun_filename) {
 			est_params->out_network_css_filename
 	);
 	fclose(fid);
+}
+
+
+void est_params_print(est_params_t *est_params) {
+	printf("%20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20.17g %20zu %20zu %20zu %20.17g %s\n",
+			est_params->ra, est_params->dec, 
+			est_params->chirp_time_0, est_params->chirp_time.chirp_time1, est_params->chirp_time_1_5, est_params->chirp_time.chirp_time2, 
+			est_params->chirp_time.tc, est_params->css, est_params->new_css_value, est_params->new_css_index, est_params->new_tc_value,
+			est_params->total_iterations, est_params->total_func_evals, est_params->computation_time_secs,
+			est_params->out_network_css_filename
+	);
 }
 
 int main(int argc, char* argv[]) {
@@ -287,11 +298,16 @@ int main(int argc, char* argv[]) {
 
 	est_params_t est_params;
 	init_est_params(arg_pso_run_file, &est_params);
+	est_params_print(&est_params);
+
 	compute_workspace_t *workspace = compute_workspace_alloc(f_low, f_high, net, network_strain);
-	compute_missing(workspace, &est_params);
+	compute_missing(workspace, &est_params);	
 
 	// convert the tc_index into the tc value
 	est_params.new_tc_value = ((double) est_params.new_css_index) / sampling_frequency;
+
+	est_params_print(&est_params);
+
 
 	// SAVE
 	est_params_save_to_file(&est_params, rerun_filename);
