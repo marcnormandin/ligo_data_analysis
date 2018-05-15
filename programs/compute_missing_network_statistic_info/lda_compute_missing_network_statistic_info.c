@@ -161,6 +161,8 @@ void parse_pso_filename(char *pso_run_filename, char *dataset_and_rn, int *pso_r
 
 			j += 1;
 			k = 0;
+
+			continue;
 		}
 
 		if (j == 0) {
@@ -184,7 +186,7 @@ void get_dmap_filename(char *pso_run_filename, char *dmap_filename) {
 
 	parse_pso_filename(pso_run_filename, dataset_and_rn, &pso_rn);
 
-	sprintf(dmap_filename, "%s.%d.map", dataset_and_rn, pso_rn);
+	sprintf(dmap_filename, "%s.map", dataset_and_rn);
 }
 
 void get_network_statistic_series_filename(char *pso_run_filename, char *series_filename) {
