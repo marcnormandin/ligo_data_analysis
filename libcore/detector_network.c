@@ -70,7 +70,7 @@ detector_network_t* Detector_Network_load( const char* detector_mapping_file,
 		size_t num_time_samples, double sampling_frequency, double f_low, double f_high ) {
 	assert(detector_mapping_file != NULL);
 
-	size_t i, j;
+	size_t i;
 
 	detector_network_mapping_t *dmap = Detector_Network_Mapping_load( detector_mapping_file );
 

@@ -60,7 +60,6 @@ void SP_workspace_init(size_t len_f_array, double *f_array, stationary_phase_wor
 stationary_phase_workspace_t* SP_workspace_alloc(double f_low, double f_high, size_t len_f_array, double *f_array) {
 	assert(f_array != NULL);
 
-	size_t i;
 	int index_found;
 
 	stationary_phase_workspace_t *lookup = (stationary_phase_workspace_t*) malloc( sizeof(stationary_phase_workspace_t) );

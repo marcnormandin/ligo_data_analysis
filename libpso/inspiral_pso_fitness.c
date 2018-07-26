@@ -78,12 +78,9 @@ double pso_fitness_function(gsl_vector *xVec, void  *inParamsPointer){
 	assert(inParamsPointer != NULL);
 
 	unsigned int validPt;
-    unsigned int lpc;
 	//! [Cast fit func params]
 	struct fitFuncParams *inParams = (struct fitFuncParams *)inParamsPointer;
 	//! [Cast fit func params]
-	unsigned int ncols = inParams->nDim;
-	double rangeVec, rmin, x;
 	double fitFuncVal;
 	//! [Cast special params]
 	/* Shows how to retrieve special parameters (dummy ones are supplied for this particular
@@ -256,9 +253,8 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 	assert(splParams != NULL);
 	assert(result != NULL);
 
-	clock_t time_start = clock();
-
 	/* Estimate right-ascension, declination, and chirp times. */
+	// !Fixme THIS SHOULD BE READ FROM THE PSO SETTINGS FILE
 	unsigned int nDim = 4, lpc;
 	/* [0] = RA
 	   [1] = Declination
@@ -272,7 +268,7 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 	pso_ranges_init( pso_settings_filename, pso_ranges );
 
 	/* Error handling off */
-	gsl_error_handler_t *old_handler = gsl_set_error_handler_off ();
+	//gsl_error_handler_t *old_handler = gsl_set_error_handler_off ();
 
 	/* Initialize random number generator */
 	gsl_rng *rngGen = gsl_rng_alloc(gsl_rng_taus);

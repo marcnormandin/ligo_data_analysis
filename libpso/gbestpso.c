@@ -64,7 +64,7 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
 // 	gsl_vector_set_all(locMinStp,psoParams->locMinStpSz);
 // 	size_t lpLocMin;/* Local minimization iteration counter */
 	
- 	int status;
+ 	//int status;
 	
 	/* PSO loop counters */
 	size_t lpParticles, lpPsoIter;

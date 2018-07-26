@@ -46,7 +46,7 @@
 
 
 void load_shihan_inspiral_data( const char* hdf_filename, strain_half_fft_t *strain){
-	size_t i, j;
+	size_t j;
 
 	size_t num_time_samples = hdf5_get_num_time_samples( hdf_filename );
 	size_t half_size = SS_half_size( num_time_samples );

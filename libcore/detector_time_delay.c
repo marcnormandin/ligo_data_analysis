@@ -26,7 +26,6 @@ int Detector_time_delay(detector_t *d, sky_t *sky, double *td)
     double xgw;
     double ygw;
     double zgw;
-    double gunit;
     double C;
 
     /* Define the X, Y & Z WGS-84 coordinates for iid */
@@ -43,7 +42,7 @@ int Detector_time_delay(detector_t *d, sky_t *sky, double *td)
        should be one. (For testing purposes) */
 
     /* Define the GW"s unit vector */
-    gunit = sqrt( gsl_pow_2(xgw) + gsl_pow_2(ygw) + gsl_pow_2(zgw) );
+    //gunit = sqrt( gsl_pow_2(xgw) + gsl_pow_2(ygw) + gsl_pow_2(zgw) );
 
     /* Define the speed of light */
     C = GSL_CONST_MKSA_SPEED_OF_LIGHT;

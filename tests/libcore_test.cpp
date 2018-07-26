@@ -44,7 +44,7 @@ TEST(SS_make_two_sided, matchesMatlab) {
 	size_t M = 6;
 	size_t N = 10;
 	gsl_complex *one_sided = (gsl_complex*) malloc( M * sizeof(gsl_complex) );
-	for (int i = 0; i < M; i++) {
+	for (size_t i = 0; i < M; i++) {
 		one_sided[i] = gsl_complex_rect(i, i);
 	}
 
@@ -52,13 +52,13 @@ TEST(SS_make_two_sided, matchesMatlab) {
 
 	SS_make_two_sided (M, one_sided, N, two_sided);
 
-	for (int i = 0; i < M; i++) {
+	for (size_t i = 0; i < M; i++) {
 		EXPECT_EQ(GSL_REAL(two_sided[i]), i);
 		EXPECT_EQ(GSL_IMAG(two_sided[i]), i);
 	}
 
 	// the conjugated half
-	for (int i = M; i < N; i++) {
+	for (size_t i = M; i < N; i++) {
 		EXPECT_EQ(GSL_REAL(two_sided[i]), GSL_REAL(two_sided[N-i]));
 		EXPECT_EQ(GSL_IMAG(two_sided[i]), -1.0*GSL_IMAG(two_sided[N-i]));
 	}
@@ -67,7 +67,7 @@ TEST(SS_make_two_sided, matchesMatlab) {
 TEST(find_index_low, left_end) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -80,7 +80,7 @@ TEST(find_index_low, left_end) {
 TEST(find_index_low, right_end) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -93,7 +93,7 @@ TEST(find_index_low, right_end) {
 TEST(find_index_low, not_exact) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -109,7 +109,7 @@ TEST(find_index_low, not_exact) {
 TEST(find_index_low, not_found) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -122,7 +122,7 @@ TEST(find_index_low, not_found) {
 TEST(find_index_high, left_end) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -135,7 +135,7 @@ TEST(find_index_high, left_end) {
 TEST(find_index_high, right_end) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -148,7 +148,7 @@ TEST(find_index_high, right_end) {
 TEST(find_index_high, not_exact) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 	// f_array = [0, 1, 2, 3]
@@ -162,7 +162,7 @@ TEST(find_index_high, not_exact) {
 TEST(find_index_high, not_found) {
 	size_t N = 100;
 	double f_array[N];
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		f_array[i] = i;
 	}
 
@@ -552,7 +552,7 @@ TEST(ChirpTime, matchesMatlab) {
 TEST(SP_workspace, frequencies_and_indices) {
 	size_t N = 10;
 	asd_t *asd = ASD_alloc( N );
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		asd->f[i] = i;
 		asd->asd[i] = 1.0;
 		asd->type = ASD_ONE_SIDED;
@@ -576,7 +576,7 @@ TEST(SP_workspace, frequencies_and_indices) {
 TEST(SP_workspace, coefficients) {
 	size_t N = 10;
 	asd_t *asd = ASD_alloc( N );
-	for (int i = 0; i < N; i++) {
+	for (size_t i = 0; i < N; i++) {
 		asd->f[i] = i;
 		asd->asd[i] = 1.0;
 	}
@@ -586,14 +586,14 @@ TEST(SP_workspace, coefficients) {
 
 	stationary_phase_workspace_t *sp_workspace = SP_workspace_alloc(f_low, f_high, asd->len, asd->f);
 
-	for (int i = 0; i < asd->len; i++) {
+	for (size_t i = 0; i < asd->len; i++) {
 		asd->f[i] = 1.0;
 	}
 
 	SP_workspace_init( asd->len, asd->f, sp_workspace );
 
 	// These number are computing using f_low = 1.0 which affects f_fac
-	for (int i = 0; i < sp_workspace->len; i++) {
+	for (size_t i = 0; i < sp_workspace->len; i++) {
 		EXPECT_EQ( sp_workspace->g_coeff[i],  1.0);
 		EXPECT_EQ( sp_workspace->chirp_tc_coeff[i], 2.0 * M_PI );
 		EXPECT_EQ( sp_workspace->constant_coeff[i], -M_PI / 4.0 );
@@ -628,7 +628,7 @@ TEST(SP_compute, valuesMatcheMatlabVersion) {
 
 	size_t len_f_array = 10;
 	double f_array[10];
-	for (int i = 0; i < len_f_array; i++) {
+	for (size_t i = 0; i < len_f_array; i++) {
 		f_array[i] = i;
 	}
 
@@ -652,7 +652,7 @@ TEST(SP_compute, valuesMatcheMatlabVersion) {
 	GSL_SET_COMPLEX(&matlab_values[8], 0.0, 0.0);
 	GSL_SET_COMPLEX(&matlab_values[9], 0.0, 0.0);
 
-	for (int i = 0; i < s->len; i++) {
+	for (size_t i = 0; i < s->len; i++) {
 		ASSERT_NEAR( GSL_REAL(s->spa_0[i]), GSL_REAL(matlab_values[i]), 1e-13);
 		ASSERT_NEAR( GSL_IMAG(s->spa_0[i]), GSL_IMAG(matlab_values[i]), 1e-13);
 	}
@@ -668,7 +668,7 @@ TEST(SP_normalization, valuesMatchMatlabVersion) {
 	size_t len_f_array = 10;
 
 	asd_t *asd = ASD_alloc( len_f_array );
-	for (int i = 0; i < asd->len; i++) {
+	for (size_t i = 0; i < asd->len; i++) {
 		asd->f[i] = i;
 		asd->asd[i] = i;
 		asd->type = ASD_ONE_SIDED;
@@ -797,8 +797,8 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 	// Generate data
 	network_strain_half_fft_t *network_strain = network_strain_half_fft_alloc(
 			num_detectors, num_time_samples);
-	for (int i = 0; i < num_detectors; i++) {
-		for (int k = 0; k < network_strain->strains[i]->half_fft_len; k++) {
+	for (size_t i = 0; i < num_detectors; i++) {
+		for (size_t k = 0; k < network_strain->strains[i]->half_fft_len; k++) {
 			network_strain->strains[i]->half_fft[k] = gsl_complex_rect(k, k);
 		}
 	}
@@ -808,9 +808,9 @@ TEST(coherent_network_statistic, CN_compute_valuesMatchMatlabVersion) {
 
 	detector_network_t *net = Detector_Network_alloc( num_detectors );
 	DETECTOR_ID ids[4] = {H1,L1,V1,K1};
-	for (int i = 0; i < num_detectors; i++) {
+	for (size_t i = 0; i < num_detectors; i++) {
 		psd_t *psd = PSD_alloc(len_f_array);
-		for (int k = 0; k < len_f_array; k++) {
+		for (size_t k = 0; k < len_f_array; k++) {
 			psd->f[k] = k;
 			psd->psd[k] = 1.0;
 			psd->type = PSD_ONE_SIDED;

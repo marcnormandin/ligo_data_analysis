@@ -138,7 +138,6 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 	size_t i;
 	size_t j;
 	size_t k;
-	size_t l;
 
 	/* Simulate the signals */
 	network_strain_half_fft_t *network_strain_half_fft = inspiral_template(ps->f_low, ps->f_high, ps->num_time_samples, net, &ps->source, ps->output_filename);
@@ -179,7 +178,7 @@ void simulate( simulation_settings_t *ps, detector_network_t *net) {
 	double *strain = (double*) malloc( ps->num_time_samples * sizeof(double) );
 
 	for (i = 0; i < net->num_detectors; i++) {
-		asd_t *asd_one_sided = net->detector[i]->asd;
+		//asd_t *asd_one_sided = net->detector[i]->asd;
 		//double *asd_two_sided = (double*) malloc( ps->num_time_samples * sizeof(double) );
 		//SS_make_two_sided_real( asd_one_sided->len, asd_one_sided->asd, ps->num_time_samples, asd_two_sided);
 

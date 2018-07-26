@@ -10,7 +10,6 @@
 
 int main(int argc, char* argv[])
 {
-	size_t i, j;
 	simulation_settings_t ps;
 	simulation_settings_init( argc, argv, &ps );
 

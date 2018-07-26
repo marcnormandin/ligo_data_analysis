@@ -36,7 +36,6 @@
 
 strain_half_fft_t* inspiral_template_half_fft(double f_low, double f_high, size_t num_time_samples, detector_t *det, source_t *source) {
 	inspiral_chirp_factors_t chirp;
-	size_t i;
 	stationary_phase_workspace_t *sp_lookup;
 	stationary_phase_t* sp;
 	size_t j;

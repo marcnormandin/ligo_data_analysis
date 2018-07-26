@@ -251,8 +251,6 @@ void CN_do_work(size_t num_time_samples, size_t f_low_index, size_t f_high_index
 	assert(out_c != NULL);
 
 	size_t k;
-	size_t t_index;
-	size_t c_index;
 
 	// faster version for (k = f_low_index; k <= f_high_index; k++) {
 	for (k = 0; k < asd->len; k++) {

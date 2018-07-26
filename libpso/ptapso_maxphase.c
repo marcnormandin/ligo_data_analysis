@@ -146,7 +146,6 @@ char ** listfileswext (const char *ext, const char *dirName, size_t *nFiles, siz
   DIR *dp;
   struct dirent *ep;
   char **fileList;
-  size_t lpc;
  
   pattern[0] = '*';
   pattern[1] = '.';

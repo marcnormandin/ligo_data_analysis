@@ -31,7 +31,7 @@ size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* data
 	assert(dataset_name != NULL);
 
 	hid_t file_id, dataset_id, dspace_id;
-	herr_t status;
+	//herr_t status;
 
 	/* Open the file */
 	file_id = H5Fopen( hdf_filename, H5F_ACC_RDWR, H5P_DEFAULT);
@@ -49,7 +49,7 @@ size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* data
 
 	/* Get the length of the dataset */
 	dspace_id = H5Dget_space(dataset_id);
-	int ndims = H5Sget_simple_extent_ndims(dspace_id);
+	//int ndims = H5Sget_simple_extent_ndims(dspace_id);
 	hssize_t len = H5Sget_simple_extent_npoints(dspace_id);
 
 	H5Dclose(dataset_id);
@@ -62,7 +62,7 @@ size_t hdf5_get_dataset_array_length( const char *hdf_filename, const char* data
 size_t hdf5_get_num_strains( const char* hdf_filename ) {
 	assert(hdf_filename != NULL);
 
-	hid_t file_id, dataset_id, dspace_id;
+	hid_t file_id;
 	herr_t status;
 
 	/* Open the file */
@@ -91,7 +91,7 @@ size_t hdf5_get_num_strains( const char* hdf_filename ) {
 double hdf5_get_sampling_frequency( const char* hdf_filename )
 {
 	assert(hdf_filename != NULL);
-	hid_t file_id, dataset_id, dspace_id;
+	hid_t file_id;
 	herr_t status;
 
 	/* Open the file */
@@ -257,7 +257,7 @@ void hdf5_save_attribute_gsl_vector( const char *hdf5_filename, const char *grou
 size_t hdf5_get_num_time_samples( const char* hdf_filename ) {
 	assert(hdf_filename != NULL);
 
-	hid_t file_id, dataset_id, dspace_id;
+	hid_t file_id;
 	herr_t status;
 
 	/* Open the file */
@@ -312,7 +312,7 @@ void hdf5_create_group(const char *hdf5_filename, const char* group_name) {
 	assert(group_name != NULL);
 
 	hid_t file_id, group_id;
-	herr_t status;
+	//herr_t status;
 
 	file_id = H5Fopen( hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
 	if (file_id < 0) {

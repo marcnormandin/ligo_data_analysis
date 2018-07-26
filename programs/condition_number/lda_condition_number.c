@@ -10,8 +10,6 @@
 #include "sky.h"
 
 int main(int argc, char *argv[]) {
-	size_t i;
-
 	/* somehow these need to be set */
 	if (argc != 5) {
 		printf("argc = %d\n", argc);
