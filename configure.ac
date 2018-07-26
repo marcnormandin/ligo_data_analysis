@@ -2,15 +2,20 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[2.6-production],[normandin.utb@gmail.com])
+AC_INIT([lda],[2.7-develop],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 #AC_PROG_CC
 #AC_PROG_CXX
 
-#AC_PROG_CXX([mpicxx])
-AC_PROG_CC([gcc-6])
-AC_PROG_CXX([g++-6])
+# This is used for TACC Lonestar 5
+AC_PROG_CC([mpicc])
+AC_PROG_CXX([mpicxx])
+
+# This is used for my laptop
+#AC_PROG_CC([gcc-6])
+#AC_PROG_CXX([g++-6])
+
 #AC_PROG_CC([icc])
 #AC_PROG_CXX([icc])
 #AM_PROG_CC_C_O

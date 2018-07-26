@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <stddef.h>
 
 #include "pso.h" //for initializing variables and
 #include "ptapso_maxphase.h" //for fitfunc struct
@@ -141,7 +142,8 @@ void spso(size_t nDim, /*!< Number of search dimensions */
             //assigns particles their new random neighbors
             for (lpParticles=0;lpParticles<(neighborhoods->size2); lpParticles++) {
                 //for every particle
-                for (size_t lpNeighbors=0; lpNeighbors < (neighborhoods->size1); lpNeighbors++) {
+                size_t lpNeighbors;
+                for (lpNeighbors=0; lpNeighbors < (neighborhoods->size1); lpNeighbors++) {
                     //for each of the particles neighbors (excluding self)
                     //assign random integer
                     rand_neighbor = (int)(gsl_rng_uniform_int(rngGen, neighborhoods->size2));
