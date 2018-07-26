@@ -109,6 +109,13 @@ void gbestpso(size_t nDim, /*!< Number of search dimensions */
             struct psoParamStruct *psoParams, /*!< PSO parameter structure */
 			struct returnData *psoResults /*!< Output structure */);
 
+void spso(size_t nDim, /*!< Number of search dimensions */
+            fitness_function_ptr fitfunc, /*!< Pointer to Fitness function */
+        	void *ffParams, /*!< Fitness function parameter structure */
+            current_result_callback_params_t *, /* Pointer to callback function parameter structure */
+            struct psoParamStruct *psoParams, /*!< PSO parameter structure */
+            struct returnData *psoResults /*!< Output structure */);
+
 void initPsoParticles(struct particleInfo *, size_t , gsl_rng *);
 
 void particleinfo_alloc(struct particleInfo *, size_t);

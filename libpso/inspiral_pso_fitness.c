@@ -341,8 +341,10 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 		lbestpso(nDim, fitfunc, inParams, callback_params, &psoParams, psoResults);
 	} else if (strcmp(pso_version, "gbest")==0) {
 		gbestpso(nDim, fitfunc, inParams, callback_params, &psoParams, psoResults);
+	} else if (strcmp(pso_version, "spso")==0) {
+		spso(nDim, fitfunc, inParams, callback_params, &psoParams, psoResults);
 	} else {
-		fprintf(stderr, "Error. pso_version in the pso settings file must be 'lbest' or 'gbest'. Exiting.\n");
+		fprintf(stderr, "Error. pso_version in the pso settings file must be 'lbest', 'gbest', or 'spso'. Exiting.\n");
 		exit(-1);
 	}
 

@@ -13,7 +13,8 @@ libpso_la_SOURCES = \
 	ptapso_maxphase.c \
 	ptapso_maxphase.h \
 	pso.c \
-	pso.h
+	pso.h \
+	spso.c
 
 libpso_la_LDFLAGS = 
 
