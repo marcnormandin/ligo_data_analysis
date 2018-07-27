@@ -1,6 +1,6 @@
 #!/bin/bash
 autoreconf --force --install
-./configure --prefix=$HOME/build_lda --enable-openmp
+./configure --prefix=$HOME/lda_build --enable-openmp
 make clean
 make install
 
