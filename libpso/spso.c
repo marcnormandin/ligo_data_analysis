@@ -56,9 +56,11 @@ void spso(size_t nDim, /*!< Number of search dimensions */
     size_t lpParticles, lpPsoIter, lpDimentions; // to loop thru particles, pso
     
     //check particle c value
-    if (psoParams->c1 != 0.5 + gsl_sf_log(2.0)) {
-        fprintf(psoParams->debugDumpFile, "C1 (or c in this algorithm) is not set to the specified value in SPSO pg 7.\n");
-    }
+    //if (gsl_fcmp(psoParams->c1, 0.5 + gsl_sf_log(2.0), 0.0001) == 0) {
+    //if (psoParams->c1 != 0.5 + gsl_sf_log(2.0)) {
+    //    fprintf(stderr, "ERROR: C1 (or c in this algorithm) is not set to the specified value in SPSO pg 7.\n");
+    //    abort();
+    //}
     
     
     //particles
