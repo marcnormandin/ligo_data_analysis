@@ -308,6 +308,8 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 	if (settings_file == NULL) {
 		printf("Error opening the PSO settings file (%s). Aborting.\n", pso_settings_filename);
 		abort();
+	} else {
+		printf("Opened the PSO settings file (%s) for reading...\n", pso_settings_filename);
 	}
 
 	struct psoParamStruct psoParams;
@@ -330,7 +332,12 @@ int pso_estimate_parameters(const char *pso_settings_filename, pso_fitness_funct
 	pso_version = malloc( sizeof(char) * (strlen(pso_version_p)+1) );
 	strcpy(pso_version, pso_version_p);
 
+	// Print the settings as a diagnostic
+	printf("Using the following PSO settings:\n");
+	settings_file_print(settings_file);
+
 	settings_file_close(settings_file);
+	printf("Closed the PSO settings file.\n");
 
 	/* Now call the desired PSO implementation */
 	if (strcmp(pso_version, "lbest")==0) {
