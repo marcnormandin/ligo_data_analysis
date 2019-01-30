@@ -211,7 +211,6 @@ int main(int argc, char* argv[]) {
 	printf("css_value at tc_index: %20.17g\n", result.css_value);
 	printf("tc_index: %20zu\n", result.css_index);
 	printf("tc_seconds: %20.17g\n", result.tc_seconds);
-	printf("calculated chirp time (using tau 0 and tau 1.5): %20.17g\n", result.chirp_time);
 
 
 	// Clean up

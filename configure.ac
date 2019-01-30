@@ -111,7 +111,7 @@ AC_CONFIG_FILES([programs/compute_missing_network_statistic_info/Makefile])
 AC_CONFIG_FILES([programs/save_psd_to_file/Makefile])
 #AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
 #AC_CONFIG_FILES([programs/diagnostics/Makefile])
-AC_CONFIG_FILES([tests/Makefile])
+#AC_CONFIG_FILES([tests/Makefile])
 AC_CONFIG_FILES([programs/fitness_function_eval/Makefile])
 
 # ****************************************************************************************************
