@@ -2,7 +2,7 @@
 # by Marc Normandin.
 
 # ****************************************************************************************************
-AC_INIT([lda],[2.7-develop],[normandin.utb@gmail.com])
+AC_INIT([lda],[2.8-develop],[normandin.utb@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 #AC_PROG_LIBTOOL
 AC_PROG_CC
@@ -112,6 +112,7 @@ AC_CONFIG_FILES([programs/save_psd_to_file/Makefile])
 #AC_CONFIG_FILES([programs/simulate_matlab_data/Makefile])
 #AC_CONFIG_FILES([programs/diagnostics/Makefile])
 AC_CONFIG_FILES([tests/Makefile])
+AC_CONFIG_FILES([programs/fitness_function_eval/Makefile])
 
 # ****************************************************************************************************
 # Done!
